@@ -1044,8 +1044,9 @@ export type GadgetMetadata = {
 
   // True when the gadget has observed data marked as containing restricted data (see
   // `ObservationDescription.containsRestrictedData`). Such gadgets can still be shared, but
-  // collaborators must be verified (per gatekeeper) to have access to the same data, and the
-  // workspace can no longer perform actions or fetch from the public web.
+  // collaborators must be verified (per gatekeeper) to have access to the same data; the
+  // workspace can no longer fetch from the public web, and actions are limited to the
+  // connections that produced the sensitive data (manual approval only).
   containsRestrictedData?: boolean;
 
   // Various objects in the API specify a gadgetId, but make the property optional. When omitted,
