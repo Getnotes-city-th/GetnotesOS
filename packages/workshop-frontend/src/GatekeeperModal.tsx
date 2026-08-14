@@ -79,6 +79,8 @@ type ConnectionTypeId =
 
 
 const RESOURCE_DESC_TH: Record<string, string> = {
+  "Publish posts, reply to comments, send Messenger messages, and read page insights.": "โพสต์คอนเทนต์, ตอบคอมเมนต์, ส่งข้อความ Messenger และดูสถิติแฟนเพจ",
+  "Connect your Facebook Page so GetnotesOS can publish posts, reply to comments, send Messenger messages, and read page insights.": "เชื่อมต่อแฟนเพจ Facebook เพื่อให้ GetnotesOS ช่วยโพสต์คอนเทนต์, ตอบคอมเมนต์, ตอบแชท Messenger และดูสถิติเพจ",
   "Send push messages, flex messages, and broadcasts with LINE Messaging API.": "ส่งข้อความ Push, Flex Messages และบรอดแคสต์ด้วย LINE Messaging API",
   "Connect your LINE Official Account so GetnotesOS can send push messages, rich flex messages, reply to users, and broadcast announcements to your followers.": "เชื่อมต่อบัญชี LINE Official Account เพื่อให้ GetnotesOS ส่งข้อความ Push, Flex Messages, ตอบกลับ และบรอดแคสต์หาผู้ติดตาม",
   "Search, browse, and edit any space or page on a Confluence site.": "ค้นหา เรียกดู และแก้ไข Space หรือหน้าเอกสารใดๆ บนเว็บไซต์ Confluence",
@@ -129,6 +131,8 @@ const RESOURCE_DESC_TH: Record<string, string> = {
 };
 
 const RESOURCE_TITLE_TH: Record<string, string> = {
+  "Facebook Page": "แฟนเพจ Facebook (Facebook Page)",
+  "Facebook": "Facebook",
   "LINE Official Account": "บัญชี LINE Official Account (LINE Bot)",
   "LINE": "LINE",
   "GitHub Repository": "GitHub Repository",
