@@ -20,6 +20,7 @@ const PROVIDER_LABELS: Record<AiModelProvider, string> = {
   anthropic: 'Anthropic',
   openai: 'OpenAI',
   google: 'Google',
+  nous: 'Nous Research (Hermes)',
   cloudflare: 'Cloudflare Workers AI',
   ollama: 'Ollama',
 }
@@ -29,13 +30,14 @@ const API_TOKEN_PLACEHOLDERS: Record<AiModelProvider, string> = {
   anthropic: 'sk-ant-...',
   openai: 'sk-...',
   google: 'AIza...',
+  nous: 'Nous API Key (e.g. nous-...)',
   cloudflare: 'Cloudflare API token',
   ollama: '(optional)',
 }
 
 // Example used in the custom-model placeholders for providers that have no suggested models
 // (currently Ollama, which serves whatever the user has pulled locally).
-const FALLBACK_EXAMPLE_MODEL = { modelId: 'gemma4:31b', name: 'Gemma 4 31B' }
+const FALLBACK_EXAMPLE_MODEL = { modelId: 'hermes-3-llama-3.1-70b', name: 'Hermes 3 Llama 3.1 70B' }
 
 // Pick an example model to show in the custom-model placeholders for the given provider.
 function exampleModel(provider: AiModelProvider): { modelId: string, name: string } {

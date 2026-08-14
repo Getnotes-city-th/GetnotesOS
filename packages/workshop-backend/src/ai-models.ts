@@ -132,6 +132,7 @@ function catalogModel(provider: AiModelConfig["provider"], modelId: string): Mod
     case "anthropic": return (ANTHROPIC_MODELS as Record<string, Model<Api>>)[modelId];
     case "openai": return (OPENAI_MODELS as Record<string, Model<Api>>)[modelId];
     case "google": return (GOOGLE_MODELS as Record<string, Model<Api>>)[modelId];
+    case "nous": return undefined;
     case "cloudflare": return (CLOUDFLARE_WORKERS_AI_MODELS as Record<string, Model<Api>>)[modelId];
     case "ollama": return undefined;
     default: return undefined;
@@ -600,6 +601,22 @@ function getModelDirect(config: AiModelConfig, sessionAffinity?: string): ModelH
         ...(config.apiToken === ""
             ? { apiKey: "unused", headers: { Authorization: null } }
             : { apiKey: config.apiToken }),
+        sessionAffinity,
+      });
+    case "nous":
+      return makeHandle({
+        model: {
+          id: config.model,
+          name: catalog?.name ?? config.model,
+          api: "openai-completions",
+          provider: "nous",
+          baseUrl: config.apiUrl ? stripTrailingSlashes(config.apiUrl) : "https://inference-api.nousresearch.com/v1",
+          reasoning: true,
+          input: ["text", "image"],
+          cost: ZERO_COST,
+          ...window,
+        },
+        apiKey: config.apiToken,
         sessionAffinity,
       });
     case "openai":

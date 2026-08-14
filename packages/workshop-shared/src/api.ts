@@ -1130,7 +1130,7 @@ export type CloudflareAccountOption = {
 };
 
 /** Supported AI providers. */
-export type AiModelProvider = "openai" | "anthropic" | "google" | "cloudflare" | "ollama";
+export type AiModelProvider = "openai" | "anthropic" | "google" | "cloudflare" | "ollama" | "nous";
 
 /** Information about the AI gateway configuration. Returned by `AuthenticatedApi.getAiConfig()`. */
 export type AiGatewayInfo = {
@@ -1203,6 +1203,11 @@ export const SUGGESTED_MODELS: Record<
   },
   "google": {
     "gemini-3.6-flash": {name: "Gemini 3.6 Flash", contextWindow: 1048576},
+  },
+  "nous": {
+    "hermes-3-llama-3.1-70b": {name: "Hermes 3 Llama 3.1 70B (Nous)", contextWindow: 128000},
+    "hermes-3-llama-3.1-8b": {name: "Hermes 3 Llama 3.1 8B (Nous)", contextWindow: 128000},
+    "hermes-3-llama-3.1-405b": {name: "Hermes 3 Llama 3.1 405B (Nous)", contextWindow: 128000},
   },
   "ollama": {
   },
