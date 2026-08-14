@@ -113,6 +113,7 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
   // Advanced settings collapsible state
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [addAllFromProvider, setAddAllFromProvider] = useState(false)
+  const [savedTokens, setSavedTokens] = useState<Record<string, string>>({})
 
   const gatewayMode = aiConfig?.enabled === true
   const enabledProviders: Set<string> | null = gatewayMode
@@ -132,8 +133,12 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
       setErrors({})
       setAdvancedOpen(false)
       setAddAllFromProvider(false)
+    } else {
+      authenticatedApi.getSavedProviderTokens?.().then((toks) => {
+        if (toks) setSavedTokens(toks)
+      }).catch(() => {})
     }
-  }, [visible])
+  }, [visible, authenticatedApi])
 
   const handleModelSelect = (value: string) => {
     setSelectValue(value)
@@ -148,8 +153,8 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
       setModelId(sel.modelId)
       setDisplayName(sel.displayName)
     }
-    const remembered = localStorage.getItem(`api_token_${sel.provider}`) || ''
-    setApiToken(remembered)
+    const existingToken = savedTokens[sel.provider] || localStorage.getItem(`api_token_${sel.provider}`) || ''
+    setApiToken(existingToken)
     setAccountId('')
     setApiUrl(sel.provider === 'ollama' ? 'http://localhost:11434' : '')
   }
@@ -348,7 +353,13 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
 
           {/* API Token */}
           {showCredentials && selection && (
-            <SensitiveInput
+            <>
+              {savedTokens[selection.provider] && (
+                <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 text-[12px] text-emerald-700 dark:text-emerald-300">
+                  <span className="font-medium">✓ {language === "th" ? `มี API Key ของ ${PROVIDER_LABELS[selection.provider]} ในระบบแล้ว (ระบบจะใช้คีย์เดิมให้อัตโนมัติ)` : `API Key for ${PROVIDER_LABELS[selection.provider]} is already saved and will be reused`}</span>
+                </div>
+              )}
+              <SensitiveInput
               label={language === "th" ? "โทเค็น API (API Token)" : "API Token"}
               placeholder={API_TOKEN_PLACEHOLDERS[selection.provider]}
               description={
@@ -369,6 +380,7 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
               error={errors.apiToken}
               variant={errors.apiToken ? 'error' : 'default'}
             />
+            </>
           )}
 
           {showCredentials && selection && selection.type === 'suggested' && (

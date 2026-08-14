@@ -380,6 +380,7 @@ export interface AuthenticatedApi extends RpcTarget {
    * especially if the gadget is owned by someone else.
    */
   listModels(): Promise<AiChatAuthorInfo[]>;
+  getSavedProviderTokens(): Promise<Record<string, string>>;
 
   /**
    * Adds a new model to the user's configured set. The ID must be unique among the user's

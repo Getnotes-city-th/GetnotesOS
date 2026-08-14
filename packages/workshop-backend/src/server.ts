@@ -131,6 +131,9 @@ class AuthenticatedApiImpl extends RpcTarget implements AuthenticatedApi {
   listModels(): Promise<AiChatAuthorInfo[]> {
     return this.#user.listModels();
   }
+  getSavedProviderTokens(): Promise<Record<string, string>> {
+    return this.#user.getSavedProviderTokens();
+  }
   addModel(profile: AiChatAuthorInfo, config: AiModelConfig): Promise<void> {
     return this.#user.addModel(profile, config);
   }

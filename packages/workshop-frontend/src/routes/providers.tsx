@@ -67,46 +67,50 @@ function ModelRow({
           ? (language === "th" ? "โมเดลหลักปัจจุบัน (คลิกเพื่อยกเลิก)" : "Primary model. Click to clear")
           : (language === "th" ? "คลิกเพื่อตั้งเป็นโมเดลหลักสำหรับการสนทนา" : "Click to set as primary model")
       }
-      className={`group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 ease-out hover:bg-kumo-tint ${
-        isPreferred ? "bg-emerald-500/5 ring-1 ring-emerald-500/20" : ""
+      className={`group flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-[background-color,border-color,box-shadow] duration-150 ease-out ${
+        isPreferred
+          ? "border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_0_1px_rgba(16,185,129,0.2)]"
+          : "border-kumo-line bg-kumo-base hover:border-kumo-line-hover hover:bg-kumo-elevated"
       }`}
     >
-      {/* Monogram */}
-      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[12px] font-medium ${
-        isPreferred
-          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-          : "bg-kumo-fill text-kumo-subtle"
-      }`}>
-        {isPreferred ? <Star size={16} weight="fill" /> : model.name[0]?.toUpperCase()}
-      </div>
-
-      {/* Info */}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium tracking-[-0.25px] text-kumo-default">
-            {model.name}
-          </span>
-          {isBuiltIn && (
-            <span className="shrink-0 rounded-full bg-kumo-tint px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.4px] text-kumo-subtle">
-              built-in
-            </span>
-          )}
-          {isPreferred && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.4px] text-emerald-600 dark:text-emerald-400">
-              <Star size={9} weight="fill" />
-              {language === "th" ? "โมเดลหลัก" : "primary"}
-            </span>
-          )}
-          {isQuick && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[rgba(255,72,1,0.10)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.4px] text-kumo-brand">
-              <Lightning size={9} weight="fill" />
-              {language === "th" ? "ความเร็วสูง" : "quick"}
-            </span>
-          )}
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        {/* Monogram */}
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[13px] font-semibold transition-colors ${
+          isPreferred
+            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+            : "bg-kumo-fill text-kumo-subtle group-hover:bg-kumo-tint"
+        }`}>
+          {isPreferred ? <Star size={16} weight="fill" /> : model.name[0]?.toUpperCase()}
         </div>
-        <span className="mt-0.5 block truncate font-mono text-[12px] tracking-[-0.1px] text-kumo-inactive">
-          {model.id}
-        </span>
+
+        {/* Info */}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="truncate text-sm font-medium tracking-tight text-kumo-default">
+              {model.name}
+            </span>
+            {isBuiltIn && (
+              <span className="shrink-0 rounded-full bg-kumo-tint px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.4px] text-kumo-subtle">
+                built-in
+              </span>
+            )}
+            {isPreferred && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-emerald-600 dark:text-emerald-400">
+                <Star size={10} weight="fill" />
+                {language === "th" ? "โมเดลหลัก" : "primary"}
+              </span>
+            )}
+            {isQuick && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[rgba(255,72,1,0.10)] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-kumo-brand">
+                <Lightning size={10} weight="fill" />
+                {language === "th" ? "ความเร็วสูง" : "quick"}
+              </span>
+            )}
+          </div>
+          <span className="mt-0.5 block truncate font-mono text-[12px] text-kumo-inactive">
+            {model.id}
+          </span>
+        </div>
       </div>
 
       {/* Actions */}
@@ -372,23 +376,25 @@ function ProvidersPage() {
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-sm text-kumo-inactive">{language === "th" ? "ไม่พบผู้ให้บริการ AI ที่ค้นหา" : "No providers found"}</div>
         ) : (
-          filtered.map((model) => (
-            <div
-              key={model.id}
-              className={deletingId === model.id ? "pointer-events-none opacity-50" : ""}
-            >
-              <ModelRow
-                model={model}
-                isPreferred={preferredModel === model.id}
-                isQuick={quickModel === model.id}
-                isBuiltIn={isBuiltIn(model.id)}
-                onDelete={() => handleDelete(model)}
-                onSetPreferred={() => handleSetPreferred(model.id)}
-                onSetQuick={() => handleSetQuick(model.id)}
-                language={language}
-              />
-            </div>
-          ))
+          <div className="flex flex-col gap-2 px-3">
+            {filtered.map((model) => (
+              <div
+                key={model.id}
+                className={deletingId === model.id ? "pointer-events-none opacity-50" : ""}
+              >
+                <ModelRow
+                  model={model}
+                  isPreferred={preferredModel === model.id}
+                  isQuick={quickModel === model.id}
+                  isBuiltIn={isBuiltIn(model.id)}
+                  onDelete={() => handleDelete(model)}
+                  onSetPreferred={() => handleSetPreferred(model.id)}
+                  onSetQuick={() => handleSetQuick(model.id)}
+                  language={language}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

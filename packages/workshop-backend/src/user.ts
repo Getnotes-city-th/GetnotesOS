@@ -547,10 +547,29 @@ export class UserDurableObject extends DurableObject<Cloudflare.Env> {
     return result;
   }
 
+  async getSavedProviderTokens(): Promise<Record<string, string>> {
+    let tokens: Record<string, string> = {};
+    for (let model of this.storage.aiModels.list()) {
+      if (model.config?.provider && model.config?.apiToken && !tokens[model.config.provider]) {
+        tokens[model.config.provider] = model.config.apiToken;
+      }
+    }
+    return tokens;
+  }
+
   async addModel(profile: AiChatAuthorInfo, config: AiModelConfig): Promise<void> {
     let gwConfig = getAiGatewayConfig(this.env);
     if (gwConfig && !gwConfig.providers.has(config.provider)) {
       throw new Error(`Provider "${config.provider}" is not available in AI Gateway mode.`);
+    }
+
+    if (!config.apiToken) {
+      for (let existing of this.storage.aiModels.list()) {
+        if (existing.config?.provider === config.provider && existing.config?.apiToken) {
+          config.apiToken = existing.config.apiToken;
+          break;
+        }
+      }
     }
 
     profile.type = "agent";
