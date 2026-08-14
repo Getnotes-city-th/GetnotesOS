@@ -364,7 +364,7 @@ export default function AdminPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 text-center">
         <ShieldWarning size={32} className="mx-auto text-kumo-subtle mb-3" />
-        <p className="text-sm text-kumo-default">You don't have access to this page.</p>
+        <p className="text-sm text-kumo-default">{language === "th" ? "คุณไม่มีสิทธิ์เข้าถึงหน้านี้" : "You don't have access to this page."}</p>
       </div>
     )
   }
@@ -372,7 +372,7 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-        <p className="text-kumo-subtle">Loading admin settings...</p>
+        <p className="text-kumo-subtle">{language === "th" ? "กำลังโหลดการตั้งค่าผู้ดูแลระบบ..." : "Loading admin settings..."}</p>
       </div>
     )
   }
@@ -380,7 +380,7 @@ export default function AdminPage() {
   if (loadError || !admin) {
     return (
       <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-8 py-16 text-center">
-        <p className="text-sm text-kumo-danger">Something went wrong loading admin settings.</p>
+        <p className="text-sm text-kumo-danger">{language === "th" ? "เกิดข้อผิดพลาดในการโหลดการตั้งค่าผู้ดูแลระบบ" : "Something went wrong loading admin settings."}</p>
         <button onClick={() => window.location.reload()} className="text-kumo-brand mt-2 text-sm underline">
           Try again
         </button>
@@ -529,11 +529,9 @@ export default function AdminPage() {
       {/* Theme / accent color */}
       {activeTab === 'general' && (
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-kumo-strong mb-1">Theme</h2>
+          <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "ธีมและสีหลัก" : "Theme"}</h2>
           <p className="text-sm text-kumo-subtle mb-5">
-            Accent color used for buttons, links, and highlights. Changes preview live here; click
-            Save to apply for everyone (on their next connection). Backgrounds keep the default
-            warm theme.
+            {language === "th" ? "สีหลักที่ใช้สำหรับปุ่ม ลิงก์ และจุดเน้นต่างๆ การปรับเปลี่ยนจะแสดงตัวอย่างทันที กดบันทึกเพื่อให้มีผลกับผู้ใช้ทุกคน" : "Accent color used for buttons, links, and highlights. Changes preview live here; click Save to apply for everyone (on their next connection). Backgrounds keep the default warm theme."}
           </p>
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -569,7 +567,7 @@ export default function AdminPage() {
                 onChange={(e) => setAccentDraft(e.target.value)}
                 className="w-9 h-9 rounded-md border border-kumo-line bg-transparent cursor-pointer p-0.5"
               />
-              Custom
+              {language === "th" ? "กำหนดเอง" : "Custom"}
             </label>
             <span className="text-xs font-mono text-kumo-subtle">
               {accentDraft || `${DEFAULT_ACCENT_COLOR} (default)`}
@@ -601,11 +599,9 @@ export default function AdminPage() {
       {/* Full-width banner */}
       {activeTab === 'general' && (
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-kumo-strong mb-1">Banner</h2>
+          <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "แถบประกาศด้านบนสุด (Banner)" : "Banner"}</h2>
           <p className="text-sm text-kumo-subtle mb-5">
-            A dismissible bar across the very top of the app (logged in or not). Markdown is
-            supported, so you can include links. Leave empty to hide it. Applies on each
-            user&rsquo;s next connection.
+            {language === "th" ? "แถบประกาศที่แสดงด้านบนสุดของแอป (ทั้งผู้ที่ล็อกอินและยังไม่ได้ล็อกอิน) รองรับ Markdown และลิงก์ เว้นว่างไว้เพื่อซ่อน" : "A dismissible bar across the very top of the app (logged in or not). Markdown is supported, so you can include links. Leave empty to hide it. Applies on each user’s next connection."}
           </p>
 
           <Textarea
@@ -624,7 +620,7 @@ export default function AdminPage() {
 
           <div className="mt-4 flex items-end justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-kumo-subtle mb-2">Type</p>
+              <p className="text-xs font-medium text-kumo-subtle mb-2">{language === "th" ? "ประเภทการแจ้งเตือน" : "Type"}</p>
               <div className="flex flex-wrap items-center gap-2">
                 {BANNER_COLORS.map((c) => {
                   const selected = bannerColorDraft === c
@@ -681,11 +677,9 @@ export default function AdminPage() {
       {/* Top-bar notice */}
       {activeTab === 'general' && (
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-kumo-strong mb-1">Top-bar notice</h2>
+          <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "ข้อความประกาศแถบนำทาง (Top-bar notice)" : "Top-bar notice"}</h2>
           <p className="text-sm text-kumo-subtle mb-5">
-            Shown centered in the top navigation bar. Markdown is supported, so you can include
-            links. Keep it short — it renders on a single line. Leave empty to show nothing. Applies
-            on each user&rsquo;s next connection.
+            {language === "th" ? "แสดงตรงกลางของแถบนำทางด้านบน รองรับ Markdown และลิงก์ เว้นว่างไว้เพื่อซ่อน" : "Shown centered in the top navigation bar. Markdown is supported, so you can include links. Keep it short — it renders on a single line. Leave empty to show nothing. Applies on each user’s next connection."}
           </p>
 
           <Textarea
@@ -737,10 +731,9 @@ export default function AdminPage() {
       {/* Agent system prompt additions */}
       {activeTab === 'general' && (
       <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-kumo-strong mb-1">Agent instructions</h2>
+        <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "คำแนะนำเพิ่มเติมสำหรับ AI Agent" : "Agent instructions"}</h2>
         <p className="text-sm text-kumo-subtle mb-5">
-          Extra instructions added to every agent&rsquo;s system prompt on this deployment. Use this
-          for instance-specific context, conventions, or guardrails.
+          {language === "th" ? "คำสั่งเสริมที่เพิ่มเข้าไปใน System Prompt ของทุก AI Agent ในระบบ ใช้สำหรับบริบทเฉพาะองค์กร กฎเกณฑ์ หรือข้อกำหนดด้านความปลอดภัย" : "Extra instructions added to every agent’s system prompt on this deployment. Use this for instance-specific context, conventions, or guardrails."}
         </p>
 
         <Textarea
@@ -792,17 +785,14 @@ export default function AdminPage() {
       {/* Gatekeeper resources */}
       {activeTab === 'gatekeepers' && (
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-kumo-strong mb-1">Gatekeepers</h2>
+          <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "ตัวเชื่อมต่อระบบ (Gatekeepers)" : "Gatekeepers"}</h2>
           <p className="text-sm text-kumo-subtle mb-5">
-            Turn connectors and resource types on or off for each service. Auto-provisioned
-            gatekeepers (like the Context Library) have three modes &mdash; disabled, optional, or
-            enabled for everyone. Changes are soft: they don&rsquo;t revoke access a gadget already
-            holds.
+            {language === "th" ? "เปิดหรือปิดการใช้งานตัวเชื่อมต่อและประเภททรัพยากรสำหรับแต่ละบริการ ตัวเชื่อมต่อแบบ Auto-provisioned มี 3 โหมด ได้แก่ ปิดใช้งาน, ให้ผู้ใช้เลือกเพิ่มเอง, หรือเปิดใช้งานสำหรับทุกคนอัตโนมัติ" : "Turn connectors and resource types on or off for each service. Auto-provisioned gatekeepers (like the Context Library) have three modes — disabled, optional, or enabled for everyone. Changes are soft: they don’t revoke access a gadget already holds."}
           </p>
 
           {resourceVendors.length === 0 && (
             <p className="text-sm text-kumo-subtle">
-              No configurable gatekeepers are installed on this deployment.
+              {language === "th" ? "ไม่มีตัวเชื่อมต่อที่สามารถกำหนดค่าได้ในระบบนี้" : "No configurable gatekeepers are installed on this deployment."}
             </p>
           )}
 
@@ -814,9 +804,9 @@ export default function AdminPage() {
               if (vendor.autoProvisions) {
                 const mode = vendor.ambientMode ?? 'optional'
                 const options: { value: AmbientGatekeeperMode; label: string; hint: string }[] = [
-                  { value: 'disabled', label: 'Disabled', hint: 'Off for everyone' },
-                  { value: 'optional', label: 'Optional', hint: 'Users can add it themselves' },
-                  { value: 'enabled', label: 'Enabled', hint: 'On for everyone automatically' },
+                  { value: 'disabled', label: language === "th" ? "ปิดใช้งาน" : "Disabled", hint: language === "th" ? "ปิดสำหรับทุกคน" : "Off for everyone" },
+                  { value: 'optional', label: language === "th" ? "เลือกเอง" : "Optional", hint: language === "th" ? "ผู้ใช้เพิ่มเองได้" : "Users can add it themselves" },
+                  { value: 'enabled', label: language === "th" ? "เปิดใช้งาน" : "Enabled", hint: language === "th" ? "เปิดสำหรับทุกคนอัตโนมัติ" : "On for everyone automatically" },
                 ]
                 return (
                   <div key={vendor.vendorId}>

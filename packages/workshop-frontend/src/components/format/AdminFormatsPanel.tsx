@@ -19,6 +19,7 @@ import type {
 import { OUTPUT_ICONS } from '@gadgets/workshop-shared/api'
 import type { RpcStub } from 'capnweb'
 import { useAuthenticatedApi } from '../../AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { MENU_CONTENT } from '../menuStyles'
 import { FORMAT_ICONS, GENERIC_OUTPUT } from './formats'
 import { FormatGlyph, FormatPreview } from './FormatVisuals'
@@ -28,6 +29,7 @@ import { FormatGlyph, FormatPreview } from './FormatVisuals'
 type Promotable = { id: string; title: string; declared?: BlueprintOutput }
 
 export default function AdminFormatsPanel({
+
   admin,
   formats,
   onChanged,
@@ -167,14 +169,15 @@ export default function AdminFormatsPanel({
 
 // What users will actually get, drawn with the same components the real surfaces use.
 function PreviewStrip({ formats }: { formats: AdminFormat[] }) {
+  const { language } = useI18n()
   return (
     <div className="mb-5 rounded-lg border border-dashed border-kumo-line bg-kumo-tint/40 p-4">
       <p className="mb-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
-        What people will see
+        {language === "th" ? "สิ่งที่ผู้ใช้จะเห็น" : "What people will see"}
       </p>
       {formats.length === 0 ? (
         <p className="text-[13px] italic text-kumo-inactive">
-          Nothing yet. People will only see “New workspace”.
+          {language === "th" ? "ยังไม่มีรูปแบบมาตรฐาน ผู้ใช้จะเห็นเฉพาะ “สร้างพื้นที่ทำงานใหม่”" : "Nothing yet. People will only see “New workspace”."}
         </p>
       ) : (
         <div className="flex flex-wrap items-center gap-2">
@@ -190,25 +193,26 @@ function PreviewStrip({ formats }: { formats: AdminFormat[] }) {
         </div>
       )}
       <p className="mt-2.5 text-[12px] leading-4 text-kumo-subtle">
-        In the composer’s + menu, the command palette, and on an empty Outputs page, in this order.
+        {language === "th" ? "จะแสดงในเมนู + ของกล่องข้อความ, Command Palette (⌘K) และหน้าผลงานว่าง ตามลำดับนี้" : "In the composer’s + menu, the command palette, and on an empty Outputs page, in this order."}
       </p>
     </div>
   )
 }
 
 function EmptyState() {
+  const { language } = useI18n()
   return (
     <div className="mb-5 rounded-lg border border-kumo-line bg-kumo-base px-4 py-5 text-center">
-      <p className="text-sm font-medium text-kumo-default">No standard formats yet</p>
+      <p className="text-sm font-medium text-kumo-default">{language === "th" ? "ยังไม่มีรูปแบบผลงานมาตรฐาน" : "No standard formats yet"}</p>
       <p className="mx-auto mt-1 max-w-md text-[13px] leading-[18px] text-kumo-subtle">
-        Promote a blueprint to offer it by name wherever people start something, and to have the
-        agent prefer it over building the same thing from scratch.
+        {language === "th" ? "โปรโมตพิมพ์เขียว (Blueprint) เพื่อให้เป็นตัวเลือกสร้างผลงานมาตรฐานสำหรับผู้ใช้ทุกคน และให้ AI Agent แนะนำเป็นอันดับแรก" : "Promote a blueprint to offer it by name wherever people start something, and to have the agent prefer it over building the same thing from scratch."}
       </p>
     </div>
   )
 }
 
 function FormatRow({
+
   format,
   busy,
   open,
@@ -229,6 +233,7 @@ function FormatRow({
   onPatch: (patch: Parameters<AdminApi['updateFormat']>[1]) => void
   onRemove: () => void
 }) {
+  const { language } = useI18n()
   const needsNaming = !format.missing && !format.output
 
   return (
@@ -361,8 +366,8 @@ function FormatRow({
               </Fieldset>
 
               <Fieldset
-                title="How the agent picks it"
-                detail="Standard formats are listed first in the agent’s catalog, as the entry below — the blueprint’s own description does most of the work. Add a hint only if the agent needs to know when to prefer this format over another one."
+                title={language === "th" ? "การเลือกใช้งานโดย AI Agent" : "How the agent picks it"}
+                detail={language === "th" ? "รูปแบบมาตรฐานจะแสดงเป็นอันดับแรกในคลังของ AI Agent เพิ่มคำแนะนำเพิ่มเติมหากต้องการให้ AI ทราบว่าควรเลือกรูปแบบนี้ในสถานการณ์ใด" : "Standard formats are listed first in the agent’s catalog, as the entry below — the blueprint’s own description does most of the work. Add a hint only if the agent needs to know when to prefer this format over another one."}
               >
                 <OverrideField
                   label="Hint"
@@ -408,7 +413,7 @@ function FormatRow({
                 {!format.bundled && (
                   <Button variant="secondary" disabled={busy} onClick={onRemove}>
                     <Trash size={13} className="mr-1.5" />
-                    Stop offering
+                    {language === "th" ? "หยุดให้บริการ" : "Stop offering"}
                   </Button>
                 )}
               </div>
@@ -419,7 +424,7 @@ function FormatRow({
             <div className="flex justify-end">
               <Button variant="secondary" disabled={busy} onClick={onRemove}>
                 <Trash size={13} className="mr-1.5" />
-                Remove
+                {language === "th" ? "ลบ" : "Remove"}
               </Button>
             </div>
           )}
