@@ -1205,13 +1205,32 @@ export const SUGGESTED_MODELS: Record<
     "gemini-3.6-flash": {name: "Gemini 3.6 Flash", contextWindow: 1048576},
   },
   "nous": {
+    // Hermes & Nous Core
     "nousresearch/hermes-4-70b": {name: "Hermes 4 70B (Nous)", contextWindow: 128000},
     "nousresearch/hermes-4-405b": {name: "Hermes 4 405B (Nous)", contextWindow: 128000},
-    "deepseek/deepseek-chat": {name: "DeepSeek V3 (Nous)", contextWindow: 64000},
-    "deepseek/deepseek-r1": {name: "DeepSeek R1 (Nous)", contextWindow: 64000},
-    "meta-llama/llama-3.3-70b-instruct": {name: "Llama 3.3 70B (Nous)", contextWindow: 128000},
+    // DeepSeek Family (Flash & Pro & R1)
+    "deepseek/deepseek-chat": {name: "DeepSeek V3 (Nous)", contextWindow: 128000},
+    "deepseek/deepseek-r1": {name: "DeepSeek R1 Reasoning (Nous)", contextWindow: 128000},
+    "deepseek/deepseek-v4-flash": {name: "DeepSeek V4 Flash (Nous)", contextWindow: 128000},
+    "deepseek/deepseek-v4-pro": {name: "DeepSeek V4 Pro (Nous)", contextWindow: 128000},
+    "deepseek/deepseek-v3.2": {name: "DeepSeek V3.2 (Nous)", contextWindow: 128000},
+    // Google Gemini (Flash & Pro)
+    "google/gemini-2.5-flash": {name: "Gemini 2.5 Flash (Nous)", contextWindow: 1048576},
+    "google/gemini-2.5-pro": {name: "Gemini 2.5 Pro (Nous)", contextWindow: 1048576},
+    "google/gemini-3.5-flash": {name: "Gemini 3.5 Flash (Nous)", contextWindow: 1048576},
+    "google/gemini-3.7-flash": {name: "Gemini 3.7 Flash (Nous)", contextWindow: 1048576},
+    // Anthropic Claude
+    "anthropic/claude-sonnet-4.6": {name: "Claude Sonnet 4.6 (Nous)", contextWindow: 1000000},
+    "anthropic/claude-haiku-4.5": {name: "Claude Haiku 4.5 (Nous)", contextWindow: 409600},
+    "anthropic/claude-opus-5": {name: "Claude Opus 5 (Nous)", contextWindow: 1000000},
+    // OpenAI
     "openai/gpt-4o": {name: "GPT-4o (Nous)", contextWindow: 128000},
-    "anthropic/claude-3-haiku": {name: "Claude 3 Haiku (Nous)", contextWindow: 200000},
+    "openai/gpt-4o-mini": {name: "GPT-4o Mini (Nous)", contextWindow: 128000},
+    "openai/gpt-5.6-luna": {name: "GPT-5.6 Luna (Nous)", contextWindow: 1050000},
+    // Meta & Qwen
+    "meta-llama/llama-3.3-70b-instruct": {name: "Llama 3.3 70B (Nous)", contextWindow: 128000},
+    "qwen/qwen3.7-flash": {name: "Qwen 3.7 Flash (Nous)", contextWindow: 128000},
+    "qwen/qwen-2.5-72b-instruct": {name: "Qwen 2.5 72B (Nous)", contextWindow: 128000},
   },
   "ollama": {
   },
