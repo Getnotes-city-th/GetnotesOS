@@ -20,8 +20,8 @@ import { applySiteFavicon, cacheBustSiteLogoUrl } from './siteLogoUtils'
 // with the dev account before React renders, so you never see the login page.
 // ---------------------------------------------------------------------------
 async function devAutoLogin(stub: RpcStub<PublicApi>): Promise<void> {
-  if (import.meta.env.VITE_DEV_AUTO_LOGIN !== 'true') return
-  if (localStorage.getItem('authToken')) return  // already logged in
+  const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_AUTO_LOGIN === "true" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  if (!isDev) return;
 
   const username = import.meta.env.VITE_DEV_USERNAME ?? 'dev'
   const password = import.meta.env.VITE_DEV_PASSWORD ?? 'devpassword'
@@ -94,10 +94,8 @@ async function handleBroken(error: any) {
 
   currentStub = startConnection();
   currentStub.onRpcBroken(handleBroken);
+  devAutoLogin(currentStub).catch(() => {});
 
-  // Don't clear isConnectionLost here — the new connection hasn't proven
-  // it works yet. It gets cleared by markConnectionRestored() once the
-  // app successfully communicates with the backend.
   for (let cb of notifyCurrentStubUpdated) {
     cb();
   }
