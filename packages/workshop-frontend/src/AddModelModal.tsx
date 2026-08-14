@@ -112,6 +112,7 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
 
   // Advanced settings collapsible state
   const [advancedOpen, setAdvancedOpen] = useState(false)
+  const [addAllFromProvider, setAddAllFromProvider] = useState(false)
 
   const gatewayMode = aiConfig?.enabled === true
   const enabledProviders: Set<string> | null = gatewayMode
@@ -130,6 +131,7 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
       setApiUrl('')
       setErrors({})
       setAdvancedOpen(false)
+      setAddAllFromProvider(false)
     }
   }, [visible])
 
@@ -146,7 +148,8 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
       setModelId(sel.modelId)
       setDisplayName(sel.displayName)
     }
-    setApiToken('')
+    const remembered = localStorage.getItem(`api_token_${sel.provider}`) || ''
+    setApiToken(remembered)
     setAccountId('')
     setApiUrl(sel.provider === 'ollama' ? 'http://localhost:11434' : '')
   }
@@ -192,22 +195,54 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
       const finalModelId = isSuggested ? selection!.modelId : modelId.trim()
       const finalDisplayName = isSuggested ? selection!.displayName : displayName.trim()
 
-      const profile: AiChatAuthorInfo = {
-        type: 'agent',
-        id: finalModelId,
-        name: finalDisplayName,
+      if (addAllFromProvider && selection!.type === 'suggested') {
+        const providerModels = SUGGESTED_MODELS[selection!.provider]
+        if (providerModels) {
+          for (const [mId, mInfo] of Object.entries(providerModels)) {
+            const profile: AiChatAuthorInfo = {
+              type: 'agent',
+              id: mId,
+              name: mInfo.name,
+            }
+            const config: AiModelConfig = {
+              provider: selection!.provider,
+              model: mId,
+              apiToken: gatewayMode ? '' : apiToken.trim(),
+              ...(!gatewayMode && accountId.trim() && { accountId: accountId.trim() }),
+              ...(!gatewayMode && apiUrl.trim() && { apiUrl: apiUrl.trim() }),
+            }
+            await authenticatedApi.addModel(profile, config)
+          }
+          toasts.add({
+            title: language === "th" ? `เพิ่มทุกโมเดลของ ${PROVIDER_LABELS[selection!.provider]} สำเร็จแล้ว` : `Added all models from ${PROVIDER_LABELS[selection!.provider]}`,
+            variant: 'success'
+          })
+        }
+      } else {
+        const profile: AiChatAuthorInfo = {
+          type: 'agent',
+          id: finalModelId,
+          name: finalDisplayName,
+        }
+
+        const config: AiModelConfig = {
+          provider: selection!.provider,
+          model: finalModelId,
+          apiToken: gatewayMode ? '' : apiToken.trim(),
+          ...(!gatewayMode && accountId.trim() && { accountId: accountId.trim() }),
+          ...(!gatewayMode && apiUrl.trim() && { apiUrl: apiUrl.trim() }),
+        }
+
+        await authenticatedApi.addModel(profile, config)
+        toasts.add({ title: language === "th" ? "เพิ่มโมเดล AI สำเร็จแล้ว" : "AI model added successfully", variant: "success" })
       }
 
-      const config: AiModelConfig = {
-        provider: selection!.provider,
-        model: finalModelId,
-        apiToken: gatewayMode ? '' : apiToken.trim(),
-        ...(!gatewayMode && accountId.trim() && { accountId: accountId.trim() }),
-        ...(!gatewayMode && apiUrl.trim() && { apiUrl: apiUrl.trim() }),
+      if (apiToken.trim()) {
+        try {
+          localStorage.setItem(`api_token_${selection!.provider}`, apiToken.trim())
+        } catch {}
       }
 
-      await authenticatedApi.addModel(profile, config)
-      toasts.add({ title: language === "th" ? "เพิ่มโมเดล AI สำเร็จแล้ว" : "AI model added successfully", variant: "success" })
       onSuccess()
     } catch (error: any) {
       console.error('Failed to add model:', error)
@@ -334,6 +369,22 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
               error={errors.apiToken}
               variant={errors.apiToken ? 'error' : 'default'}
             />
+          )}
+
+          {showCredentials && selection && selection.type === 'suggested' && (
+            <label className="flex items-center gap-2 cursor-pointer pt-1 text-[13px] text-kumo-default select-none">
+              <input
+                type="checkbox"
+                checked={addAllFromProvider}
+                onChange={(e) => setAddAllFromProvider(e.target.checked)}
+                className="h-4 w-4 rounded border-kumo-line text-kumo-brand focus:ring-kumo-ring"
+              />
+              <span>
+                {language === "th"
+                  ? `เพิ่มโมเดลทั้งหมดของผู้ให้บริการนี้ (${PROVIDER_LABELS[selection.provider]}) ด้วยคีย์นี้ในครั้งเดียว`
+                  : `Add all models from ${PROVIDER_LABELS[selection.provider]} with this key`}
+              </span>
+            </label>
           )}
 
           {/* Ollama API URL (always visible for Ollama) */}
