@@ -1,4 +1,6 @@
 import { Dialog, Switch } from '@cloudflare/kumo'
+import { useI18n } from '../i18n/I18nContext'
+import { translateResourceTitle, translateResourceDesc } from '../GatekeeperModal'
 import { X, ShieldCheck } from '@phosphor-icons/react'
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -54,6 +56,7 @@ export default function ConnectConnectorModal({
   onEnsureResources,
   ensuringResourceUrlPatterns = [],
 }: ConnectConnectorModalProps) {
+  const { language } = useI18n()
   const isManage = mode === 'manage'
 
   // Resource types the user can individually enable/disable at connect time. Resources without
@@ -272,10 +275,10 @@ export default function ConnectConnectorModal({
                       {resourceIcon(resource)}
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-default">
-                          {resource.title}
+                          {translateResourceTitle(resource.title, language)}
                         </p>
                         <p className="mt-0.5 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-                          {resource.description}
+                          {translateResourceDesc(resource.description, language)}
                         </p>
                       </div>
                       {grantable && (
@@ -317,12 +320,10 @@ export default function ConnectConnectorModal({
                 />
                 <div className="text-[12px] leading-[17px] font-normal tracking-[-0.2px] text-kumo-default">
                   <span className="font-medium">
-                    Gatekeeper sits between {vendorDescription.displayName} and your Gadgets.
+                    {language === "th" ? `Gatekeeper ทำหน้าที่เป็นตัวกลางความปลอดภัยระหว่าง ${vendorDescription.displayName} และชิ้นงานของคุณ` : `Gatekeeper sits between ${vendorDescription.displayName} and your Gadgets.`}
                   </span>{' '}
                   <span className="text-kumo-subtle">
-                    Each Gadget only sees the resources you connect. If the workspace is shared,
-                    Gatekeeper verifies other users have the required permissions before they can
-                    access those resources.
+                    {language === "th" ? "แต่ละชิ้นงานจะเข้าถึงได้เฉพาะข้อมูลที่คุณอนุญาตเท่านั้น หากแชร์พื้นที่ทำงาน Gatekeeper จะตรวจสอบสิทธิ์ของผู้ใช้อื่นก่อนเสมอ" : "Each Gadget only sees the resources you connect. If the workspace is shared, Gatekeeper verifies other users have the required permissions before they can access those resources."}
                   </span>
                 </div>
               </div>
@@ -331,8 +332,7 @@ export default function ConnectConnectorModal({
 
           {isManage && (
             <div className="mt-5 rounded-lg border border-kumo-line bg-kumo-elevated px-4 py-3 text-[12px] leading-[17px] font-normal tracking-[-0.2px] text-kumo-subtle">
-              This account can be used by Gadgets you connect it to. Shared users must have the
-              required permissions before they can access those connected resources.
+              {language === "th" ? "บัญชีนี้สามารถใช้งานร่วมกับชิ้นงานที่คุณเชื่อมต่อไว้ ผู้ใช้ร่วมจะต้องมีสิทธิ์ที่จำเป็นก่อนจึงจะเข้าถึงแหล่งข้อมูลที่เชื่อมต่อได้" : "This account can be used by Gadgets you connect it to. Shared users must have the required permissions before they can access those connected resources."}
             </div>
           )}
         </div>
@@ -340,7 +340,7 @@ export default function ConnectConnectorModal({
         <div className="shrink-0 flex items-center justify-between gap-3 border-t border-kumo-line bg-kumo-base px-5 py-3">
           {isManage && confirmingDisconnect ? (
             <p className="m-0 min-w-0 flex-1 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-default">
-              Disconnect {vendorDescription.displayName}? Gadgets using this will lose access.
+              {language === "th" ? `ต้องการยกเลิกการเชื่อมต่อ ${vendorDescription.displayName} หรือไม่? ชิ้นงานที่ใช้การเชื่อมต่อนี้จะไม่สามารถเข้าถึงข้อมูลได้` : `Disconnect ${vendorDescription.displayName}? Gadgets using this will lose access.`}
             </p>
           ) : isManage && hasPending ? (
             <p className="m-0 min-w-0 flex-1 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
@@ -348,7 +348,7 @@ export default function ConnectConnectorModal({
             </p>
           ) : !isManage && granular && noneSelected ? (
             <p className="m-0 min-w-0 flex-1 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-              Select at least one resource to continue.
+              {language === "th" ? "โปรดเลือกอย่างน้อยหนึ่งแหล่งข้อมูลเพื่อดำเนินการต่อ" : "Select at least one resource to continue."}
             </p>
           ) : (
             <span aria-hidden />
@@ -371,7 +371,7 @@ export default function ConnectConnectorModal({
                       disabled={disconnecting}
                       className="!h-9 min-w-[140px]"
                     >
-                      {disconnecting ? 'Disconnecting...' : 'Yes, disconnect'}
+                      {disconnecting ? (language === "th" ? "กำลังยกเลิก..." : "Disconnecting...") : (language === "th" ? "ยืนยันยกเลิกการเชื่อมต่อ" : "Yes, disconnect")}
                     </WorkshopButton>
                   </>
                 ) : hasPending ? (
@@ -386,8 +386,8 @@ export default function ConnectConnectorModal({
                       className="min-w-[140px]"
                     >
                       {ensuringBusy
-                        ? 'Opening...'
-                        : `Continue to ${vendorDescription.displayName}`}
+                        ? (language === "th" ? "กำลังเปิด..." : "Opening...")
+                        : (language === "th" ? `ดำเนินการต่อใน ${vendorDescription.displayName}` : `Continue to ${vendorDescription.displayName}`)}
                     </WorkshopButton>
                   </>
                 ) : (
@@ -427,11 +427,11 @@ export default function ConnectConnectorModal({
                 >
                   {autoProvisions
                     ? connecting
-                      ? 'Adding...'
-                      : `Add ${vendorDescription.displayName}`
+                      ? (language === "th" ? "กำลังเพิ่ม..." : "Adding...")
+                      : (language === "th" ? `เพิ่ม ${vendorDescription.displayName}` : `Add ${vendorDescription.displayName}`)
                     : connecting
-                    ? 'Opening...'
-                    : `Continue to ${vendorDescription.displayName}`}
+                    ? (language === "th" ? "กำลังเปิด..." : "Opening...")
+                    : (language === "th" ? `ดำเนินการต่อใน ${vendorDescription.displayName}` : `Continue to ${vendorDescription.displayName}`)}
                 </WorkshopButton>
               </>
             )}

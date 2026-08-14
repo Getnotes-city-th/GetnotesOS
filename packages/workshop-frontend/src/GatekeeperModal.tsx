@@ -173,12 +173,12 @@ const RESOURCE_TITLE_TH: Record<string, string> = {
   "Scheduled Tasks": "งานตั้งเวลาอัตโนมัติ (Scheduled Tasks)"
 };
 
-function translateResourceTitle(title: string, language: string): string {
+export function translateResourceTitle(title: string, language: string): string {
   if (language !== "th") return title;
   return RESOURCE_TITLE_TH[title] || title;
 }
 
-function translateResourceDesc(desc: string, language: string): string {
+export function translateResourceDesc(desc: string, language: string): string {
   if (language !== "th") return desc;
   if (RESOURCE_DESC_TH[desc]) return RESOURCE_DESC_TH[desc];
   for (const [k, v] of Object.entries(RESOURCE_DESC_TH)) {

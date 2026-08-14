@@ -1,3 +1,29 @@
+
+const VENDOR_TAGLINE_TH: Record<string, string> = {
+  "Chat with channels and users in your Slack workspace": "แชทในช่องทางและส่งข้อความหาผู้ใช้ใน Slack workspace",
+  "Manage repositories, issues, and pull requests": "จัดการคลังโค้ด Issues และ Pull Requests บน GitHub",
+  "Access Google Docs, Sheets, Calendar, and Gmail": "เข้าถึง Google Docs, Sheets, Calendar, Gmail และ BigQuery",
+  "Send push messages, flex messages, and broadcasts": "ส่งข้อความ Push, Flex Messages และบรอดแคสต์หาผู้ติดตาม",
+  "Manage Facebook Pages, post content, and reply in Messenger": "จัดการแฟนเพจ Facebook โพสต์คอนเทนต์ และตอบแชท Messenger",
+  "Manage playlists, your library, and playback": "จัดการเพลย์ลิสต์ คลังเพลง และควบคุมการเล่นเพลงบน Spotify",
+  "Query tables, run SQL, and manage your database": "คิวรีตาราง รันคำสั่ง SQL และจัดการฐานข้อมูล Supabase",
+  "Manage issues, projects, and teams": "จัดการ Issues โครงการ และทีมบน Linear",
+  "Read and edit pages and databases in your workspace": "อ่านและแก้ไขหน้าเอกสารและฐานข้อมูลใน Notion",
+  "Read and edit spaces, pages, and blog posts": "อ่านและแก้ไข Spaces, หน้าเอกสาร และบล็อกโพสต์บน Confluence",
+  "Control smart home devices, lights, and entities": "ควบคุมอุปกรณ์สมาร์ทโฮม ไฟ และระบบใน Home Assistant",
+  "Send and receive emails via dedicated mailboxes": "ส่งและรับอีเมลผ่านกล่องจดหมายเฉพาะ",
+  "Schedule tasks and background cron workflows": "ตั้งเวลาทำงานอัตโนมัติและจัดการ Cron workflow",
+  "Store and organize knowledge, documents, and collections": "จัดเก็บและจัดการคลังความรู้ เอกสาร และชุดข้อมูล",
+  "Connect any Model Context Protocol endpoint": "เชื่อมต่อ Endpoint ของเซิร์ฟเวอร์ MCP ที่คุณระบุ",
+  "Search business intelligence and contact data": "ค้นหาข้อมูลธุรกิจและรายชื่อผู้ติดต่อบน ZoomInfo",
+  "Deploy and manage Cloudflare Workers and resources": "ปรับใช้และจัดการ Cloudflare Workers และทรัพยากรบนคลาวด์",
+};
+
+export function translateVendorTagline(tagline: string | undefined, lang: string): string {
+  if (!tagline || lang !== "th") return tagline ?? "";
+  return VENDOR_TAGLINE_TH[tagline] ?? tagline;
+}
+
 import { useI18n } from "../i18n/I18nContext"
 import { logRpcFailure } from '../rpcErrors'
 import { createFileRoute } from '@tanstack/react-router'
@@ -104,6 +130,7 @@ function ConnectorCard({
   reconnectBusy = false,
   view = 'grid',
 }: ConnectorCardProps) {
+  const { language } = useI18n()
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.currentTarget !== event.target) return
     if (event.key === 'Enter' || event.key === ' ') {
@@ -149,7 +176,7 @@ function ConnectorCard({
         className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-kumo-line bg-kumo-base px-3 text-[12px] leading-4 font-medium tracking-[-0.2px] text-kumo-default transition-[background-color,border-color,opacity,transform] duration-150 ease-out hover:border-kumo-fill hover:bg-kumo-tint active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
       >
         <ArrowsClockwise size={12} weight="bold" />
-        {reconnectBusy ? 'Opening...' : 'Reconnect'}
+        {reconnectBusy ? (language === "th" ? "กำลังเปิด..." : "Opening...") : (language === "th" ? "เชื่อมต่อใหม่" : "Reconnect")}
       </button>
     ) : (
       <div className="grid h-7 w-7 place-items-center text-kumo-inactive transition-colors group-hover:text-kumo-default">
@@ -262,6 +289,7 @@ function ConnectorsHeroDiagram({
   vendors: VendorEntry[]
   siteName: string
 }) {
+  const { language } = useI18n()
   const [hoveredSource, setHoveredSource] = useState<number | null>(null)
   const seen = new Set<string>()
   const nodes = [
@@ -417,7 +445,7 @@ function ConnectorsHeroDiagram({
                 Gatekeeper
               </p>
               <p className="mt-1 text-[11px] leading-4 font-normal tracking-[-0.1px] text-kumo-subtle">
-                Keeps each workspace limited to the resources you connect and ensures every user has the required permissions before accessing them.
+                {language === "th" ? "จำกัดการเข้าถึงในพื้นที่ทำงานเฉพาะแหล่งข้อมูลที่คุณเชื่อมต่อ และตรวจสอบสิทธิ์ของผู้ใช้ทุกคนอย่างปลอดภัย" : "Keeps each workspace limited to the resources you connect and ensures every user has the required permissions before accessing them."}
               </p>
             </div>
           </div>
@@ -751,17 +779,17 @@ function ConnectorsPage() {
         {loadError && (
           <div className="rounded-2xl border border-kumo-line bg-kumo-base px-4 py-6 text-center">
             <p className="m-0 text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-danger">
-              Something went wrong loading your gatekeepers.
+              {language === "th" ? "เกิดข้อผิดพลาดในการโหลดตัวเชื่อมต่อ" : "Something went wrong loading your gatekeepers."}
             </p>
             <p className="mt-1 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-              Check your connection and try refreshing the page.
+              {language === "th" ? "โปรดตรวจสอบการเชื่อมต่อแล้วลองรีเฟรชหน้าเว็บอีกครั้ง" : "Check your connection and try refreshing the page."}
             </p>
           </div>
         )}
 
         {initialLoading && (
           <div className="rounded-2xl border border-kumo-line bg-kumo-base px-4 py-8 text-center text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-            Loading gatekeepers...
+            {language === "th" ? "กำลังโหลดตัวเชื่อมต่อ…" : "Loading gatekeepers..."}
           </div>
         )}
 
@@ -773,7 +801,7 @@ function ConnectorsPage() {
                 const displayName =
                   account.accountDescription.displayName ??
                   account.accountDescription.uniqueName ??
-                  'Connected'
+                  (language === "th" ? "เชื่อมต่อแล้ว" : "Connected")
                 const tagline = account.vendorDescription.tagline
                 return (
                   <ConnectorCard
@@ -790,10 +818,10 @@ function ConnectorsPage() {
                       >
                         {account.credentialsValid
                           ? displayName
-                          : 'Credentials expired'}
+                          : (language === "th" ? "ข้อมูลรับรองหมดอายุ" : "Credentials expired")}
                       </span>
                     }
-                    tagline={tagline}
+                    tagline={translateVendorTagline(tagline, language)}
                     state={account.credentialsValid ? 'connected' : 'expired'}
                     onClick={() => handleOpenManage(account.id)}
                     onReconnect={() => handleReconnect(account.id)}
@@ -808,7 +836,7 @@ function ConnectorsPage() {
 
         {filteredAvailable.length > 0 && (
           <section className="mb-10">
-            <SectionEyebrow label="Available" />
+            <SectionEyebrow label={language === "th" ? "พร้อมใช้งาน" : "Available"} />
             <div className={sectionGridClass}>
 
               {filteredAvailable.map((vendor) => (
@@ -818,7 +846,7 @@ function ConnectorsPage() {
                   color={vendor.description.color}
                   fallback={vendor.description.displayName}
                   name={vendor.description.displayName}
-                  tagline={vendor.description.tagline}
+                  tagline={translateVendorTagline(vendor.description.tagline, language)}
                   state="available"
                   onClick={() => handleOpenConnect(vendor.id)}
                   view={view}
@@ -835,13 +863,13 @@ function ConnectorsPage() {
             <EmptyState
               title={
                 search
-                  ? 'No gatekeepers match'
-                  : 'No gatekeepers yet'
+                  ? (language === "th" ? "ไม่พบตัวเชื่อมต่อที่ตรงกับการค้นหา" : "No gatekeepers match")
+                  : (language === "th" ? "ยังไม่มีตัวเชื่อมต่อ" : "No gatekeepers yet")
               }
               description={
                 search
-                  ? "We couldn't find anything matching your search."
-                  : 'Gatekeepers will appear here as they become available in your workspace.'
+                  ? (language === "th" ? "ไม่พบข้อมูลที่ตรงกับคำค้นหาของคุณ" : "We couldn't find anything matching your search.")
+                  : (language === "th" ? "ตัวเชื่อมต่อจะปรากฏที่นี่เมื่อพร้อมใช้งานในพื้นที่ทำงานของคุณ" : "Gatekeepers will appear here as they become available in your workspace.")
               }
               icon={Plugs}
             />
