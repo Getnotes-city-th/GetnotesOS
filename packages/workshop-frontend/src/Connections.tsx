@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, useEffect, useMemo } from 'react'
 import { Dialog, Tooltip, useKumoToastManager } from '@cloudflare/kumo'
 import {
@@ -40,6 +41,7 @@ interface ConnectionsProps {
  * scoped to one gadget.
  */
 export default function Connections({ overseer, gadget, chatId, authenticatedApi, onConnectionsChange, isVisible, onHasGatekeepersChange }: ConnectionsProps) {
+  const { t, language } = useI18n();
   const [bindings, setBindings] = useState<GadgetBindingInfo[]>([])
   // Identity of the gadget this tab is showing, needed to offer it to agent spawners.
   const [gadgetInfo, setGadgetInfo] = useState<{ id: WorkpieceId; title: string } | null>(null)
@@ -208,10 +210,10 @@ export default function Connections({ overseer, gadget, chatId, authenticatedApi
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h2 className="m-0 text-[17px] leading-6 font-medium tracking-[-0.35px] text-kumo-default">
-                Connections
+                {t("connections")}
               </h2>
               <p className="mt-1 text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-                External resources this gadget can use.
+                {language === "th" ? "ทรัพยากรภายนอกที่พื้นที่ทำงานนี้สามารถเข้าถึงได้" : "External resources this gadget can use."}
               </p>
             </div>
             <WorkshopButton
@@ -219,19 +221,19 @@ export default function Connections({ overseer, gadget, chatId, authenticatedApi
               onClick={() => setIsNewConnectionModalVisible(true)}
               className="self-start"
             >
-              Connect resource
+              {language === "th" ? "เชื่อมต่อทรัพยากร" : "Connect resource"}
             </WorkshopButton>
           </div>
 
           {loading ? (
             <div className="rounded-xl border border-kumo-line bg-kumo-base px-4 py-6 text-center text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-              Loading connections...
+              {language === "th" ? "กำลังโหลดการเชื่อมต่อ..." : "Loading connections..."}
             </div>
           ) : bindings.length === 0 ? (
             <EmptyState
-              title="No connected resources"
-              description="Connect Google Docs, GitHub, Google Sheets, and other services so this gadget can safely use external data."
-              actionLabel="Connect resource"
+              title={language === "th" ? "ยังไม่ได้เชื่อมต่อทรัพยากร" : "No connected resources"}
+              description={language === "th" ? "เชื่อมต่อ Google Docs, GitHub, Google Sheets และบริการอื่นๆ เพื่อให้พื้นที่ทำงานสามารถเข้าถึงข้อมูลภายนอกได้อย่างปลอดภัย" : "Connect Google Docs, GitHub, Google Sheets, and other services so this gadget can safely use external data."}
+              actionLabel={language === "th" ? "เชื่อมต่อทรัพยากร" : "Connect resource"}
               onAction={() => setIsNewConnectionModalVisible(true)}
             />
           ) : (

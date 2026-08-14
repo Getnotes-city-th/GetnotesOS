@@ -21,15 +21,15 @@ function initials(title: string | undefined): string {
   return parts.map((p) => p[0]?.toUpperCase() ?? '').join('') || t.slice(0, 2).toUpperCase()
 }
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, language: "th" | "en" = "th"): string {
   const diff = Date.now() - date.getTime()
   const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return language === "th" ? "เมื่อสักครู่" : "just now"
+  if (minutes < 60) return language === "th" ? `${minutes} นาทีที่แล้ว` : `${minutes}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return language === "th" ? `${hours} ชั่วโมงที่แล้ว` : `${hours}h ago`
   const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  return language === "th" ? `${days} วันที่แล้ว` : `${days}d ago`
 }
 
 function formatCost(cost: number): string {
@@ -37,6 +37,7 @@ function formatCost(cost: number): string {
 }
 
 function AppRow({
+
 
   gadget,
   onDelete,
@@ -52,7 +53,7 @@ function AppRow({
   onTogglePin: (gadget: GadgetMetadataWithTimestamps) => void
   onRename: (gadget: GadgetMetadataWithTimestamps, newTitle: string) => void
 }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(gadget.title || '')
   const renameInputRef = useRef<HTMLInputElement>(null)
@@ -140,7 +141,7 @@ function AppRow({
         <DropdownMenu.Content className={MENU_CONTENT}>
           <DropdownMenu.Item onClick={startRenaming} className={MENU_ITEM}>
             <Pencil size={13} className="mr-2" />
-            Rename
+            {t("rename")}
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => onTogglePin(gadget)} className={MENU_ITEM}>
             <Star size={13} className="mr-2" weight={gadget.pinned ? 'fill' : 'regular'} />
@@ -148,11 +149,11 @@ function AppRow({
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => onInfo(gadget)} className={MENU_ITEM}>
             <Info size={13} className="mr-2" />
-            Information
+            {language === "th" ? "ข้อมูลพื้นที่ทำงาน" : "Information"}
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => onShare(gadget)} className={MENU_ITEM}>
             <ShareNetwork size={13} className="mr-2" />
-            Share
+            {t("share")}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item
@@ -161,7 +162,7 @@ function AppRow({
             className={MENU_ITEM_DANGER}
           >
             <Trash size={13} className="mr-2" />
-            {gadget.owner ? 'Dismiss' : 'Delete'}
+            {gadget.owner ? (language === "th" ? "ยกเลิกการแชร์" : "Dismiss") : (language === "th" ? "ลบพื้นที่ทำงาน" : "Delete")}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>

@@ -1,3 +1,4 @@
+import { useI18n } from "../../i18n/I18nContext"
 import { Link } from '@tanstack/react-router'
 import { DotsThree, Star, ShareNetwork, Trash, Pencil } from '@phosphor-icons/react'
 import { DropdownMenu } from '@cloudflare/kumo'
@@ -32,6 +33,7 @@ export default function SidebarGadgetRow({
   onShare: (g: GadgetMetadataWithTimestamps) => void
   onDelete: (g: GadgetMetadataWithTimestamps) => void
 }) {
+  const { t, language } = useI18n();
   const [renaming, setRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(gadget.title || '')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -108,20 +110,20 @@ export default function SidebarGadgetRow({
                   onClick={startRename}
                   className={MENU_ITEM}
                 >
-                  <Pencil size={13} className="mr-2" /> Rename
+                  <Pencil size={13} className="mr-2" /> {t("rename")}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onClick={() => onTogglePin(gadget)}
                   className={MENU_ITEM}
                 >
                   <Star size={13} className="mr-2" weight={gadget.pinned ? 'fill' : 'regular'} />
-                  {gadget.pinned ? 'Unfavorite' : 'Favorite'}
+                  {gadget.pinned ? t("unfavorite") : t("favoriteAction")}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onClick={() => onShare(gadget)}
                   className={MENU_ITEM}
                 >
-                  <ShareNetwork size={13} className="mr-2" /> Share
+                  <ShareNetwork size={13} className="mr-2" /> {t("share")}
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
@@ -130,7 +132,7 @@ export default function SidebarGadgetRow({
                   className={MENU_ITEM_DANGER}
                 >
                   <Trash size={13} className="mr-2" />
-                  {gadget.owner ? 'Dismiss' : 'Delete'}
+                  {gadget.owner ? (language === "th" ? "ยกเลิกการแชร์" : "Dismiss") : (language === "th" ? "ลบพื้นที่ทำงาน" : "Delete")}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>

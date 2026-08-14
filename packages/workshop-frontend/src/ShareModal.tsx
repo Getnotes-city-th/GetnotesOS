@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { Checkbox, Dialog, DropdownMenu, useKumoToastManager } from '@cloudflare/kumo'
 import type { PortalContainer } from '@cloudflare/kumo'
@@ -35,7 +36,7 @@ type Props = {
   authenticatedApi: RpcStub<AuthenticatedApi>
 }
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, language: "th" | "en" = "th"): string {
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffSeconds = Math.floor(diffMs / 1000)
@@ -43,25 +44,35 @@ function formatRelativeTime(date: Date): string {
   const diffHours = Math.floor(diffMinutes / 60)
   const diffDays = Math.floor(diffHours / 24)
 
-  if (diffSeconds < 60) return 'just now'
-  if (diffMinutes < 60) return `${diffMinutes}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-  return date.toLocaleDateString()
+  if (diffSeconds < 60) return language === "th" ? "เมื่อสักครู่" : "just now"
+  if (diffMinutes < 60) return language === "th" ? `${diffMinutes} นาทีที่แล้ว` : `${diffMinutes}m ago`
+  if (diffHours < 24) return language === "th" ? `${diffHours} ชั่วโมงที่แล้ว` : `${diffHours}h ago`
+  if (diffDays < 7) return language === "th" ? `${diffDays} วันที่แล้ว` : `${diffDays}d ago`
+  return date.toLocaleDateString(language === "th" ? "th-TH" : [])
 }
 
 const ROLE_LABELS: Record<CollaboratorRole, string> = {
-  build: 'Workspace',
-  use: 'Gadget only',
+  build: "Workspace",
+  use: "Gadget only",
+}
+
+const ROLE_LABELS_TH: Record<CollaboratorRole, string> = {
+  build: "พื้นที่ทำงานเต็มรูปแบบ",
+  use: "ใช้งานผลงานเท่านั้น",
 }
 
 const ROLE_DESCRIPTIONS: Record<CollaboratorRole, string> = {
-  build: 'Edit gadgets, use chat, and manage access.',
-  use: 'Use gadgets without agent chat or editing.',
+  build: "Edit gadgets, use chat, and manage access.",
+  use: "Use gadgets without agent chat or editing.",
 }
 
-function roleLabel(role: CollaboratorRole | undefined): string {
-  return ROLE_LABELS[role ?? 'build']
+const ROLE_DESCRIPTIONS_TH: Record<CollaboratorRole, string> = {
+  build: "แก้ไขพื้นที่ทำงาน ใช้งานแชท AI และจัดการสิทธิ์เข้าถึง",
+  use: "เข้าใช้งานผลงานโดยไม่สามารถแชทสั่งงาน AI หรือแก้ไขโค้ดได้",
+}
+
+function roleLabel(role: CollaboratorRole | undefined, language: "th" | "en" = "th"): string {
+  return language === "th" ? ROLE_LABELS_TH[role ?? "build"] : ROLE_LABELS[role ?? "build"]
 }
 
 const ROLE_OPTIONS: CollaboratorRole[] = ['build', 'use']
@@ -73,12 +84,14 @@ function RoleMenu({
   ariaLabel,
   container,
 }: {
+
   value: CollaboratorRole
   onValueChange: (role: CollaboratorRole) => void
   disabled?: boolean
   ariaLabel: string
   container?: PortalContainer
 }) {
+  const { language } = useI18n();
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger
@@ -89,7 +102,7 @@ function RoleMenu({
             className="group inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-2 text-[12px] leading-4 font-medium text-kumo-subtle transition-[background-color,color,transform] duration-150 ease-out hover:bg-kumo-tint hover:text-kumo-default focus-visible:bg-kumo-tint focus-visible:text-kumo-default focus-visible:outline-none active:scale-[0.97] data-[popup-open]:bg-kumo-tint data-[popup-open]:text-kumo-default disabled:cursor-not-allowed disabled:opacity-40"
             aria-label={ariaLabel}
           >
-            {roleLabel(value)}
+            {roleLabel(value, language)}
             <CaretDown size={11} weight="bold" className="text-kumo-inactive transition-transform duration-150 ease-out group-data-[popup-open]:rotate-180" />
           </button>
         }
@@ -107,9 +120,9 @@ function RoleMenu({
             className="!h-auto cursor-pointer rounded-xl !px-2.5 !py-2 text-kumo-default transition-colors data-highlighted:bg-kumo-tint/70"
           >
             <span className="min-w-0 flex-1">
-              <span className="block text-[12px] leading-4 font-medium">{roleLabel(role)}</span>
+              <span className="block text-[12px] leading-4 font-medium">{roleLabel(role, language)}</span>
               <span className="mt-0.5 block text-[11px] leading-4 font-normal text-kumo-subtle">
-                {ROLE_DESCRIPTIONS[role]}
+                {language === "th" ? ROLE_DESCRIPTIONS_TH[role] : ROLE_DESCRIPTIONS[role]}
               </span>
             </span>
             <span className="ml-2 flex h-4 w-4 shrink-0 items-center justify-center">
@@ -293,8 +306,10 @@ function sameRequirements(
     left.every((requirement, index) => requirement.gatekeeperId === right[index].gatekeeperId)
 }
 
-export default function ShareModal({ open, onClose, overseer, metadata, currentUser, authenticatedApi }: Props) {
+export default function ShareModal({
+ open, onClose, overseer, metadata, currentUser, authenticatedApi }: Props) {
   const toasts = useKumoToastManager()
+  const { language } = useI18n()
   const [collaborators, setCollaborators] = useState<CollaboratorInfo[]>([])
   const [shareLinks, setShareLinks] = useState<ShareLinkInfo[]>([])
   const [addUsername, setAddUsername] = useState('')
@@ -755,10 +770,10 @@ export default function ShareModal({ open, onClose, overseer, metadata, currentU
         <div className="flex shrink-0 items-start justify-between gap-4 overflow-hidden px-4 pb-4 pt-5 sm:px-6 sm:pt-6">
           <div className="min-w-0">
             <Dialog.Title className="truncate text-[18px] leading-6 font-medium tracking-[-0.4px] text-kumo-default">
-              Share “{metadata.title}”
+              {language === "th" ? `แชร์ “${metadata.title}”` : `Share “${metadata.title}”`}
             </Dialog.Title>
             <Dialog.Description className="mt-1 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-              Invite people or share a link.
+              {language === "th" ? "เชิญบุคคลเข้าร่วมหรือสร้างลิงก์สำหรับแชร์" : "Invite people or share a link."}
             </Dialog.Description>
           </div>
           <Dialog.Close
@@ -804,8 +819,8 @@ export default function ShareModal({ open, onClose, overseer, metadata, currentU
             </div>
             <input
               type="search"
-              placeholder="Username or email"
-              aria-label="Username or email"
+              placeholder={language === "th" ? "ชื่อผู้ใช้หรืออีเมล" : "Username or email"}
+              aria-label={language === "th" ? "ชื่อผู้ใช้หรืออีเมล" : "Username or email"}
               value={addUsername}
               onChange={(e) => setAddUsername(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollaborator() }}
@@ -835,7 +850,7 @@ export default function ShareModal({ open, onClose, overseer, metadata, currentU
               onClick={handleAddCollaborator}
               disabled={!addUsername.trim() || adding || sharingProhibited}
             >
-              {adding ? 'Inviting…' : 'Invite'}
+              {adding ? (language === "th" ? "กำลังเชิญ…" : "Inviting…") : (language === "th" ? "เชิญ" : "Invite")}
             </WorkshopButton>
           </div>
 

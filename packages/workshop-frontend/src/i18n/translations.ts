@@ -27,6 +27,8 @@ export interface TranslationDictionary {
   settings: string
   admin: string
   signOut: string
+  providers: string
+  share: string
 
   // Command Palette (⌘K)
   palettePlaceholder: string
@@ -175,6 +177,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     languageThai: "ภาษาไทย (TH)",
     languageEnglish: "English (EN)",
     profile: "โปรไฟล์",
+  providers: "ผู้ให้บริการ AI",
+  share: "แชร์พื้นที่ทำงาน",
     settings: "การตั้งค่า",
     admin: "ผู้ดูแลระบบ",
     signOut: "ออกจากระบบ",
@@ -324,6 +328,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     languageThai: "ภาษาไทย (TH)",
     languageEnglish: "English (EN)",
     profile: "Profile",
+  providers: "Providers",
+  share: "Share",
     settings: "Settings",
     admin: "Admin",
     signOut: "Sign out",

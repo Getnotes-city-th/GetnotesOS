@@ -58,25 +58,25 @@ function formatFullDate(date: Date): string {
   })
 }
 
-export function formatRelativeTime(date: Date): string {
+export function formatRelativeTime(date: Date, language: "th" | "en" = "th"): string {
   const minutes = Math.floor(Math.max(0, Date.now() - new Date(date).getTime()) / 60_000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return language === "th" ? "เมื่อสักครู่" : "just now"
+  if (minutes < 60) return language === "th" ? `${minutes} นาทีที่แล้ว` : `${minutes}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.floor(hours / 24)}d ago`
+  if (hours < 24) return language === "th" ? `${hours} ชั่วโมงที่แล้ว` : `${hours}h ago`
+  return language === "th" ? `${Math.floor(hours / 24)} วันที่แล้ว` : `${Math.floor(hours / 24)}d ago`
 }
 
 function startOfDay(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 }
 
-function dayLabel(date: Date): string {
+function dayLabel(date: Date, language: "th" | "en" = "th"): string {
   const value = new Date(date)
   const days = Math.round((startOfDay(new Date()) - startOfDay(value)) / 86_400_000)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  return value.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })
+  if (days === 0) return language === "th" ? "วันนี้" : "Today"
+  if (days === 1) return language === "th" ? "เมื่อวานนี้" : "Yesterday"
+  return value.toLocaleDateString(language === "th" ? "th-TH" : [], { month: "long", day: "numeric", year: "numeric" })
 }
 
 function activityStatus(

@@ -985,10 +985,10 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
           ) : (
             <section className="rounded-2xl border border-kumo-line bg-kumo-base px-5 py-5">
               <p className="m-0 text-[15px] leading-5 font-medium tracking-[-0.25px] text-kumo-default">
-                No connections required
+                {language === "th" ? "ไม่จำเป็นต้องเชื่อมต่อภายนอก" : "No connections required"}
               </p>
               <p className="mt-1 text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-                This blueprint can create a Gadget without configuring external resources.
+                {language === "th" ? "แม่แบบนี้สามารถสร้างพื้นที่ทำงานได้โดยตรงโดยไม่ต้องตั้งค่าทรัพยากรภายนอก" : "This blueprint can create a Gadget without configuring external resources."}
               </p>
             </section>
           )}
@@ -1021,7 +1021,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                   <Dialog.Description className="mt-1 text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
                     {activeBinding.type === 'gatekeeper' && activeBinding.description
                       ? activeBinding.description
-                      : 'Choose the resource or model this new Gadget should use.'}
+                      : (language === "th" ? "เลือกทรัพยากรหรือโมเดล AI ที่พื้นที่ทำงานใหม่นี้จะใช้งาน" : "Choose the resource or model this new Gadget should use.")}
                   </Dialog.Description>
                 </div>
                 <Dialog.Close

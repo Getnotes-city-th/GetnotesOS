@@ -226,6 +226,12 @@ const CHAT_LIST_SCOPE_LABELS: Record<ChatListScope, string> = {
   agents: "Started by agents",
 };
 
+const CHAT_LIST_SCOPE_LABELS_TH: Record<ChatListScope, string> = {
+  all: "ทั้งหมด",
+  direct: "สร้างโดยผู้ใช้",
+  agents: "สร้างโดย AI Agent",
+};
+
 const SHOW_THINKING_TRACES_KEY = "showThinkingTraces";
 
 function getStoredShowThinkingTraces(): boolean {
@@ -4468,6 +4474,7 @@ function ChatInterface({
   // Persistent cache that survives reconnects
   const toasts = useKumoToastManager();
   const { currentUser } = useAuthenticatedApi();
+  const { language } = useI18n();
   const getOverseer = useCallback(() => overseer, [overseer]);
   const cacheRef = useRef<ChatCache>({
     chats: new Map(),
@@ -6651,7 +6658,7 @@ function ChatInterface({
                 aria-label="Filter conversations"
               >
                 <span className="text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-default">
-                  {CHAT_LIST_SCOPE_LABELS[chatListScope]}
+                  {language === "th" ? CHAT_LIST_SCOPE_LABELS_TH[chatListScope] : CHAT_LIST_SCOPE_LABELS[chatListScope]}
                 </span>
                 <CaretDown
                   size={10}
@@ -6673,7 +6680,7 @@ function ChatInterface({
                   <span className="mr-2 inline-flex h-3 w-3 items-center justify-center text-kumo-default">
                     {active ? <Check size={11} weight="bold" /> : null}
                   </span>
-                  <span className="flex-1">{CHAT_LIST_SCOPE_LABELS[scope.value]}</span>
+                  <span className="flex-1">{language === "th" ? CHAT_LIST_SCOPE_LABELS_TH[scope.value] : CHAT_LIST_SCOPE_LABELS[scope.value]}</span>
                   <span className="ml-3 font-mono text-[11px] text-kumo-inactive">
                     {scope.count}
                   </span>
@@ -6691,7 +6698,7 @@ function ChatInterface({
           </div>
         ) : chatList.length === 0 ? (
           <p className="text-sm text-kumo-inactive text-center py-8">
-            No conversations yet
+            {language === "th" ? "ยังไม่มีการสนทนา" : "No conversations yet"}
           </p>
         ) : (
           <div className="flex flex-col gap-1">
@@ -6700,7 +6707,7 @@ function ChatInterface({
               // the all-empty case is handled by the outer chatList.length check.
               <div className="py-8 text-center">
                 <p className="text-[13px] leading-[18px] text-kumo-inactive">
-                  No conversations started by {chatListScope === "agents" ? "agents" : "people"} yet
+                  {language === "th" ? `ยังไม่มีการสนทนาที่สร้างโดย ${chatListScope === "agents" ? "AI Agent" : "ผู้ใช้"}` : `No conversations started by ${chatListScope === "agents" ? "agents" : "people"} yet`}
                 </p>
                 <button
                   type="button"

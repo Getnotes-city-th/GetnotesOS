@@ -28,9 +28,13 @@ export default function DeleteConfirmationDialog({
   onOpenChange,
   onConfirm,
 }: DeleteConfirmationDialogProps) {
-  const { t } = useI18n();
-  const finalConfirmLabel = confirmLabel ?? t("delete");
-  const finalConfirmingLabel = confirmingLabel ?? t("loading");
+  const { t, language } = useI18n();
+  const finalConfirmLabel = confirmLabel && confirmLabel !== "Delete"
+    ? confirmLabel
+    : (language === "th" ? "ลบ" : "Delete");
+  const finalConfirmingLabel = confirmingLabel && confirmingLabel !== "Deleting..." && confirmingLabel !== "Deleting…"
+    ? confirmingLabel
+    : (language === "th" ? "กำลังลบ..." : "Deleting...");
   return (
     <Dialog.Root
       open={open}
