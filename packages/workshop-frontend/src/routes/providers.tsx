@@ -132,7 +132,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 function ProvidersPage() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   useDocumentTitle('AI Providers')
 
   const { authenticatedApi } = useAuthenticatedApi()
@@ -176,14 +176,14 @@ function ProvidersPage() {
   }
 
   const handleDelete = async (model: AiChatAuthorInfo) => {
-    if (!confirm(`Delete "${model.name}"? This cannot be undone.`)) return
+    if (!confirm(language === "th" ? `ลบ "${model.name}" หรือไม่? การกระทำนี้ไม่สามารถเรียกคืนได้` : `Delete "${model.name}"? This cannot be undone.`)) return
     setDeletingId(model.id)
     try {
       await authenticatedApi.deleteModel(model.id)
       await fetchAll()
     } catch (err) {
       console.error('Failed to delete model:', err)
-      toasts.add({ title: 'Failed to delete provider', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถลบผู้ให้บริการได้" : "Failed to delete provider", variant: "error" })
     } finally {
       setDeletingId(null)
     }
@@ -202,7 +202,7 @@ function ProvidersPage() {
     } catch (err) {
       console.error('Failed to set quick model:', err)
       setQuickModel(quickModel) // revert
-      toasts.add({ title: 'Failed to update default model', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถอัปเดตโมเดลเริ่มต้นได้" : "Failed to update default model", variant: "error" })
     } finally {
       quickInFlight.current = false
     }
@@ -284,9 +284,9 @@ function ProvidersPage() {
           </div>
         ) : loadError ? (
           <div className="py-12 text-center text-sm">
-            <p className="text-kumo-danger">Something went wrong loading your providers.</p>
+            <p className="text-kumo-danger">{language === "th" ? "เกิดข้อผิดพลาดในการโหลดผู้ให้บริการ AI" : "Something went wrong loading your providers."}</p>
             <button type="button" onClick={fetchAll} className="mt-1 cursor-pointer text-kumo-brand underline">
-              Try again
+              {language === "th" ? "ลองใหม่อีกครั้ง" : "Try again"}
             </button>
           </div>
         ) : models.length === 0 ? (
@@ -295,18 +295,18 @@ function ProvidersPage() {
               <Lightning size={18} />
             </div>
             <div>
-              <p className="text-sm font-medium text-kumo-default">No AI providers yet</p>
+              <p className="text-sm font-medium text-kumo-default">{language === "th" ? "ยังไม่มีผู้ให้บริการ AI" : "No AI providers yet"}</p>
               <p className="mt-1 text-[13px] leading-[18px] text-kumo-subtle">
-                Add a provider to start building workspaces with AI.
+                {language === "th" ? "เพิ่มผู้ให้บริการโมเดลเพื่อเริ่มต้นสร้างพื้นที่ทำงานด้วย AI" : "Add a provider to start building workspaces with AI."}
               </p>
             </div>
             <button type="button" onClick={() => setSheetOpen(true)} className={PRIMARY_BTN}>
               <Plus size={14} weight="bold" />
-              Add your first provider
+              {language === "th" ? "เพิ่มผู้ให้บริการแรกของคุณ" : "Add your first provider"}
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-sm text-kumo-inactive">No providers found</div>
+          <div className="py-12 text-center text-sm text-kumo-inactive">{language === "th" ? "ไม่พบผู้ให้บริการ AI ที่ค้นหา" : "No providers found"}</div>
         ) : (
           filtered.map((model) => (
             <div

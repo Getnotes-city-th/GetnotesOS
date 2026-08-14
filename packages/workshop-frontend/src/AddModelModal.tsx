@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, useEffect } from 'react'
 import { Dialog, Button, Input, Select, SensitiveInput, Collapsible, useKumoToastManager } from '@cloudflare/kumo'
 import { AiChatAuthorInfo, AiModelConfig, AiModelProvider, AiGatewayInfo, SUGGESTED_MODELS } from '@gadgets/workshop-shared/api'
@@ -92,6 +93,7 @@ function buildOptions(gatewayMode: boolean, enabledProviders: Set<string> | null
 }
 
 export default function AddModelModal({ visible, onCancel, onSuccess, authenticatedApi, aiConfig }: AddModelModalProps) {
+  const { t, language } = useI18n()
   const toasts = useKumoToastManager()
 
   const [loading, setLoading] = useState(false)
@@ -205,11 +207,11 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
       }
 
       await authenticatedApi.addModel(profile, config)
-      toasts.add({ title: 'AI model added successfully', variant: 'success' })
+      toasts.add({ title: language === "th" ? "เพิ่มโมเดล AI สำเร็จแล้ว" : "AI model added successfully", variant: "success" })
       onSuccess()
     } catch (error: any) {
       console.error('Failed to add model:', error)
-      toasts.add({ title: 'Failed to add model', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถเพิ่มโมเดลได้" : "Failed to add model", variant: "error" })
     } finally {
       setLoading(false)
     }
@@ -237,15 +239,15 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
     <Dialog.Root open={visible} onOpenChange={(open) => { if (!open) onCancel() }}>
       <Dialog className="p-6" size="lg">
         <Dialog.Title className="text-lg font-semibold mb-4">
-          Add AI Model
+          {language === "th" ? "เพิ่มโมเดล AI" : "Add AI Model"}
         </Dialog.Title>
 
         <div className="space-y-4">
           {/* Model / Provider selection */}
           <Select
-            label={gatewayMode ? 'Select Provider' : 'Select Model'}
+            label={gatewayMode ? (language === "th" ? "เลือกผู้ให้บริการ" : "Select Provider") : (language === "th" ? "เลือกโมเดล AI" : "Select Model")}
             className="w-full text-sm"
-            placeholder={gatewayMode ? 'Choose a provider...' : 'Choose an AI model...'}
+            placeholder={gatewayMode ? (language === "th" ? "เลือกผู้ให้บริการ..." : "Choose a provider...") : (language === "th" ? "เลือกโมเดล AI..." : "Choose an AI model...")}
             value={selectValue}
             onValueChange={(v) => handleModelSelect(v as string)}
             error={errors.selection}
@@ -275,9 +277,9 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
           {showCustomFields && (
             <>
               <Input
-                label="Model ID"
+                label={language === "th" ? "รหัสโมเดล (Model ID)" : "Model ID"}
                 placeholder={`e.g., ${example!.modelId}`}
-                description={`The model identifier as specified by the provider (e.g., '${example!.modelId}')`}
+                description={language === "th" ? `รหัสโมเดลตามที่ผู้ให้บริการกำหนด (เช่น '${example!.modelId}')` : `The model identifier as specified by the provider (e.g., '${example!.modelId}')`}
                 value={modelId}
                 onChange={(e) => { setModelId(e.target.value); setErrors(prev => ({ ...prev, modelId: '' })) }}
                 error={errors.modelId}
@@ -285,9 +287,9 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
               />
 
               <Input
-                label="Display Name"
+                label={language === "th" ? "ชื่อที่แสดง" : "Display Name"}
                 placeholder={`e.g., ${example!.name}`}
-                description="Human-readable name shown in the UI"
+                description={language === "th" ? "ชื่อสำหรับแสดงในอินเทอร์เฟซผู้ใช้" : "Human-readable name shown in the UI"}
                 value={displayName}
                 onChange={(e) => { setDisplayName(e.target.value); setErrors(prev => ({ ...prev, displayName: '' })) }}
                 error={errors.displayName}
@@ -312,14 +314,20 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
           {/* API Token */}
           {showCredentials && selection && (
             <SensitiveInput
-              label="API Token"
+              label={language === "th" ? "โทเค็น API (API Token)" : "API Token"}
               placeholder={API_TOKEN_PLACEHOLDERS[selection.provider]}
               description={
-                isOllama
-                  ? 'Optional for local Ollama access'
-                  : isCloudflare
-                  ? 'An API token with Workers AI Read + Edit permissions (in the dashboard: Workers AI > Use REST API > Create a Workers AI API Token)'
-                  : `Your ${PROVIDER_LABELS[selection.provider]} API token for billing`
+                language === "th"
+                  ? (isOllama
+                      ? "ไม่จำเป็นต้องใส่สำหรับการใช้งาน Ollama ภายในเครื่อง"
+                      : isCloudflare
+                      ? "API token ที่มีสิทธิ์ Workers AI Read + Edit"
+                      : `API token ของ ${PROVIDER_LABELS[selection.provider]} สำหรับการเรียกเก็บค่าบริการ`)
+                  : (isOllama
+                      ? "Optional for local Ollama access"
+                      : isCloudflare
+                      ? "An API token with Workers AI Read + Edit permissions (in the dashboard: Workers AI > Use REST API > Create a Workers AI API Token)"
+                      : `Your ${PROVIDER_LABELS[selection.provider]} API token for billing`)
               }
               value={apiToken}
               onValueChange={(v) => { setApiToken(v); setErrors(prev => ({ ...prev, apiToken: '' })) }}
@@ -347,12 +355,12 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
               open={advancedOpen}
               onOpenChange={setAdvancedOpen}
             >
-              <Collapsible.DefaultTrigger>Advanced Settings</Collapsible.DefaultTrigger>
+              <Collapsible.DefaultTrigger>{language === "th" ? "การตั้งค่าขั้นสูง" : "Advanced Settings"}</Collapsible.DefaultTrigger>
               <Collapsible.DefaultPanel>
                 <Input
                   label="API URL"
                   placeholder="https://..."
-                  description="Override the default API endpoint (useful for proxies like Cloudflare AI Gateway)"
+                  description={language === "th" ? "กำหนด API endpoint เอง (เช่น สำหรับพร็อกซี หรือ OpenAI-compatible API)" : "Override the default API endpoint (useful for proxies like Cloudflare AI Gateway)"}
                   value={apiUrl}
                   onChange={(e) => setApiUrl(e.target.value)}
                 />
@@ -365,7 +373,7 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
         <div className="mt-6 flex justify-end gap-2">
           <Dialog.Close render={(props) => (
             <Button variant="secondary" {...props} disabled={loading}>
-              Cancel
+              {t("cancel")}
             </Button>
           )} />
           <Button
@@ -374,7 +382,7 @@ export default function AddModelModal({ visible, onCancel, onSuccess, authentica
             loading={loading}
             disabled={!selection}
           >
-            Add Model
+            {language === "th" ? "เพิ่มโมเดล" : "Add Model"}
           </Button>
         </div>
       </Dialog>
