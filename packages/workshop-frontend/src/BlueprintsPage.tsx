@@ -1,3 +1,4 @@
+import { getLocalizedBlueprint } from "./i18n/blueprintTranslations"
 import { useI18n } from "./i18n/I18nContext"
 import { Link } from "@tanstack/react-router";
 import { useKumoToastManager } from "@cloudflare/kumo";
@@ -17,7 +18,7 @@ import ViewToggle from "./components/ViewToggle";
 type VendorMap = Map<string, VendorDescription>;
 
 export default function BlueprintsPage() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi();
   const toasts = useKumoToastManager();
   const toastsRef = useRef(toasts);
@@ -92,7 +93,7 @@ export default function BlueprintsPage() {
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3 px-3 pb-3">
         <span className="text-[12px] font-medium uppercase tracking-[0.08em] text-kumo-inactive">
-          Featured
+          {t("featuredBlueprints")}
         </span>
         <div className="relative sm:w-64">
           <MagnifyingGlass
@@ -116,13 +117,13 @@ export default function BlueprintsPage() {
           <EmptySection
             title={
               search
-                ? "No blueprints match"
-                : "No featured blueprints yet"
+                ? (language === "th" ? "ไม่พบแม่แบบที่ค้นหา" : "No blueprints match")
+                : (language === "th" ? "ยังไม่มีแม่แบบแนะนำในขณะนี้" : "No featured blueprints yet")
             }
             message={
               search
-                ? "Try a different search term."
-                : "Featured blueprints will appear here when they’re published. You can still create blueprints from your own workspaces."
+                ? (language === "th" ? "ลองค้นหาด้วยคำค้นหาอื่น" : "Try a different search term.")
+                : (language === "th" ? "แม่แบบแนะนำจะปรากฏที่นี่เมื่อได้รับการเผยแพร่ คุณยังคงสามารถสร้างแม่แบบจากพื้นที่ทำงานของคุณได้" : "Featured blueprints will appear here when they’re published. You can still create blueprints from your own workspaces.")
             }
           />
         ) : view === "grid" ? (
@@ -172,9 +173,12 @@ function FeaturedBlueprintCard({
   blueprint,
   vendorDescriptions,
 }: {
+
   blueprint: BlueprintPublicInfo;
   vendorDescriptions: VendorMap;
 }) {
+  const { language } = useI18n();
+  const loc = getLocalizedBlueprint(blueprint.id, blueprint.metadata.title, blueprint.metadata.description, language);
   const badges = uniqueBindingBadges(blueprint.metadata.bindings).slice(0, 2);
 
   return (
@@ -194,14 +198,14 @@ function FeaturedBlueprintCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-medium leading-[18px] tracking-[-0.25px] text-kumo-default">
-            {blueprint.metadata.title}
+            {loc.title}
           </p>
           <p
             className={`mt-0.5 line-clamp-1 text-[12px] leading-4 tracking-[-0.2px] ${
               blueprint.metadata.description ? "text-kumo-subtle" : "italic text-kumo-inactive"
             }`}
           >
-            {blueprint.metadata.description || "No description"}
+            {loc.description || (language === "th" ? "ไม่มีคำอธิบาย" : "No description")}
           </p>
           {badges.length > 0 && (
             <div className="relative z-20 mt-2 flex flex-wrap gap-1">
@@ -224,9 +228,12 @@ function FeaturedBlueprintRow({
   blueprint,
   vendorDescriptions,
 }: {
+
   blueprint: BlueprintPublicInfo;
   vendorDescriptions: VendorMap;
 }) {
+  const { language } = useI18n();
+  const loc = getLocalizedBlueprint(blueprint.id, blueprint.metadata.title, blueprint.metadata.description, language);
   const badges = uniqueBindingBadges(blueprint.metadata.bindings).slice(0, 3);
 
   return (
@@ -240,14 +247,14 @@ function FeaturedBlueprintRow({
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium tracking-[-0.25px] text-kumo-default">
-          {blueprint.metadata.title}
+          {loc.title}
         </p>
         <p
           className={`mt-0.5 line-clamp-1 text-[12px] leading-4 tracking-[-0.2px] ${
-            blueprint.metadata.description ? "text-kumo-subtle" : "italic text-kumo-inactive"
+            loc.description ? "text-kumo-subtle" : "italic text-kumo-inactive"
           }`}
         >
-          {blueprint.metadata.description || "No description"}
+          {loc.description || (language === "th" ? "ไม่มีคำอธิบาย" : "No description")}
         </p>
       </div>
       {badges.length > 0 && (

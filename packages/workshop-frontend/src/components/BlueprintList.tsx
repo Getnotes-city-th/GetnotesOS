@@ -1,3 +1,4 @@
+import { getLocalizedBlueprint } from "../i18n/blueprintTranslations"
 import { useI18n } from "../i18n/I18nContext"
 import { Link } from '@tanstack/react-router'
 import {
@@ -33,15 +34,15 @@ type BlueprintItem = {
 const ACTION_BUTTON =
   'press inline-flex h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-kumo-line bg-kumo-base px-3.5 text-[13px] font-medium tracking-[-0.25px] text-kumo-default transition-colors hover:bg-kumo-tint disabled:cursor-default disabled:opacity-50'
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, language: "th" | "en" = "th"): string {
   const diff = Date.now() - date.getTime()
   const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return language === "th" ? "เมื่อสักครู่" : "just now"
+  if (minutes < 60) return language === "th" ? `${minutes} นาทีที่แล้ว` : `${minutes}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return language === "th" ? `${hours} ชั่วโมงที่แล้ว` : `${hours}h ago`
   const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  return language === "th" ? `${days} วันที่แล้ว` : `${days}d ago`
 }
 
 function sortItems(items: BlueprintItem[]): BlueprintItem[] {
@@ -53,7 +54,6 @@ function sortItems(items: BlueprintItem[]): BlueprintItem[] {
 }
 
 function BlueprintRow({
-
   item,
   onTogglePin,
   onRemoveFromLibrary,
@@ -62,7 +62,8 @@ function BlueprintRow({
   onTogglePin: (b: BlueprintItem) => void
   onRemoveFromLibrary: (b: BlueprintItem) => void
 }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const loc = getLocalizedBlueprint(item.id, item.title, item.description, language);
   return (
     <Link
       to="/blueprint/$id"
@@ -78,17 +79,17 @@ function BlueprintRow({
         <div className="flex items-center gap-2">
           {item.pinned && <Star size={12} weight="fill" className="flex-shrink-0 text-kumo-brand" />}
           <h3 className="truncate text-sm font-medium text-kumo-default">
-            {item.title || 'Untitled blueprint'}
+            {loc.title || (language === "th" ? "แม่แบบไม่มีชื่อ" : "Untitled blueprint")}
           </h3>
         </div>
-        {item.description && (
-          <p className="mt-0.5 truncate text-xs text-kumo-subtle">{item.description}</p>
+        {loc.description && (
+          <p className="mt-0.5 truncate text-xs text-kumo-subtle">{loc.description}</p>
         )}
       </div>
 
       <span className="hidden flex-shrink-0 items-center gap-1 text-xs text-kumo-inactive lg:flex">
         <Clock size={10} />
-        {formatRelativeTime(new Date(item.recency))}
+        {formatRelativeTime(new Date(item.recency), language)}
       </span>
 
       {/* Inside the row's <Link>: stopPropagation blocks the Link's SPA handler, so preventDefault
@@ -113,7 +114,7 @@ function BlueprintRow({
             {item.inLibrary && (
               <DropdownMenu.Item variant="danger" onClick={() => onRemoveFromLibrary(item)} className={MENU_ITEM_DANGER}>
                 <Trash size={13} className="mr-2" />
-                Remove from library
+                {t("removeFromLibrary")}
               </DropdownMenu.Item>
             )}
           </DropdownMenu.Content>
@@ -124,7 +125,7 @@ function BlueprintRow({
 }
 
 export default function BlueprintList() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
 
@@ -306,27 +307,27 @@ export default function BlueprintList() {
           </div>
         ) : loadError ? (
           <div className="py-12 text-center text-sm">
-            <p className="text-kumo-danger">Something went wrong loading your blueprints.</p>
-            <button type="button" onClick={load} className="mt-1 text-kumo-brand underline">Try again</button>
+            <p className="text-kumo-danger">{language === "th" ? "เกิดข้อผิดพลาดในการโหลดแม่แบบของคุณ" : "Something went wrong loading your blueprints."}</p>
+            <button type="button" onClick={load} className="mt-1 text-kumo-brand underline">{language === "th" ? "ลองใหม่อีกครั้ง" : "Try again"}</button>
           </div>
         ) : filtered.length === 0 ? (
           search ? (
-            <div className="py-12 text-center text-sm text-kumo-inactive">No blueprints found</div>
+            <div className="py-12 text-center text-sm text-kumo-inactive">{language === "th" ? "ไม่พบแม่แบบที่ค้นหา" : "No blueprints found"}</div>
           ) : (
             <div className="flex flex-col items-center gap-3 px-3 py-16 text-center">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-kumo-fill text-kumo-subtle">
                 <BlueprintIcon size={18} />
               </div>
               <div>
-                <p className="text-sm font-medium text-kumo-default">No blueprints yet</p>
+                <p className="text-sm font-medium text-kumo-default">{language === "th" ? "ยังไม่มีแม่แบบในคลัง" : "No blueprints yet"}</p>
                 <p className="mt-1 text-[13px] leading-[18px] text-kumo-subtle">
-                  Publish a workspace as a blueprint, or add one from Explore.
+                  {language === "th" ? "เผยแพร่พื้นที่ทำงานเป็นแม่แบบ หรือเพิ่มแม่แบบใหม่จากหน้าสำรวจ" : "Publish a workspace as a blueprint, or add one from Explore."}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Link to="/explore" className={ACTION_BUTTON}>
                   <Compass size={14} />
-                  Explore blueprints
+                  {t("exploreAction")}
                 </Link>
                 <button
                   type="button"
@@ -335,7 +336,7 @@ export default function BlueprintList() {
                   className={ACTION_BUTTON}
                 >
                   <UploadSimple size={14} weight="bold" />
-                  {uploading ? 'Uploading…' : 'Upload .gadget'}
+                  {uploading ? t("uploading") : t("upload")}
                 </button>
               </div>
             </div>
