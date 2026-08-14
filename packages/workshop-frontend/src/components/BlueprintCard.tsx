@@ -1,7 +1,8 @@
+import { getLocalizedBlueprint } from "../i18n/blueprintTranslations"
+import { useI18n } from "../i18n/I18nContext"
 import { Link } from "@tanstack/react-router";
 import {
-  Hexagon,
-  Robot,
+    Robot,
   Lightning,
   Star,
 } from "@phosphor-icons/react";
@@ -110,11 +111,14 @@ export function BlueprintCard({
   featured,
   vendorDescriptions,
 }: {
+
   id: string;
   metadata: BlueprintMetadata;
   featured?: boolean;
   vendorDescriptions?: Map<string, VendorDescription>;
 }) {
+  const { language } = useI18n();
+  const loc = getLocalizedBlueprint(id, metadata.title, metadata.description, language);
   const badges = uniqueBindingBadges(metadata.bindings);
 
   return (
@@ -129,22 +133,20 @@ export function BlueprintCard({
       <Link
         to="/blueprint/$id"
         params={{ id }}
-        aria-label={`Open blueprint ${metadata.title}`}
+        aria-label={`Open blueprint ${loc.title}`}
         className="absolute inset-0 z-10 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kumo-brand"
       />
       <div className="pointer-events-none relative z-20 flex flex-1 flex-col p-4">
         <div className="flex items-start gap-3">
-          <div
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${getGradient(id)}`}
-          >
-            <Hexagon size={16} className="text-white/75" weight="bold" />
+          <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-kumo-brand">
+            <img src="/getnotes-logo.png" alt="" className="w-10 h-10 rounded-full object-contain" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="m-0 line-clamp-2 text-[15px] leading-5 font-medium tracking-[-0.25px] text-kumo-default">
               {metadata.title}
             </p>
             <p className={`mt-1.5 line-clamp-2 min-h-8 text-[12px] leading-4 font-normal tracking-[-0.2px] ${metadata.description ? "text-kumo-subtle" : "text-kumo-inactive italic"}`}>
-              {metadata.description || "No description"}
+              {loc.description || (language === "th" ? "ไม่มีคำอธิบาย" : "No description")}
             </p>
           </div>
         </div>

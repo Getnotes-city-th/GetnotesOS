@@ -1,13 +1,14 @@
+import { getLocalizedBlueprint } from "../i18n/blueprintTranslations"
 import { useI18n } from "../i18n/I18nContext"
 import { Link } from '@tanstack/react-router'
-import { Clock, MagnifyingGlass, Hexagon, DotsThreeVertical, ShareNetwork, Trash, Info, Star, Pencil, ArrowRight } from '@phosphor-icons/react'
+import { Clock, MagnifyingGlass, DotsThreeVertical, ShareNetwork, Trash, Info, Star, Pencil, ArrowRight } from '@phosphor-icons/react'
 import { useState, useEffect, useRef } from 'react'
 import { DropdownMenu, Dialog, Button, useKumoToastManager } from '@cloudflare/kumo'
 import { RpcStub } from 'capnweb'
 import { useAuthenticatedApi } from '../AuthContext'
 import { GadgetMetadataWithTimestamps, BlueprintPublicInfo, Overseer, AiChatAuthorInfo } from '@gadgets/workshop-shared/api'
 import ShareModal from '../ShareModal'
-import { BindingBadge, getGradient as getBlueprintGradient, uniqueBindingBadges } from './BlueprintCard'
+import { BindingBadge, uniqueBindingBadges } from './BlueprintCard'
 import { MENU_CONTENT, MENU_ITEM, MENU_ITEM_DANGER } from './menuStyles'
 import { BlueprintPreviewImage } from './BlueprintPreviewImage'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
@@ -490,6 +491,8 @@ function HomeFeaturedBlueprintCard({
 }: {
   blueprint: BlueprintPublicInfo
 }) {
+  const { language } = useI18n();
+  const loc = getLocalizedBlueprint(blueprint.id, blueprint.metadata.title, blueprint.metadata.description, language);
   const badges = uniqueBindingBadges(blueprint.metadata.bindings).slice(0, 1)
 
   return (
@@ -497,7 +500,7 @@ function HomeFeaturedBlueprintCard({
       <Link
         to="/blueprint/$id"
         params={{ id: blueprint.id }}
-        aria-label={`Open blueprint ${blueprint.metadata.title}`}
+        aria-label={`Open blueprint ${loc.title}`}
         className="absolute inset-0 z-10 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kumo-brand"
       />
       <div className="pointer-events-none relative z-20 flex flex-1 flex-col p-2.5">
@@ -508,15 +511,15 @@ function HomeFeaturedBlueprintCard({
           className="mb-3"
         />
         <div className="flex min-w-0 items-start gap-2 px-1 pb-1">
-          <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br ${getBlueprintGradient(blueprint.id)}`}>
-            <Hexagon size={13} className="text-white/75" weight="bold" />
+          <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-kumo-brand">
+            <img src="/getnotes-logo.png" alt="" className="w-8 h-8 rounded-full object-contain" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="m-0 truncate text-[13px] leading-[18px] font-semibold tracking-[-0.25px] text-kumo-default">
               {blueprint.metadata.title}
             </p>
             <p className={`mt-0.5 line-clamp-2 min-h-8 text-[12px] leading-4 tracking-[-0.2px] ${blueprint.metadata.description ? 'text-kumo-subtle' : 'text-kumo-inactive italic'}`}>
-              {blueprint.metadata.description || 'No description'}
+              {loc.description || 'No description'}
             </p>
             {badges.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
@@ -533,6 +536,7 @@ function HomeFeaturedBlueprintCard({
 }
 
 function FeaturedBlueprintsGallery() {
+  const { language } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const [blueprints, setBlueprints] = useState<BlueprintPublicInfo[]>([])
   const [loading, setLoading] = useState(true)
@@ -576,7 +580,7 @@ function FeaturedBlueprintsGallery() {
     <div className="py-4 pr-4 sm:pr-6">
       <div className="mb-5">
         <h3 className="text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-default">
-          Start from a featured blueprint.
+          {language === "th" ? "เริ่มต้นจากแม่แบบแนะนำ" : "Start from a featured blueprint."}
         </h3>
       </div>
 
@@ -595,7 +599,7 @@ function FeaturedBlueprintsGallery() {
             to="/explore"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-kumo-brand hover:text-kumo-brand-hover transition-colors"
           >
-            Browse all blueprints
+            {language === "th" ? "ดูแม่แบบทั้งหมด" : "Browse all blueprints"}
             <ArrowRight size={12} weight="bold" />
           </Link>
         </div>
