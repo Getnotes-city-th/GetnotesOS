@@ -250,6 +250,7 @@ type OwnerFilter = 'all' | 'mine' | 'shared'
 const SCOPE_ICON = { all: Stack, mine: User, shared: ShareNetwork } as const
 
 function ScopeSelect({
+
   value,
   counts,
   onChange,
@@ -261,10 +262,11 @@ function ScopeSelect({
   // The trigger shows the chosen option verbatim, so the default label has to spell out the union
   // of the other two. Anything shorter ("Anyone", "All") reads as a directory of other people,
   // when nothing here is reachable without having made it or been given access.
+  const { language } = useI18n();
   const options: { value: OwnerFilter; label: string }[] = [
-    { value: 'all', label: 'Yours and shared' },
-    { value: 'mine', label: 'Created by you' },
-    { value: 'shared', label: 'Shared with you' },
+    { value: 'all', label: language === "th" ? "ของฉันและที่แชร์" : "Yours and shared" },
+    { value: 'mine', label: language === "th" ? "สร้างโดยคุณ" : "Created by you" },
+    { value: 'shared', label: language === "th" ? "แชร์กับคุณ" : "Shared with you" },
   ]
   const current = options.find((o) => o.value === value)!
   const CurrentIcon = SCOPE_ICON[value]
@@ -389,7 +391,7 @@ function RenameOutputDialog({
 type TypeFilter = 'all' | string
 
 function OutputsPage() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   useDocumentTitle(t("outputs"))
   const { authenticatedApi } = useAuthenticatedApi()
   const navigate = useNavigate()
@@ -599,7 +601,7 @@ function OutputsPage() {
                 <FilterChip
                   key={id}
                   active={typeFilter === id}
-                  label={plural}
+                  label={language === "th" ? (id === "document" ? "เอกสาร (Docs)" : id === "presentation" ? "สไลด์ (Slides)" : id === "spreadsheet" ? "สเปรดชีต (Sheets)" : id === "app" ? "แอปพลิเคชัน (Apps)" : plural) : plural}
                   count={inTypeScope.filter((o) => formatOf(o.output).id === id).length}
                   onClick={() => setTypeFilter(id)}
                 />

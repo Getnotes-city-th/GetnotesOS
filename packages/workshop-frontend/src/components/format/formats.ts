@@ -72,3 +72,23 @@ export function formatOf(output?: BlueprintOutput): BlueprintOutput {
 export function wireframeOf(output?: BlueprintOutput): FormatWireframe {
   return WIREFRAME_FOR_ICON[formatOf(output).icon]
 }
+
+export function localizedFormatNoun(output?: BlueprintOutput, language: "th" | "en" = "th"): string {
+  const f = formatOf(output)
+  if (language !== "th") return f.noun
+  if (f.id === "document" || f.icon === "fileText") return "เอกสาร"
+  if (f.id === "presentation" || f.icon === "presentation") return "สไลด์"
+  if (f.id === "spreadsheet" || f.icon === "table") return "สเปรดชีต"
+  if (f.id === "app" || f.icon === "appWindow") return "แอปพลิเคชัน"
+  return f.noun
+}
+
+export function localizedFormatPlural(output?: BlueprintOutput, language: "th" | "en" = "th"): string {
+  const f = formatOf(output)
+  if (language !== "th") return f.plural
+  if (f.id === "document" || f.icon === "fileText") return "เอกสาร"
+  if (f.id === "presentation" || f.icon === "presentation") return "สไลด์"
+  if (f.id === "spreadsheet" || f.icon === "table") return "สเปรดชีต"
+  if (f.id === "app" || f.icon === "appWindow") return "แอปพลิเคชัน"
+  return f.plural
+}

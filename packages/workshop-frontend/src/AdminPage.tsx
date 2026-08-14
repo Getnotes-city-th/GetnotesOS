@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, useEffect, useRef, type ChangeEvent } from 'react'
 import { RpcStub } from 'capnweb'
 import { Switch, Textarea, Input, Button, Tabs, useKumoToastManager } from '@cloudflare/kumo'
@@ -31,6 +32,7 @@ const BANNER_SWATCH: Record<BannerColor, string> = {
 }
 
 export default function AdminPage() {
+  const { language } = useI18n();
   const { authenticatedApi, isAdmin } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
   useDocumentTitle('Admin')
@@ -389,9 +391,9 @@ export default function AdminPage() {
   return (
     <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-8 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-kumo-default">Admin</h1>
+        <h1 className="text-2xl font-semibold text-kumo-default">{language === "th" ? "ผู้ดูแลระบบ (Admin)" : "Admin"}</h1>
         <p className="text-sm text-kumo-subtle mt-1">
-          Deployment-wide settings. Changes apply to all users on their next connection.
+          {language === "th" ? "การตั้งค่าระดับระบบ การเปลี่ยนแปลงจะมีผลกับผู้ใช้ทุกคนในการเชื่อมต่อครั้งถัดไป" : "Deployment-wide settings. Changes apply to all users on their next connection."}
         </p>
       </div>
 
@@ -400,10 +402,10 @@ export default function AdminPage() {
         value={activeTab}
         onValueChange={setActiveTab}
         tabs={[
-          { value: 'general', label: 'General' },
-          { value: 'gatekeepers', label: 'Gatekeepers' },
-          { value: 'formats', label: 'Formats' },
-          { value: 'access', label: 'Access' },
+          { value: 'general', label: language === "th" ? "ทั่วไป" : "General" },
+          { value: 'gatekeepers', label: language === "th" ? "ตัวเชื่อมต่อ" : "Gatekeepers" },
+          { value: 'formats', label: language === "th" ? "รูปแบบผลงาน" : "Formats" },
+          { value: 'access', label: language === "th" ? "การเข้าถึงและสิทธิ์" : "Access" },
         ]}
       />
 
@@ -424,9 +426,9 @@ export default function AdminPage() {
               <UserPlus size={18} className="text-kumo-subtle" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-kumo-strong">Allow new sign-ups</h2>
+              <h2 className="text-lg font-semibold text-kumo-strong">{language === "th" ? "อนุญาตให้ลงทะเบียนบัญชีใหม่" : "Allow new sign-ups"}</h2>
               <p className="text-sm text-kumo-subtle mt-0.5">
-                When off, existing users can still log in but no new accounts can be created.
+                {language === "th" ? "เมื่อปิดใช้งาน ผู้ใช้เดิมยังคงเข้าสู่ระบบได้ตามปกติ แต่จะไม่สามารถสร้างบัญชีใหม่ได้" : "When off, existing users can still log in but no new accounts can be created."}
               </p>
             </div>
             <Switch

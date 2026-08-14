@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { logRpcFailure } from './rpcErrors'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKumoToastManager } from '@cloudflare/kumo'
@@ -57,11 +58,13 @@ interface VendorEntry {
 // ─── component ──────────────────────────────────────────────────────────────────
 
 export default function OnboardingWizard({
+
   onComplete,
 }: {
   onComplete: () => void
 }) {
   const { authenticatedApi, currentUser } = useAuthenticatedApi()
+  const { language } = useI18n()
   const { resolvedThemeMode } = useTheme()
   const toasts = useKumoToastManager()
   const siteName = useSiteName()
@@ -357,7 +360,7 @@ export default function OnboardingWizard({
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
             }`}
           >
-            Just a few things before you start building
+            {language === "th" ? "ตั้งค่าเริ่มต้นเพียงเล็กน้อยก่อนเริ่มสร้างสรรค์ผลงาน" : "Just a few things before you start building"}
           </p>
         </div>
 
@@ -386,7 +389,7 @@ export default function OnboardingWizard({
             {/* ── Step 0: Profile ───────────────────────────────────────────── */}
             <div className="w-full flex-shrink-0 p-8 min-h-[420px]">
               <h2 className="text-lg font-medium text-kumo-default mb-1">
-                Create your profile
+                {language === "th" ? "สร้างโปรไฟล์ของคุณ" : "Create your profile"}
               </h2>
               <p className="text-sm text-kumo-subtle mb-12">
                 This is how you&apos;ll appear in conversations

@@ -1,3 +1,5 @@
+import { getLocalizedBlueprint } from "./i18n/blueprintTranslations"
+import { useI18n } from "./i18n/I18nContext"
 import { logRpcFailure } from './rpcErrors'
 import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { useNavigate, useParams, useRouter } from '@tanstack/react-router'
@@ -31,6 +33,7 @@ type BindingFormState = Record<string, any>
 const NO_AGENT_MODEL_ID = 'gadgets:sentinel:no-agent-model'
 
 export default function BlueprintLandingPage({ rpcStub }: Props) {
+  const { t, language } = useI18n();
   const params = useParams({ strict: false }) as { id?: string }
   const id = params.id ?? ''
   const navigate = useNavigate()
@@ -751,7 +754,8 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
     )
   }
 
-  let meta = blueprint.metadata
+  const loc = getLocalizedBlueprint(blueprint.id, blueprint.metadata.title, blueprint.metadata.description, language);
+  let meta = { ...blueprint.metadata, title: loc.title, description: loc.description };
   let bindingEntries = Object.entries(meta.bindings)
   let activeBinding = activeBindingName ? meta.bindings[activeBindingName] : undefined
   let readyCount = bindingEntries.filter(([name]) => draftAssignments[name]).length
@@ -788,7 +792,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
           className="mb-8 inline-flex cursor-pointer items-center gap-2 px-1 py-1 text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-subtle transition-[color,transform] duration-150 ease-out hover:text-kumo-default active:scale-[0.98]"
         >
           <ArrowLeft size={14} weight="bold" />
-          Back
+          {t("back")}
         </button>
 
         <header className="mb-10 grid gap-7 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
@@ -796,7 +800,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
             {isFeatured && (
               <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[rgba(255,72,1,0.10)] px-2 py-1 text-[11px] leading-4 font-semibold tracking-[-0.1px] text-kumo-brand">
                 <Star size={12} weight="fill" />
-                Featured
+                {t("featuredBlueprints")}
               </span>
             )}
             <h1 className="m-0 text-3xl font-semibold leading-tight tracking-tight text-kumo-default">
@@ -831,7 +835,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                   disabled={createDisabled}
                   className="press inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg bg-kumo-brand px-4 text-[14px] leading-5 font-semibold tracking-[-0.25px] text-white transition-colors duration-150 ease-out hover:bg-kumo-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {creating ? 'Creating...' : primaryActionLabel}
+                  {creating ? (language === "th" ? "กำลังสร้างพื้นที่ทำงาน..." : "Creating...") : (language === "th" ? (primaryActionLabel === "Log in to use blueprint" ? "เข้าสู่ระบบเพื่อใช้งานแม่แบบ" : "สร้างพื้นที่ทำงานจากแม่แบบนี้") : primaryActionLabel)}
                 </button>
               </span>
 
@@ -867,7 +871,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                   disabled={downloading}
                   className={MENU_ITEM}
                 >
-                  {downloading ? 'Downloading...' : 'Download archive'}
+                  {downloading ? (language === "th" ? "กำลังดาวน์โหลด..." : "Downloading...") : (language === "th" ? "ดาวน์โหลดไฟล์ (.gadget)" : "Download archive")}
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Item
@@ -876,7 +880,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                   disabled={updatingPinned}
                   className={MENU_ITEM}
                 >
-                  {updatingPinned ? 'Updating...' : (isPinned ? 'Unfavorite' : 'Favorite')}
+                  {updatingPinned ? (language === "th" ? "กำลังอัปเดต..." : "Updating...") : (isPinned ? t("unfavorite") : t("favoriteAction"))}
                 </DropdownMenu.Item>
 
                 {sourceWorkspace && (
@@ -885,7 +889,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                     onClick={() => window.open(`/workspace/${sourceWorkspace.workspaceId}`, '_blank', 'noopener,noreferrer')}
                     className={MENU_ITEM}
                   >
-                    Go to workspace
+                    {language === "th" ? "ไปยังพื้นที่ทำงาน" : "Go to workspace"}
                   </DropdownMenu.Item>
                 )}
 
