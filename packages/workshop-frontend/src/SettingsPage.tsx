@@ -299,7 +299,7 @@ export default function SettingsPage() {
                   {userInfo?.name}
                 </p>
                 <p className="mt-0.5 text-[12px] leading-4 tracking-[-0.2px] text-kumo-subtle">
-                  Click the avatar to upload a new photo
+                  {language === "th" ? "คลิกที่รูปโปรไฟล์เพื่ออัปโหลดรูปใหม่" : "Click the avatar to upload a new photo"}
                 </p>
               </div>
             </div>
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                       if (e.key === 'Enter') handleSaveName()
                       if (e.key === 'Escape') handleCancelEdit()
                     }}
-                    placeholder="Enter display name"
+                    placeholder={language === "th" ? "ป้อนชื่อที่ต้องการแสดง" : "Enter display name"}
                     autoFocus
                     className={`mt-1.5 ${INPUT}`}
                   />
@@ -336,7 +336,7 @@ export default function SettingsPage() {
                     className={PRIMARY_BTN}
                   >
                     <Check size={15} weight="bold" />
-                    Save
+                    {language === "th" ? "บันทึก" : "Save"}
                   </button>
                   <button
                     type="button"
@@ -461,7 +461,7 @@ export default function SettingsPage() {
                   label={t("currentPassword")}
                   value={currentPassword}
                   onChange={setCurrentPassword}
-                  placeholder="Enter current password"
+                  placeholder={language === "th" ? "ป้อนรหัสผ่านปัจจุบัน" : "Enter current password"}
                   autoComplete="current-password"
                 />
 
@@ -469,8 +469,8 @@ export default function SettingsPage() {
                   label={t("newPassword")}
                   value={newPassword}
                   onChange={setNewPassword}
-                  placeholder="Enter new password"
-                  description="Must be at least 8 characters"
+                  placeholder={language === "th" ? "ป้อนรหัสผ่านใหม่" : "Enter new password"}
+                  description={language === "th" ? "ต้องมีความยาวอย่างน้อย 8 ตัวอักษร" : "Must be at least 8 characters"}
                   autoComplete="new-password"
                 />
 
@@ -478,7 +478,7 @@ export default function SettingsPage() {
                   label={t("confirmPassword")}
                   value={confirmPassword}
                   onChange={setConfirmPassword}
-                  placeholder="Confirm new password"
+                  placeholder={language === "th" ? "ยืนยันรหัสผ่านใหม่อีกครั้ง" : "Confirm new password"}
                   autoComplete="new-password"
                   error={passwordError}
                 />
@@ -491,7 +491,7 @@ export default function SettingsPage() {
                     className={PRIMARY_BTN}
                   >
                     <Lock size={14} weight="bold" />
-                    {passwordLoading ? 'Changing…' : '{t("changePassword")}'}
+                    {passwordLoading ? (language === "th" ? "กำลังเปลี่ยนรหัสผ่าน..." : "Changing…") : t("changePassword")}
                   </button>
                 </div>
               </div>
