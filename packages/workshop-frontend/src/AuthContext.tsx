@@ -20,6 +20,9 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children, authenticatedApi, onLogout }: AuthProviderProps) {
+  if (typeof window !== "undefined") {
+    (window as any).authenticatedApi = authenticatedApi;
+  }
   const [currentUser, setCurrentUser] = useState<AiChatAuthorInfo | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
 
