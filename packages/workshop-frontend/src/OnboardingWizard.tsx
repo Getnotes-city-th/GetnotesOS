@@ -19,8 +19,7 @@ import {
   UsersThree,
   Key,
   Plugs,
-  Hexagon,
-} from '@phosphor-icons/react'
+  } from '@phosphor-icons/react'
 import AddModelModal from './AddModelModal'
 import { persistSelectedModel } from './modelSelection'
 import { logoComponents } from './components/ConnectionLogos'
@@ -337,7 +336,7 @@ export default function OnboardingWizard({
           }`}
         >
           <SiteLogo size={22}>
-            <Hexagon size={22} className="text-kumo-brand" weight="bold" />
+            <img src="/getnotes-logo.png" alt="GetnotesOS" className="w-[22px] h-[22px] rounded-full object-contain" />
           </SiteLogo>
           <span className="text-base font-semibold tracking-tight text-kumo-default">
             {siteName}

@@ -3,7 +3,6 @@ import {
   Blueprint,
   BookOpen,
   Compass,
-  Hexagon,
   House,
   MagnifyingGlass,
   SidebarSimple,
@@ -67,7 +66,7 @@ export default function Sidebar({
       >
         <Link to="/" aria-label={siteName} className="flex min-w-0 items-center gap-2">
           <SiteLogo size={20} className="shrink-0">
-            <Hexagon size={20} weight="bold" className="text-kumo-brand shrink-0" />
+            <img src="/getnotes-logo.png" alt="GetnotesOS" className="w-5 h-5 rounded-full object-contain shrink-0" />
           </SiteLogo>
           {!collapsed && (
             <span className="truncate text-[14px] leading-5 font-semibold tracking-[-0.25px] text-kumo-default">

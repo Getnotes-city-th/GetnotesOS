@@ -6,7 +6,6 @@ import {
   Pencil,
   Check,
   X,
-  Hexagon,
   Blueprint,
   Trash,
   ArrowsOutSimple,
@@ -1340,7 +1339,7 @@ export default function GadgetEditor() {
             className="flex-shrink-0 hover:opacity-80 transition-opacity"
           >
             <SiteLogo size={22}>
-              <Hexagon size={22} className="text-kumo-brand" weight="bold" />
+              <img src="/getnotes-logo.png" alt="GetnotesOS" className="w-[22px] h-[22px] rounded-full object-contain" />
             </SiteLogo>
           </Link>
 
