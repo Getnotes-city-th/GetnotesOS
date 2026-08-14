@@ -22,7 +22,7 @@ import { useAuthenticatedApi } from '../AuthContext'
 import { useDocumentTitle } from '../useDocumentTitle'
 import ViewToggle from '../components/ViewToggle'
 import { MENU_CONTENT, MENU_ITEM, MENU_POSITIONER_STYLE } from '../components/menuStyles'
-import { formatOf } from '../components/format/formats'
+import { formatOf, localizedFormatNoun } from '../components/format/formats'
 import { FormatThumbnail, FormatTile } from '../components/format/FormatVisuals'
 import { useOutputFormats } from '../components/format/useOutputFormats'
 import NewFormatRow from '../components/format/NewFormatRow'
@@ -37,15 +37,15 @@ export const Route = createFileRoute('/outputs')({
   component: OutputsPage,
 })
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, language: "th" | "en" = "th"): string {
   const diff = Date.now() - date.getTime()
   const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return language === "th" ? "เมื่อสักครู่" : "just now"
+  if (minutes < 60) return language === "th" ? `${minutes} นาทีที่แล้ว` : `${minutes}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return language === "th" ? `${hours} ชั่วโมงที่แล้ว` : `${hours}h ago`
   const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  return language === "th" ? `${days} วันที่แล้ว` : `${days}d ago`
 }
 
 function outputKey(output: OutputSummary): string {
@@ -68,6 +68,7 @@ function OutputMenu({
   onRename,
   onRemove,
 }: {
+
   onOpen: () => void
   onOpenWorkspace: () => void
   // Undefined for a workspace shared with "use" access, which may open an output but not change
@@ -75,6 +76,7 @@ function OutputMenu({
   onRename?: () => void
   onRemove?: () => void
 }) {
+  const { language } = useI18n();
   return (
     <div
       className="press-exempt"
@@ -97,19 +99,19 @@ function OutputMenu({
         />
         <DropdownMenu.Content className={MENU_CONTENT}>
           <DropdownMenu.Item onClick={onOpen} className={MENU_ITEM}>
-            <ArrowSquareOut size={13} className="mr-2" /> Open
+            <ArrowSquareOut size={13} className="mr-2" /> {language === "th" ? "เปิดดูผลงาน" : "Open"}
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={onOpenWorkspace} className={MENU_ITEM}>
-            <Cube size={13} className="mr-2" /> Open workspace
+            <Cube size={13} className="mr-2" /> {language === "th" ? "เปิดพื้นที่ทำงาน" : "Open workspace"}
           </DropdownMenu.Item>
           {onRename && (
             <DropdownMenu.Item onClick={onRename} className={MENU_ITEM}>
-              <PencilSimple size={13} className="mr-2" /> Rename
+              <PencilSimple size={13} className="mr-2" /> {language === "th" ? "เปลี่ยนชื่อ" : "Rename"}
             </DropdownMenu.Item>
           )}
           {onRemove && (
             <DropdownMenu.Item onClick={onRemove} className={`${MENU_ITEM} text-kumo-danger`}>
-              <Trash size={13} className="mr-2" /> Remove
+              <Trash size={13} className="mr-2" /> {language === "th" ? "ลบผลงาน" : "Remove"}
             </DropdownMenu.Item>
           )}
         </DropdownMenu.Content>
@@ -119,22 +121,23 @@ function OutputMenu({
 }
 
 // Secondary line under an output's title in the grid, where there's no room for meta columns.
-function subtitle(output: OutputSummary): string {
-  const parts = [output.workspaceTitle || 'Untitled workspace']
-  if (output.owner) parts.push(`Shared by ${output.owner.name}`)
-  parts.push(`Workspace active ${formatRelativeTime(output.lastActive)}`)
-  return parts.join(' · ')
+function subtitle(output: OutputSummary, language: "th" | "en" = "th"): string {
+  const parts = [output.workspaceTitle || (language === "th" ? "พื้นที่ทำงานไม่มีชื่อ" : "Untitled workspace")]
+  if (output.owner) parts.push(language === "th" ? `แชร์โดย ${output.owner.name}` : `Shared by ${output.owner.name}`)
+  parts.push(language === "th" ? `ใช้งานล่าสุด ${formatRelativeTime(output.lastActive, language)}` : `Workspace active ${formatRelativeTime(output.lastActive, language)}`)
+  return parts.join(" · ")
 }
 
 // Provenance for a list row: the output came out of the user's own workspace or a shared one.
 function OutputProvenance({ owner }: { owner?: OutputSummary['owner'] }) {
+  const { language } = useI18n();
   return (
     <span
       className="flex w-52 items-center gap-1 truncate whitespace-nowrap"
-      title={owner ? `In a workspace shared by ${owner.name}` : 'In a workspace you created'}
+      title={owner ? (language === "th" ? `ในพื้นที่ทำงานที่แชร์โดย ${owner.name}` : `In a workspace shared by ${owner.name}`) : (language === "th" ? "ในพื้นที่ทำงานที่คุณสร้าง" : "In a workspace you created")}
     >
       {owner ? <ShareNetwork size={11} /> : <User size={11} />}
-      <span className="truncate">{owner ? `Shared by ${owner.name}` : 'Created by you'}</span>
+      <span className="truncate">{owner ? (language === "th" ? `แชร์โดย ${owner.name}` : `Shared by ${owner.name}`) : (language === "th" ? "สร้างโดยคุณ" : "Created by you")}</span>
     </span>
   )
 }
@@ -149,6 +152,7 @@ type OutputActions = {
 function OutputCard({
   output, onOpen, onOpenWorkspace, onRename, onRemove,
 }: { output: OutputSummary } & OutputActions) {
+  const { language } = useI18n();
   return (
     <div
       role="button"
@@ -164,10 +168,10 @@ function OutputCard({
         <FormatTile output={output.output} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-medium leading-[18px] tracking-[-0.25px] text-kumo-default">
-            {output.title || 'Untitled'}
+            {output.title || (language === "th" ? "ผลงานไม่มีชื่อ" : "Untitled")}
           </p>
           <p className="mt-0.5 truncate text-[12px] leading-4 tracking-[-0.2px] text-kumo-subtle">
-            {subtitle(output)}
+            {subtitle(output, language)}
           </p>
         </div>
         <OutputMenu onOpen={onOpen} onOpenWorkspace={onOpenWorkspace}
@@ -180,6 +184,7 @@ function OutputCard({
 function OutputRow({
   output, onOpen, onOpenWorkspace, onRename, onRemove,
 }: { output: OutputSummary } & OutputActions) {
+  const { language } = useI18n();
   return (
     <div
       role="button"
@@ -194,7 +199,7 @@ function OutputRow({
           {output.title || 'Untitled'}
         </p>
         <p className="mt-0.5 truncate text-[12px] leading-4 tracking-[-0.2px] text-kumo-subtle">
-          {formatOf(output.output).noun} · {output.workspaceTitle || 'Untitled workspace'}
+          {localizedFormatNoun(output.output, language)} · {output.workspaceTitle || (language === "th" ? "พื้นที่ทำงานไม่มีชื่อ" : "Untitled workspace")}
         </p>
       </div>
       {/* Fixed-width meta columns so rows line up like a table. */}
@@ -202,7 +207,7 @@ function OutputRow({
         <OutputProvenance owner={output.owner} />
         <span className="flex w-40 items-center justify-end gap-1 whitespace-nowrap">
           <Clock size={10} />
-          Workspace active {formatRelativeTime(output.lastActive)}
+          {language === "th" ? `ใช้งานล่าสุด ${formatRelativeTime(output.lastActive, language)}` : `Workspace active ${formatRelativeTime(output.lastActive, language)}`}
         </span>
       </div>
       <OutputMenu onOpen={onOpen} onOpenWorkspace={onOpenWorkspace}
@@ -324,6 +329,7 @@ function ScopeSelect({
 }
 
 function RenameOutputDialog({
+
   output,
   value,
   busy,
@@ -338,6 +344,7 @@ function RenameOutputDialog({
   onClose: () => void
   onSave: () => void
 }) {
+  const { language } = useI18n();
   return (
     <Dialog.Root open={output !== null} onOpenChange={(open) => { if (!open && !busy) onClose() }}>
       <Dialog
@@ -348,12 +355,12 @@ function RenameOutputDialog({
           <div className="flex items-start justify-between gap-4 border-b border-kumo-line px-5 py-4">
             <div className="min-w-0">
               <Dialog.Title className="text-[15px] font-medium leading-5 tracking-[-0.3px] text-kumo-default">
-                Rename output
+                {language === "th" ? "เปลี่ยนชื่อผลงาน" : "Rename output"}
               </Dialog.Title>
               {/* Renames the output itself, unlike the sidebar's workspace rename, which relabels
                   only your own copy. */}
               <Dialog.Description className="mt-1 text-[12px] leading-4 text-kumo-subtle">
-                Renames the output for everyone with access to “{output?.workspaceTitle}”.
+                {language === "th" ? `เปลี่ยนชื่อผลงานนี้สำหรับทุกคนที่มีสิทธิ์เข้าถึงพื้นที่ทำงาน “${output?.workspaceTitle || "พื้นที่ทำงาน" }”` : `Renames the output for everyone with access to “${output?.workspaceTitle}”.`}
               </Dialog.Description>
             </div>
             <WorkshopIconButton type="button" className="!h-7 !w-7" disabled={busy} aria-label="Close" onClick={onClose}>
@@ -362,7 +369,7 @@ function RenameOutputDialog({
           </div>
           <div className="px-5 py-4">
             <label className="block text-[12px] font-medium text-kumo-subtle" htmlFor="rename-output-title">
-              Name
+              {language === "th" ? "ชื่อผลงาน" : "Name"}
             </label>
             <input
               id="rename-output-title"
@@ -374,9 +381,9 @@ function RenameOutputDialog({
             />
           </div>
           <div className="flex items-center justify-end gap-2 border-t border-kumo-line px-5 py-3">
-            <WorkshopButton type="button" disabled={busy} onClick={onClose}>Cancel</WorkshopButton>
+            <WorkshopButton type="button" disabled={busy} onClick={onClose}>{language === "th" ? "ยกเลิก" : "Cancel"}</WorkshopButton>
             <WorkshopButton tone="primary" type="submit" disabled={busy || !value.trim()}>
-              {busy ? 'Saving…' : 'Save'}
+              {busy ? (language === "th" ? "กำลังบันทึก…" : "Saving…") : (language === "th" ? "บันทึก" : "Save")}
             </WorkshopButton>
           </div>
         </form>
@@ -627,7 +634,7 @@ function OutputsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search outputs…"
+              placeholder={t("searchOutputs")}
               className="h-9 w-full rounded-lg border border-kumo-line bg-kumo-base pl-9 pr-4 text-[13px] tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive transition-[border-color,box-shadow] duration-150 ease-out focus:border-kumo-ring focus:outline-none focus:ring-[3px] focus:ring-kumo-ring/15"
             />
           </div>
@@ -643,9 +650,9 @@ function OutputsPage() {
           </div>
         ) : loadError ? (
           <div className="py-12 text-center text-sm">
-            <p className="text-kumo-danger">Something went wrong loading your outputs.</p>
+            <p className="text-kumo-danger">{language === "th" ? "เกิดข้อผิดพลาดในการโหลดผลงานของคุณ" : "Something went wrong loading your outputs."}</p>
             <button onClick={() => setReloadToken((n) => n + 1)} className="mt-1 text-kumo-brand underline">
-              Try again
+              {language === "th" ? "ลองใหม่อีกครั้ง" : "Try again"}
             </button>
           </div>
         ) : filtered.length === 0 ? (
@@ -655,12 +662,12 @@ function OutputsPage() {
             </div>
             <div>
               <p className="text-sm font-medium text-kumo-default">
-                {isFiltered ? 'No outputs match' : 'No outputs yet'}
+                {isFiltered ? (language === "th" ? "ไม่พบผลงานที่ค้นหา" : "No outputs match") : (language === "th" ? "ยังไม่มีผลงาน" : "No outputs yet")}
               </p>
               <p className="mt-1 text-[13px] leading-[18px] text-kumo-subtle">
                 {isFiltered
-                  ? 'Try a different filter or search term.'
-                  : 'Anything your workspaces build will show up here.'}
+                  ? (language === "th" ? "ลองเปลี่ยนตัวกรองหรือคำค้นหาอื่น" : "Try a different filter or search term.")
+                  : (language === "th" ? "ผลงานทั้งหมดที่สร้างขึ้นจากพื้นที่ทำงานจะแสดงที่นี่" : "Anything your workspaces build will show up here.")}
               </p>
             </div>
             {/* Offer the deployment's formats here rather than sending them to the home page. */}
@@ -699,16 +706,23 @@ function OutputsPage() {
       />
       <DeleteConfirmationDialog
         open={removeOutput !== null}
-        title={`Remove “${removeOutput?.title || 'Untitled'}”?`}
+        title={language === "th" ? `ลบผลงาน “${removeOutput?.title || "ไม่มีชื่อ"}” หรือไม่?` : `Remove “${removeOutput?.title || "Untitled"}”?`}
         description={
-          <>
-            This permanently removes the output from “{removeOutput?.workspaceTitle}”
-            {removeOutput?.owner ? ', for everyone with access to that workspace' : ''}. Other
-            outputs in that workspace stay available. This can’t be undone.
-          </>
+          language === "th" ? (
+            <>
+              การดำเนินการนี้จะลบผลงานออกจาก “{removeOutput?.workspaceTitle}” อย่างถาวร
+              {removeOutput?.owner ? " สำหรับทุกคนที่มีสิทธิ์เข้าถึงพื้นที่ทำงานนั้น" : ""} โดยผลงานอื่นในพื้นที่ทำงานจะยังคงอยู่ และการกระทำนี้ไม่สามารถเรียกคืนได้
+            </>
+          ) : (
+            <>
+              This permanently removes the output from “{removeOutput?.workspaceTitle}”
+              {removeOutput?.owner ? ", for everyone with access to that workspace" : ""}. Other
+              outputs in that workspace stay available. This can’t be undone.
+            </>
+          )
         }
-        confirmLabel="Remove"
-        confirmingLabel="Removing…"
+        confirmLabel={language === "th" ? "ลบผลงาน" : "Remove"}
+        confirmingLabel={language === "th" ? "กำลังลบ…" : "Removing…"}
         isDeleting={mutationBusy}
         onOpenChange={(open) => { if (!open) setRemoveOutput(null) }}
         onConfirm={() => { void confirmRemove() }}

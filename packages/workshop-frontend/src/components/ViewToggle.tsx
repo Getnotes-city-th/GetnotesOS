@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { List, GridFour } from '@phosphor-icons/react'
 
 /**
@@ -11,9 +12,10 @@ export default function ViewToggle({
   view: 'grid' | 'list'
   onChange: (view: 'grid' | 'list') => void
 }) {
+  const { language } = useI18n();
   const options = [
-    { value: 'list' as const, Icon: List, label: 'List view' },
-    { value: 'grid' as const, Icon: GridFour, label: 'Grid view' },
+    { value: 'list' as const, Icon: List, label: language === "th" ? "มุมมองรายการ" : "List view" },
+    { value: 'grid' as const, Icon: GridFour, label: language === "th" ? "มุมมองตาราง" : "Grid view" },
   ]
   return (
     <div className="inline-flex shrink-0 items-center gap-0.5 rounded-lg border border-kumo-line bg-kumo-base p-0.5">
