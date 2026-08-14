@@ -1,34 +1,8 @@
-
-const VENDOR_TAGLINE_TH: Record<string, string> = {
-  "Chat with channels and users in your Slack workspace": "แชทในช่องทางและส่งข้อความหาผู้ใช้ใน Slack workspace",
-  "Manage repositories, issues, and pull requests": "จัดการคลังโค้ด Issues และ Pull Requests บน GitHub",
-  "Access Google Docs, Sheets, Calendar, and Gmail": "เข้าถึง Google Docs, Sheets, Calendar, Gmail และ BigQuery",
-  "Send push messages, flex messages, and broadcasts": "ส่งข้อความ Push, Flex Messages และบรอดแคสต์หาผู้ติดตาม",
-  "Manage Facebook Pages, post content, and reply in Messenger": "จัดการแฟนเพจ Facebook โพสต์คอนเทนต์ และตอบแชท Messenger",
-  "Manage playlists, your library, and playback": "จัดการเพลย์ลิสต์ คลังเพลง และควบคุมการเล่นเพลงบน Spotify",
-  "Query tables, run SQL, and manage your database": "คิวรีตาราง รันคำสั่ง SQL และจัดการฐานข้อมูล Supabase",
-  "Manage issues, projects, and teams": "จัดการ Issues โครงการ และทีมบน Linear",
-  "Read and edit pages and databases in your workspace": "อ่านและแก้ไขหน้าเอกสารและฐานข้อมูลใน Notion",
-  "Read and edit spaces, pages, and blog posts": "อ่านและแก้ไข Spaces, หน้าเอกสาร และบล็อกโพสต์บน Confluence",
-  "Control smart home devices, lights, and entities": "ควบคุมอุปกรณ์สมาร์ทโฮม ไฟ และระบบใน Home Assistant",
-  "Send and receive emails via dedicated mailboxes": "ส่งและรับอีเมลผ่านกล่องจดหมายเฉพาะ",
-  "Schedule tasks and background cron workflows": "ตั้งเวลาทำงานอัตโนมัติและจัดการ Cron workflow",
-  "Store and organize knowledge, documents, and collections": "จัดเก็บและจัดการคลังความรู้ เอกสาร และชุดข้อมูล",
-  "Connect any Model Context Protocol endpoint": "เชื่อมต่อ Endpoint ของเซิร์ฟเวอร์ MCP ที่คุณระบุ",
-  "Search business intelligence and contact data": "ค้นหาข้อมูลธุรกิจและรายชื่อผู้ติดต่อบน ZoomInfo",
-  "Deploy and manage Cloudflare Workers and resources": "ปรับใช้และจัดการ Cloudflare Workers และทรัพยากรบนคลาวด์",
-};
-
-export function translateVendorTagline(tagline: string | undefined, lang: string): string {
-  if (!tagline || lang !== "th") return tagline ?? "";
-  return VENDOR_TAGLINE_TH[tagline] ?? tagline;
-}
-
 import { useI18n } from "../i18n/I18nContext"
-import { logRpcFailure } from '../rpcErrors'
-import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
-import { useKumoToastManager } from '@cloudflare/kumo'
+import { logRpcFailure } from "../rpcErrors"
+import { createFileRoute } from "@tanstack/react-router"
+import { useEffect, useMemo, useState } from "react"
+import { useKumoToastManager } from "@cloudflare/kumo"
 import {
   MagnifyingGlass,
   ArrowsClockwise,
@@ -37,25 +11,71 @@ import {
   Hexagon,
   ShieldCheck,
   Plugs,
-} from '@phosphor-icons/react'
-import ViewToggle from '../components/ViewToggle'
-import { useAuthenticatedApi } from '../AuthContext'
-import { refreshGatekeeperApps } from '../useGatekeeperApps'
-import { EmptyState } from '../components/EmptyState'
-import ConnectConnectorModal from '../components/ConnectConnectorModal'
+} from "@phosphor-icons/react"
+import ViewToggle from "../components/ViewToggle"
+import { useAuthenticatedApi } from "../AuthContext"
+import { refreshGatekeeperApps } from "../useGatekeeperApps"
+import { EmptyState } from "../components/EmptyState"
+import ConnectConnectorModal from "../components/ConnectConnectorModal"
 import {
   AccountDescription,
   SupportedResource,
   VendorDescription,
-} from '@gadgets/workshop-shared/gatekeeper'
-import { GatekeeperVendorInfo } from '@gadgets/workshop-shared/api'
-import { useDocumentTitle } from '../useDocumentTitle'
-import { useSiteName } from '../ServerConfigContext'
-import { AccountsSubscriberAdapter } from '../accountsSubscriber'
+} from "@gadgets/workshop-shared/gatekeeper"
+import { GatekeeperVendorInfo } from "@gadgets/workshop-shared/api"
+import { useDocumentTitle } from "../useDocumentTitle"
+import { useSiteName } from "../ServerConfigContext"
+import { AccountsSubscriberAdapter } from "../accountsSubscriber"
 
-export const Route = createFileRoute('/gatekeepers')({
+export const Route = createFileRoute("/gatekeepers")({
   component: ConnectorsPage,
 })
+
+const VENDOR_NAME_TH: Record<string, string> = {
+  "Email": "Email (อีเมล)",
+  "Email Receiver": "ตัวรับอีเมล (Email Receiver)",
+  "Scheduled Tasks": "งานตั้งเวลาอัตโนมัติ (Scheduled Tasks)",
+  "Context": "คลังบริบทและทักษะ (Context)",
+  "MCP Server": "เซิร์ฟเวอร์ MCP (MCP Server)",
+  "Cloudflare MCP Server Portals": "พอร์ทัลเซิร์ฟเวอร์ Cloudflare MCP",
+  "LINE": "LINE Official Account",
+  "Facebook": "Facebook Page (แฟนเพจ)",
+}
+
+export function translateVendorName(name: string | undefined, lang: string): string {
+  if (!name || lang !== "th") return name ?? ""
+  return VENDOR_NAME_TH[name] ?? name
+}
+
+const VENDOR_TAGLINE_TH: Record<string, string> = {
+  "Sign in with Cloudflare": "เข้าสู่ระบบด้วย Cloudflare เพื่อจัดการทรัพยากรบนคลาวด์",
+  "Read and write your Confluence pages and spaces": "อ่านและแก้ไข Spaces, หน้าเอกสาร และบล็อกโพสต์บน Confluence",
+  "Author and consult shared context collections": "สร้างและเข้าถึงคลังเอกสารบริบทและทักษะความรู้สำหรับ AI",
+  "Trigger gadgets from incoming email": "ส่งและรับอีเมล และสั่งงานชิ้นงานอัตโนมัติจากอีเมลขาเข้า",
+  "Manage Facebook Pages, post content, and reply in Messenger": "จัดการแฟนเพจ Facebook โพสต์คอนเทนต์ และตอบแชท Messenger",
+  "Triage issues, review PRs, and manage repos": "จัดการ Issues, รีวิว Pull Requests และจัดการคลังโค้ดบน GitHub",
+  "Draft replies, edit docs, read sheets, manage calendars, and analyze data": "ร่างข้อความ, แก้ไข Docs, อ่านข้อมูล Sheets, จัดการ Calendar และวิเคราะห์ข้อมูล BigQuery",
+  "Control your smart home, read sensor state, and edit Lovelace dashboards.": "ควบคุมอุปกรณ์สมาร์ทโฮม ตรวจสอบสถานะเซนเซอร์ และแก้ไขแดชบอร์ด",
+  "Send push messages, flex messages, and broadcasts": "ส่งข้อความ Push, Flex Messages และบรอดแคสต์หาผู้ติดตามทาง LINE",
+  "Triage, create, and update issues": "คัดกรอง สร้าง และอัปเดตสถานะ Issues บน Linear",
+  "Connect any Model Context Protocol server": "เชื่อมต่อ Endpoint ของเซิร์ฟเวอร์ MCP ที่คุณระบุ",
+  "Read and write your Notion pages and databases": "อ่านและแก้ไขหน้าเอกสารและฐานข้อมูลใน Notion",
+  "Run workspace tasks on a schedule": "ตั้งเวลาทำงานอัตโนมัติและจัดการ Cron workflow ในพื้นที่ทำงาน",
+  "Read channels, DMs, and threads": "อ่านแชนเนล ข้อความส่วนตัว (DM) และเธรดการสนทนาใน Slack",
+  "Manage playlists, your library, and playback": "จัดการเพลย์ลิสต์ คลังเพลง และควบคุมการเล่นเพลงบน Spotify",
+  "Query Postgres, inspect schema, and manage projects": "คิวรีฐานข้อมูล Postgres ตรวจสอบ Schema และจัดการโปรเจกต์ Supabase",
+  "Search and enrich B2B company & contact intelligence": "ค้นหาและเสริมข้อมูลประวัติธุรกิจ B2B และรายชื่อผู้ติดต่อบน ZoomInfo",
+  "Temporarily unavailable": "ไม่พร้อมใช้งานชั่วคราว",
+}
+
+export function translateVendorTagline(tagline: string | undefined, lang: string): string {
+  if (!tagline || lang !== "th") return tagline ?? ""
+  if (VENDOR_TAGLINE_TH[tagline]) return VENDOR_TAGLINE_TH[tagline]
+  for (const [k, v] of Object.entries(VENDOR_TAGLINE_TH)) {
+    if (tagline.startsWith(k) || k.startsWith(tagline.slice(0, 20))) return v
+  }
+  return tagline
+}
 
 interface AccountEntry {
   id: number
@@ -77,7 +97,7 @@ function VendorIconTile({
   color,
   fallback,
   size = 28,
-  className = 'h-12 w-12 rounded-2xl',
+  className = "h-12 w-12 rounded-2xl",
 }: {
   logoUrl?: string
   color?: string
@@ -88,13 +108,13 @@ function VendorIconTile({
   return (
     <div
       className={`relative grid shrink-0 place-items-center ${className}`}
-      style={{ backgroundColor: color ?? 'var(--color-kumo-tint)' }}
+      style={{ backgroundColor: color ?? "var(--color-kumo-tint)" }}
     >
       {logoUrl ? (
         <img src={logoUrl} alt="" className="object-contain" style={{ width: size, height: size }} />
       ) : (
         <span className="text-[15px] font-semibold text-kumo-strong">
-          {fallback[0]?.toUpperCase() ?? '?'}
+          {fallback[0]?.toUpperCase() ?? "?"}
         </span>
       )}
     </div>
@@ -106,14 +126,14 @@ interface ConnectorCardProps {
   color?: string
   fallback: string
   name: string
-  badge?: { label: string; tone: 'new' | 'popular' }
+  badge?: { label: string; tone: "new" | "popular" }
   metaLine?: React.ReactNode
   tagline?: string
-  state: 'connected' | 'available' | 'expired'
+  state: "connected" | "available" | "expired"
   onClick: () => void
   onReconnect?: () => void
   reconnectBusy?: boolean
-  view?: 'grid' | 'list'
+  view?: "grid" | "list"
 }
 
 function ConnectorCard({
@@ -128,24 +148,24 @@ function ConnectorCard({
   onClick,
   onReconnect,
   reconnectBusy = false,
-  view = 'grid',
+  view = "grid",
 }: ConnectorCardProps) {
   const { language } = useI18n()
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.currentTarget !== event.target) return
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault()
       onClick()
     }
   }
 
   const statusDot =
-    state === 'connected' ? (
+    state === "connected" ? (
       <span
         className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-kumo-success ring-2 ring-kumo-base"
         aria-hidden
       />
-    ) : state === 'expired' ? (
+    ) : state === "expired" ? (
       <span
         className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-kumo-danger ring-2 ring-kumo-base"
         aria-hidden
@@ -155,9 +175,9 @@ function ConnectorCard({
   const badgeEl = badge ? (
     <span
       className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] leading-3 font-semibold uppercase tracking-[0.4px] ${
-        badge.tone === 'new'
-          ? 'bg-[rgba(255,72,1,0.10)] text-kumo-brand'
-          : 'bg-kumo-tint text-kumo-subtle'
+        badge.tone === "new"
+          ? "bg-[rgba(255,72,1,0.10)] text-kumo-brand"
+          : "bg-kumo-tint text-kumo-subtle"
       }`}
     >
       {badge.label}
@@ -165,7 +185,7 @@ function ConnectorCard({
   ) : null
 
   const trailing =
-    state === 'expired' && onReconnect ? (
+    state === "expired" && onReconnect ? (
       <button
         type="button"
         onClick={(e) => {
@@ -180,7 +200,7 @@ function ConnectorCard({
       </button>
     ) : (
       <div className="grid h-7 w-7 place-items-center text-kumo-inactive transition-colors group-hover:text-kumo-default">
-        {state === 'available' ? (
+        {state === "available" ? (
           <Plus size={16} weight="bold" />
         ) : (
           <CaretRight size={14} weight="bold" />
@@ -188,7 +208,7 @@ function ConnectorCard({
       </div>
     )
 
-  if (view === 'list') {
+  if (view === "list") {
     return (
       <div
         role="button"
@@ -210,13 +230,13 @@ function ConnectorCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate text-sm font-medium tracking-[-0.25px] text-kumo-default">
-              {name}
+              {translateVendorName(name, language)}
             </span>
             {badgeEl}
           </div>
           {(metaLine || tagline) && (
             <div className="mt-0.5 truncate text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-              {metaLine ?? tagline}
+              {metaLine ?? translateVendorTagline(tagline, language)}
             </div>
           )}
         </div>
@@ -243,7 +263,7 @@ function ConnectorCard({
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="truncate text-[15px] leading-5 font-medium tracking-[-0.25px] text-kumo-default">
-            {name}
+            {translateVendorName(name, language)}
           </span>
           {badgeEl}
         </div>
@@ -254,7 +274,7 @@ function ConnectorCard({
         )}
         {tagline && (
           <p className="mt-2 line-clamp-2 text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-            {tagline}
+            {translateVendorTagline(tagline, language)}
           </p>
         )}
       </div>
@@ -271,7 +291,7 @@ function SectionEyebrow({ label, count }: { label: string; count?: number }) {
         {label}
       </h2>
       <div className="h-px flex-1 bg-kumo-line" />
-      {typeof count === 'number' && (
+      {typeof count === "number" && (
         <span className="text-[11px] leading-4 font-semibold tracking-[-0.1px] text-kumo-inactive">
           {count}
         </span>
@@ -314,9 +334,9 @@ function ConnectorsHeroDiagram({
   }).slice(0, 3)
 
   const sourceNodes = [
-    { className: 'left-1 top-3', x: 4, y: 12 },
-    { className: 'left-10 top-[62px]', x: 40, y: 62 },
-    { className: 'left-1 bottom-3', x: 4, y: 120 },
+    { className: "left-1 top-3", x: 4, y: 12 },
+    { className: "left-10 top-[62px]", x: 40, y: 62 },
+    { className: "left-1 bottom-3", x: 4, y: 120 },
   ]
   const nodeSize = 44
   const gatekeeper = { x: 176, y: 58, width: 52, height: 52 }
@@ -355,7 +375,7 @@ function ConnectorsHeroDiagram({
         {nodes[0] && (
           <path
             d={inputPath(0)}
-            className={hoveredSource === 0 ? 'connectors-hero-flow-line' : ''}
+            className={hoveredSource === 0 ? "connectors-hero-flow-line" : ""}
             stroke="currentColor"
             strokeWidth="1.2"
             strokeDasharray="3 7"
@@ -364,7 +384,7 @@ function ConnectorsHeroDiagram({
         {nodes[1] && (
           <path
             d={inputPath(1)}
-            className={hoveredSource === 1 ? 'connectors-hero-flow-line' : ''}
+            className={hoveredSource === 1 ? "connectors-hero-flow-line" : ""}
             stroke="currentColor"
             strokeWidth="1.2"
             strokeDasharray="3 7"
@@ -373,7 +393,7 @@ function ConnectorsHeroDiagram({
         {nodes[2] && (
           <path
             d={inputPath(2)}
-            className={hoveredSource === 2 ? 'connectors-hero-flow-line' : ''}
+            className={hoveredSource === 2 ? "connectors-hero-flow-line" : ""}
             stroke="currentColor"
             strokeWidth="1.2"
             strokeDasharray="3 7"
@@ -466,30 +486,27 @@ function ConnectorsHeroDiagram({
 }
 
 type ModalTarget =
-  | { kind: 'connect'; vendorId: string }
-  | { kind: 'manage'; accountId: number }
+  | { kind: "connect"; vendorId: string }
+  | { kind: "manage"; accountId: number }
   | null
 
 function ConnectorsPage() {
-  const { t, language } = useI18n();
-  useDocumentTitle(t("gatekeepers"))
+  const { t, language } = useI18n()
+  useDocumentTitle(t("gatekeepersTitle"))
   const siteName = useSiteName()
 
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
 
-  const [search, setSearch] = useState('')
-  const [view, setView] = useState<'grid' | 'list'>(() => {
-    if (typeof window === 'undefined') return 'grid'
-    return localStorage.getItem('gatekeepers-view') === 'list' ? 'list' : 'grid'
+  const [search, setSearch] = useState("")
+  const [view, setView] = useState<"grid" | "list">(() => {
+    if (typeof window === "undefined") return "grid"
+    return localStorage.getItem("gatekeepers-view") === "list" ? "list" : "grid"
   })
   const [accounts, setAccounts] = useState<AccountEntry[]>([])
   const [vendors, setVendors] = useState<VendorEntry[]>([])
   const [accountsLoaded, setAccountsLoaded] = useState(false)
   const [vendorsLoaded, setVendorsLoaded] = useState(false)
-  // Auto-provisioning ("ambient") gatekeepers set to "optional" that the user can opt into. They're
-  // shown in the same "Available" section and opened through the same modal as OAuth vendors; the
-  // only difference is that confirming adds the account directly (no OAuth redirect).
   const [addable, setAddable] = useState<GatekeeperVendorInfo[]>([])
   const [loadError, setLoadError] = useState(false)
 
@@ -501,7 +518,7 @@ function ConnectorsPage() {
   const [ensuringResourceUrlPatterns, setEnsuringResourceUrlPatterns] = useState<string[]>([])
 
   useEffect(() => {
-    localStorage.setItem('gatekeepers-view', view)
+    localStorage.setItem("gatekeepers-view", view)
   }, [view])
 
   useEffect(() => {
@@ -516,7 +533,7 @@ function ConnectorsPage() {
         if (!cancelled) setAddable(list)
       })
       .catch((err) => {
-        logRpcFailure('Failed to load addable gatekeepers:', err)
+        logRpcFailure("Failed to load addable gatekeepers:", err)
       })
 
     authenticatedApi.listGatekeeperVendors()
@@ -525,8 +542,8 @@ function ConnectorsPage() {
         const unavailable = vendorList.filter((v) => v.unavailable)
         if (unavailable.length > 0) {
           toasts.add({
-            title: `Some services are temporarily unavailable: ${unavailable.map((v) => v.id).join(', ')}`,
-            variant: 'warning',
+            title: language === "th" ? `บางบริการไม่พร้อมใช้งานชั่วคราว: ${unavailable.map((v) => v.id).join(", ")}` : `Some services are temporarily unavailable: ${unavailable.map((v) => v.id).join(", ")}`,
+            variant: "warning",
           })
         }
         setVendors(
@@ -541,7 +558,7 @@ function ConnectorsPage() {
         setVendorsLoaded(true)
       })
       .catch((err) => {
-        logRpcFailure('Failed to load available services:', err)
+        logRpcFailure("Failed to load available services:", err)
         if (!cancelled) setLoadError(true)
       })
 
@@ -557,21 +574,18 @@ function ConnectorsPage() {
           credentialsValid,
         })
         setAccounts(Array.from(accountMap.values()))
+        setAccountsLoaded(true)
       },
       remove(id) {
+        if (cancelled) return
         accountMap.delete(id)
-        if (!cancelled) setAccounts(Array.from(accountMap.values()))
-      },
-      ready() {
-        if (!cancelled) setAccountsLoaded(true)
+        setAccounts(Array.from(accountMap.values()))
       },
     })
-
     const subscription = authenticatedApi.subscribeConnectedAccounts(subscriber)
     subscription.catch((err) => {
-      if (cancelled) return
-      logRpcFailure('Failed to subscribe to connected accounts:', err)
-      setLoadError(true)
+      logRpcFailure("Failed to subscribe to connected accounts:", err)
+      if (!cancelled) setAccountsLoaded(true)
     })
 
     return () => {
@@ -581,133 +595,166 @@ function ConnectorsPage() {
   }, [authenticatedApi])
 
   const handleOpenConnect = (vendorId: string) => {
-    setModalTarget({ kind: 'connect', vendorId })
+    setModalTarget({ kind: "connect", vendorId })
   }
 
   const handleOpenManage = (accountId: number) => {
-    setModalTarget({ kind: 'manage', accountId })
+    setModalTarget({ kind: "manage", accountId })
   }
 
   const handleCloseModal = () => {
     setModalTarget(null)
-    setEnsuringResourceUrlPatterns([])
   }
 
   const handleConfirmConnect = async (resourceUrlPatterns?: string[]) => {
-    if (!modalTarget || modalTarget.kind !== 'connect') return
+    if (!modalTarget || modalTarget.kind !== "connect") return
     const vendorId = modalTarget.vendorId
+    const vendor = availableVendors.find((v) => v.id === vendorId)
+    const isAmbient = !!vendor?.description.autoProvisionsAccount
+
     setConnecting(true)
     try {
-      if (isTargetAmbient) {
-        // Ambient gatekeeper: mint the account directly, no OAuth redirect. It then appears under
-        // "Connected" via the subscription and drops out of "Available".
+      if (isAmbient) {
         await authenticatedApi.provisionAmbientAccount(vendorId)
         setAddable((prev) => prev.filter((g) => g.id !== vendorId))
-        // If the gatekeeper provides a management UI, its nav entry should appear without a reload.
+        toasts.add({
+          title: language === "th" ? `เชื่อมต่อ ${vendor?.description.displayName ?? vendorId} สำเร็จ` : `Added ${vendor?.description.displayName ?? vendorId}`,
+          variant: "success",
+        })
+        handleCloseModal()
         refreshGatekeeperApps(authenticatedApi)
       } else {
-        const { url } = await authenticatedApi.connectAccount(vendorId, resourceUrlPatterns)
-        window.open(url, '_blank', 'noopener,noreferrer')
+        const result = await authenticatedApi.connectAccount(vendorId, resourceUrlPatterns)
+        if (result.url) {
+          window.open(result.url, "_blank", "noopener,noreferrer")
+          toasts.add({
+            title: language === "th" ? `โปรดดำเนินการเชื่อมต่อบัญชีในแท็บใหม่ที่เปิดขึ้น` : `Complete the ${vendor?.description.displayName ?? vendorId} connection in the new tab.`,
+            variant: "success",
+          })
+          handleCloseModal()
+        }
       }
-      handleCloseModal()
     } catch (err) {
-      console.error('Failed to connect account:', err)
-      toasts.add({ title: language === "th" ? "ไม่สามารถเริ่มการเชื่อมต่อได้" : "Failed to start connection", variant: 'error' })
+      console.error("Failed to connect gatekeeper:", err)
+      toasts.add({
+        title: language === "th" ? `ไม่สามารถเชื่อมต่อ ${vendor?.description.displayName ?? vendorId} ได้` : `Failed to connect ${vendor?.description.displayName ?? vendorId}`,
+        variant: "error",
+      })
     } finally {
       setConnecting(false)
     }
   }
 
-  const handleEnsureResources = async (resourceUrlPatterns: string[]) => {
-    if (!modalTarget || modalTarget.kind !== 'manage') return
-    setEnsuringResourceUrlPatterns((prev) => [...new Set([...prev, ...resourceUrlPatterns])])
-    try {
-      const result = await authenticatedApi.ensureAccountResources(
-        modalTarget.accountId,
-        resourceUrlPatterns,
-      )
-      if (result.url) {
-        window.open(result.url, '_blank', 'noopener,noreferrer')
-      }
-      // On success the new grant arrives via subscribeConnectedAccounts(); the toggle reflects it
-      // once `grantedResourceUrlPatterns` updates.
-    } catch (err) {
-      console.error('Failed to expand account access:', err)
-      toasts.add({ title: language === "th" ? "ไม่สามารถขอสิทธิ์การเข้าถึงเพิ่มเติมได้" : "Failed to request additional access", variant: 'error' })
-    } finally {
-      setEnsuringResourceUrlPatterns((prev) =>
-        prev.filter((p) => !resourceUrlPatterns.includes(p)),
-      )
-    }
-  }
-
   const handleDisconnect = async () => {
-    if (!modalTarget || modalTarget.kind !== 'manage') return
+    if (!modalTarget || modalTarget.kind !== "manage") return
+    const account = accounts.find((a) => a.id === modalTarget.accountId)
+    if (!account) return
+
     setDisconnecting(true)
     try {
-      await authenticatedApi.disconnectAccount(modalTarget.accountId)
-      // If this was an opt-in ambient account, it's now removable and should return to "Available";
-      // re-fetch the addable list so it reappears there immediately (no refresh needed).
-      authenticatedApi.listAddableGatekeepers().then(setAddable).catch(() => {})
-      // Drop its nav entry too, if it provided a management UI.
-      refreshGatekeeperApps(authenticatedApi)
+      await authenticatedApi.disconnectAccount(account.id)
+      toasts.add({
+        title: language === "th" ? `ยกเลิกการเชื่อมต่อ ${account.vendorDescription.displayName} สำเร็จ` : `Disconnected ${account.vendorDescription.displayName}`,
+        variant: "success",
+      })
       handleCloseModal()
+      refreshGatekeeperApps(authenticatedApi)
     } catch (err) {
-      console.error('Failed to disconnect account:', err)
-      toasts.add({ title: language === "th" ? "ไม่สามารถตัดการเชื่อมต่อบัญชีได้" : "Failed to disconnect account", variant: 'error' })
+      console.error("Failed to disconnect gatekeeper:", err)
+      toasts.add({
+        title: language === "th" ? `ไม่สามารถยกเลิกการเชื่อมต่อ ${account.vendorDescription.displayName} ได้` : `Failed to disconnect ${account.vendorDescription.displayName}`,
+        variant: "error",
+      })
     } finally {
       setDisconnecting(false)
     }
   }
 
   const handleReconnect = async (accountId: number) => {
+    const account = accounts.find((a) => a.id === accountId)
     setReconnectingAccountId(accountId)
     try {
-      const { url } = await authenticatedApi.reconnectAccount(accountId)
-      window.open(url, '_blank', 'noopener,noreferrer')
+      const result = await authenticatedApi.reconnectAccount(accountId)
+      if (result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer")
+        toasts.add({
+          title: language === "th" ? `โปรดดำเนินการเชื่อมต่อบัญชีใหม่ในแท็บที่เปิดขึ้น` : `Complete the ${account?.vendorDescription.displayName ?? "account"} reconnect in the new tab.`,
+          variant: "success",
+        })
+      }
     } catch (err) {
-      console.error('Failed to reconnect account:', err)
-      toasts.add({ title: language === "th" ? "ไม่สามารถเชื่อมต่อบัญชีใหม่ได้" : "Failed to reconnect account", variant: 'error' })
+      console.error("Failed to reconnect gatekeeper:", err)
+      toasts.add({
+        title: language === "th" ? "ไม่สามารถเริ่มการเชื่อมต่อใหม่ได้" : "Failed to start reconnect",
+        variant: "error",
+      })
     } finally {
       setReconnectingAccountId(null)
     }
   }
 
-  const searchLower = search.toLowerCase()
-  const filteredAccounts = useMemo(() => {
-    const matchesSearch = (text: string | undefined) =>
-      !searchLower || (text ?? '').toLowerCase().includes(searchLower)
-    const resourcesForAccountFilter = (account: AccountEntry) =>
-      vendors.find((v) => v.id === account.vendorId)?.supportedResources ??
-      account.supportedResources
+  const handleEnsureResources = async (resourceUrlPatterns: string[]) => {
+    if (!modalTarget || modalTarget.kind !== "manage") return
+    const account = accounts.find((a) => a.id === modalTarget.accountId)
+    if (!account) return
 
-    return accounts.filter((a) => {
-      const resources = resourcesForAccountFilter(a)
-      return (
-        matchesSearch(a.accountDescription.displayName) ||
-        matchesSearch(a.accountDescription.uniqueName) ||
+    setEnsuringResourceUrlPatterns(resourceUrlPatterns)
+    try {
+      const result = await authenticatedApi.ensureAccountResources(
+        account.id,
+        resourceUrlPatterns,
+      )
+      if (result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer")
+        toasts.add({
+          title: language === "th" ? "โปรดอนุญาตสิทธิ์การเข้าถึงเพิ่มเติมในแท็บใหม่" : "Grant the additional access in the new tab.",
+          variant: "success",
+        })
+      }
+    } catch (err) {
+      console.error("Failed to request additional resources:", err)
+      toasts.add({
+        title: language === "th" ? "ไม่สามารถขอสิทธิ์การเข้าถึงเพิ่มเติมได้" : "Failed to request additional access",
+        variant: "error",
+      })
+    } finally {
+      setEnsuringResourceUrlPatterns([])
+    }
+  }
+
+  const availableVendors = useMemo(() => {
+    const combined: VendorEntry[] = [...vendors]
+    for (const a of addable) {
+      if (!combined.some((v) => v.id === a.id)) {
+        combined.push({
+          id: a.id,
+          description: a.description,
+          supportedResources: a.supportedResources,
+        })
+      }
+    }
+    return combined
+  }, [vendors, addable])
+
+  const searchLower = search.trim().toLowerCase()
+
+  const matchesSearch = (text?: string) =>
+    Boolean(text && text.toLowerCase().includes(searchLower))
+
+  const filteredAccounts = useMemo(() => {
+    if (!searchLower) return accounts
+    return accounts.filter(
+      (a) =>
         matchesSearch(a.vendorDescription.displayName) ||
         matchesSearch(a.vendorDescription.tagline) ||
-        resources.some((r) => matchesSearch(r.title))
-      )
-    })
-  }, [accounts, vendors, searchLower])
-
-  // Connectable vendors = OAuth/resource gatekeepers plus opt-in ambient ones, rendered identically.
-  // An ambient vendor is recognized by `description.autoProvisionsAccount`, which routes the connect
-  // action to a direct (no-OAuth) add instead.
-  const availableVendors = useMemo<VendorEntry[]>(
-    () => [
-      ...vendors,
-      ...addable,
-    ],
-    [vendors, addable],
-  )
+        matchesSearch(a.accountDescription.displayName) ||
+        matchesSearch(a.accountDescription.uniqueName) ||
+        a.supportedResources.some((r) => matchesSearch(r.title)),
+    )
+  }, [accounts, searchLower])
 
   const filteredAvailable = useMemo(() => {
-    const matchesSearch = (text: string | undefined) =>
-      !searchLower || (text ?? '').toLowerCase().includes(searchLower)
-
+    if (!searchLower) return availableVendors
     return availableVendors.filter(
       (v) =>
         matchesSearch(v.description.displayName) ||
@@ -717,11 +764,11 @@ function ConnectorsPage() {
   }, [availableVendors, searchLower])
 
   const activeAccount: AccountEntry | undefined =
-    modalTarget?.kind === 'manage'
+    modalTarget?.kind === "manage"
       ? accounts.find((a) => a.id === modalTarget.accountId)
       : undefined
   const activeVendor: VendorEntry | undefined =
-    modalTarget?.kind === 'connect'
+    modalTarget?.kind === "connect"
       ? availableVendors.find((v) => v.id === modalTarget.vendorId)
       : activeAccount
       ? availableVendors.find((v) => v.id === activeAccount.vendorId) ?? {
@@ -731,12 +778,11 @@ function ConnectorsPage() {
         }
       : undefined
 
-  // True when the connect modal targets an ambient gatekeeper (added directly, no OAuth flow).
   const isTargetAmbient =
-    modalTarget?.kind === 'connect' && !!activeVendor?.description.autoProvisionsAccount
+    modalTarget?.kind === "connect" && !!activeVendor?.description.autoProvisionsAccount
 
   const sectionGridClass =
-    view === 'list' ? 'flex flex-col gap-0.5' : 'grid gap-3 sm:grid-cols-2'
+    view === "list" ? "flex flex-col gap-0.5" : "grid gap-3 sm:grid-cols-2"
 
   const initialLoading =
     !loadError &&
@@ -813,7 +859,7 @@ function ConnectorsPage() {
                     metaLine={
                       <span
                         className={`truncate ${
-                          account.credentialsValid ? '' : 'text-kumo-danger'
+                          account.credentialsValid ? "" : "text-kumo-danger"
                         }`}
                       >
                         {account.credentialsValid
@@ -821,8 +867,8 @@ function ConnectorsPage() {
                           : (language === "th" ? "ข้อมูลรับรองหมดอายุ" : "Credentials expired")}
                       </span>
                     }
-                    tagline={translateVendorTagline(tagline, language)}
-                    state={account.credentialsValid ? 'connected' : 'expired'}
+                    tagline={tagline}
+                    state={account.credentialsValid ? "connected" : "expired"}
                     onClick={() => handleOpenManage(account.id)}
                     onReconnect={() => handleReconnect(account.id)}
                     reconnectBusy={reconnectingAccountId === account.id}
@@ -838,7 +884,6 @@ function ConnectorsPage() {
           <section className="mb-10">
             <SectionEyebrow label={language === "th" ? "พร้อมใช้งาน" : "Available"} />
             <div className={sectionGridClass}>
-
               {filteredAvailable.map((vendor) => (
                 <ConnectorCard
                   key={vendor.id}
@@ -846,7 +891,7 @@ function ConnectorsPage() {
                   color={vendor.description.color}
                   fallback={vendor.description.displayName}
                   name={vendor.description.displayName}
-                  tagline={translateVendorTagline(vendor.description.tagline, language)}
+                  tagline={vendor.description.tagline}
                   state="available"
                   onClick={() => handleOpenConnect(vendor.id)}
                   view={view}
@@ -874,16 +919,15 @@ function ConnectorsPage() {
               icon={Plugs}
             />
           )}
-
       </div>
 
       {activeVendor && (
         <ConnectConnectorModal
-          key={modalTarget?.kind === 'manage'
+          key={modalTarget?.kind === "manage"
             ? `manage:${modalTarget.accountId}`
-            : `connect:${modalTarget?.vendorId ?? ''}`}
+            : `connect:${modalTarget?.vendorId ?? ""}`}
           open={modalTarget !== null}
-          mode={modalTarget?.kind === 'manage' ? 'manage' : 'connect'}
+          mode={modalTarget?.kind === "manage" ? "manage" : "connect"}
           vendorDescription={activeVendor.description}
           supportedResources={activeVendor.supportedResources}
           logoUrl={activeVendor.description.logo?.url}
