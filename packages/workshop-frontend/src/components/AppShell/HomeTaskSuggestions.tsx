@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo } from "react"
 import {
   AppWindow,
   ChartLineUp,
@@ -6,65 +6,73 @@ import {
   Lightning,
   Presentation,
   type Icon,
-} from '@phosphor-icons/react'
+} from "@phosphor-icons/react"
+import { useI18n } from "../../i18n/I18nContext"
 
-// A few example work tasks shown under the Home composer, so a new user immediately sees the kind
-// of thing they can ask for. Picking one drops a starter prompt into the composer (it does not
-// auto-send) so the user can tweak it before running.
 type TaskSuggestion = {
   id: string
-  label: string
-  description: string
-  prompt: string
+  label_th: string
+  label_en: string
+  description_th: string
+  description_en: string
+  prompt_th: string
+  prompt_en: string
   icon: Icon
 }
 
-// Formats are advertised by example rather than by a row of "Start with Docs" buttons, so the
-// first move isn't "pick a file type". The formats themselves are in the composer's `+` menu.
 const SUGGESTIONS: TaskSuggestion[] = [
   {
-    id: 'one-on-one',
-    label: 'Write a 1:1 pre-read',
-    description: 'A doc with a snapshot, things to inspect, and one ask',
-    icon: FileText,
-    prompt:
-      'Create a document to prepare for my next 1:1 with a direct report: a current snapshot, a coaching frame, things to inspect, carryover items from last time, and one clear ask.',
-  },
-  {
-    id: 'team-meeting',
-    label: 'Build a team meeting deck',
-    description: 'Slides with progress, risks, and what needs a decision',
-    icon: Presentation,
-    prompt:
-      'Create a slide deck for my next team meeting: where things stand, what shipped, risks and blockers, and the decisions I need from the room. Ask me what the team is working on first.',
-  },
-  {
-    id: 'insights',
-    label: 'Find insights in my data',
-    description: 'Turn a spreadsheet or CSV into trends and recommendations',
-    icon: ChartLineUp,
-    prompt:
-      'Turn a dataset I will share (a spreadsheet, CSV, or pasted table) into a narrative analysis: key trends, anomalies, the "so what", and concrete recommendations.',
-  },
-  {
-    id: 'workflow',
-    label: 'Automate a workflow',
-    description: 'Trigger an agent when a new email arrives',
-    icon: Lightning,
-    prompt:
-      'Create an agent workflow that runs automatically when a new email arrives: read the message, decide what to do, and take action or draft a reply. Ask me which inbox to watch and what it should handle.',
-  },
-  {
-    id: 'app',
-    label: 'Build a quick tool',
-    description: 'A small interactive app, calculator, or dashboard',
+    id: "app",
+    label_th: "สร้างแอปเครื่องมือด่วน",
+    label_en: "Build a quick tool",
+    description_th: "แอปขนาดเล็กสำหรับโต้ตอบ เครื่องคิดเลข หรือหน้า Dashboard",
+    description_en: "A small interactive app, calculator, or dashboard",
     icon: AppWindow,
-    prompt:
-      'Build a small interactive tool I can use right here — a calculator, dashboard, or explorer. Ask me what it should do, then create it.',
+    prompt_th: "ช่วยสร้างเครื่องมือหรือเว็บแอปขนาดเล็กสำหรับโต้ตอบที่สามารถใช้งานได้ทันที (เช่น เครื่องคิดเลข, แดชบอร์ด หรือเครื่องมือค้นหาข้อมูล) รบกวนถามฉันก่อนว่าต้องการให้ทำอะไร แล้วลงมือสร้างให้เลย",
+    prompt_en: "Build a small interactive tool I can use right here — a calculator, dashboard, or explorer. Ask me what it should do, then create it.",
+  },
+  {
+    id: "team-meeting",
+    label_th: "สร้างสไลด์นำเสนอประชุมทีม",
+    label_en: "Build a team meeting deck",
+    description_th: "สไลด์สรุปความคืบหน้า ความเสี่ยง และเรื่องที่ต้องตัดสินใจ",
+    description_en: "Slides with progress, risks, and what needs a decision",
+    icon: Presentation,
+    prompt_th: "ช่วยสร้างสไลด์นำเสนอสำหรับการประชุมทีมครั้งต่อไป: สรุปสถานะงานล่าสุด, ผลงานที่ส่งมอบแล้ว, ความเสี่ยง/อุปสรรค และการตัดสินใจที่ต้องการจากที่ประชุม รบกวนถามฉันก่อนว่าทีมกำลังทำเรื่องอะไรอยู่",
+    prompt_en: "Create a slide deck for my next team meeting: where things stand, what shipped, risks and blockers, and the decisions I need from the room. Ask me what the team is working on first.",
+  },
+  {
+    id: "one-on-one",
+    label_th: "เขียนเอกสารเตรียมประชุม 1:1",
+    label_en: "Write a 1:1 pre-read",
+    description_th: "เอกสารสรุปภาพรวม สิ่งที่ต้องตรวจสอบ และคำร้องขอสำคัญ",
+    description_en: "A doc with a snapshot, things to inspect, and one ask",
+    icon: FileText,
+    prompt_th: "ช่วยสร้างเอกสารเตรียมพร้อมสำหรับการประชุม 1:1 กับทีมงาน: สรุปภาพรวมปัจจุบัน, กรอบการโค้ชชิ่ง, ประเด็นที่ต้องตรวจสอบ, งานที่ต่อเนื่องมาจากรอบที่แล้ว และข้อเสนอแนะที่ชัดเจน",
+    prompt_en: "Create a document to prepare for my next 1:1 with a direct report: a current snapshot, a coaching frame, things to inspect, carryover items from last time, and one clear ask.",
+  },
+  {
+    id: "insights",
+    label_th: "ค้นหาข้อมูลเชิงลึกในชุดข้อมูล",
+    label_en: "Find insights in my data",
+    description_th: "แปลงสเปรดชีตหรือ CSV เป็นแนวโน้มและข้อเสนอแนะ",
+    description_en: "Turn a spreadsheet or CSV into trends and recommendations",
+    icon: ChartLineUp,
+    prompt_th: "ช่วยวิเคราะห์ชุดข้อมูลที่ฉันจะแชร์ให้ (สเปรดชีต, CSV หรือตารางข้อความ) ออกมาเป็นการวิเคราะห์เชิงลึก: แนวโน้มสำคัญ, สิ่งผิดปกติ, ความหมายของข้อมูล และข้อเสนอแนะที่นำไปปฏิบัติได้จริง",
+    prompt_en: "Turn a dataset I will share (a spreadsheet, CSV, or pasted table) into a narrative analysis: key trends, anomalies, the \"so what\", and concrete recommendations.",
+  },
+  {
+    id: "workflow",
+    label_th: "ตั้งค่าการทำงานอัตโนมัติ",
+    label_en: "Automate a workflow",
+    description_th: "สั่งให้ Agent ทำงานอัตโนมัติเมื่อมีอีเมลใหม่เข้ามา",
+    description_en: "Trigger an agent when a new email arrives",
+    icon: Lightning,
+    prompt_th: "ช่วยสร้างระบบ Agent ทำงานอัตโนมัติเมื่อมีอีเมลใหม่เข้ามา: อ่านข้อความ, ตัดสินใจดำเนินการ และลงมือจัดการหรือร่างอีเมลตอบกลับ รบกวนถามฉันว่าต้องการให้ตรวจสอบกล่องข้อความไหนและต้องการให้จัดการเรื่องใดบ้าง",
+    prompt_en: "Create an agent workflow that runs automatically when a new email arrives: read the message, decide what to do, and take action or draft a reply. Ask me which inbox to watch and what it should handle.",
   },
 ]
 
-// One row, shared by every suggestion so the list reads as one kind of offer.
 function SuggestionRow({
   icon,
   label,
@@ -99,9 +107,6 @@ function SuggestionRow({
   )
 }
 
-// How many of the suggestions above to show at once. The list is longer than the page should be:
-// four rows is inspiration, seven is a menu to read. Which three appear is chosen per visit, so the
-// ones below the fold still get seen -- and so Home doesn't look like it only does one thing.
 const VISIBLE_SUGGESTIONS = 3
 
 function pickSuggestions(): TaskSuggestion[] {
@@ -118,22 +123,22 @@ export default function HomeTaskSuggestions({
 }: {
   onPick: (prompt: string) => void
 }) {
-  // Chosen once per mount: re-rolling on every render would shuffle the list under the pointer.
+  const { language, t } = useI18n()
   const visible = useMemo(pickSuggestions, [])
 
   return (
     <section aria-label="Example tasks" className="flex flex-col gap-1">
       <h3 className="px-1 pb-1 text-[12px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
-        Get started
+        {t("getStarted")}
       </h3>
       <ul className="flex flex-col gap-0.5">
         {visible.map((suggestion) => (
           <SuggestionRow
             key={suggestion.id}
             icon={<suggestion.icon size={16} />}
-            label={suggestion.label}
-            description={suggestion.description}
-            onClick={() => onPick(suggestion.prompt)}
+            label={language === "th" ? suggestion.label_th : suggestion.label_en}
+            description={language === "th" ? suggestion.description_th : suggestion.description_en}
+            onClick={() => onPick(language === "th" ? suggestion.prompt_th : suggestion.prompt_en)}
           />
         ))}
       </ul>

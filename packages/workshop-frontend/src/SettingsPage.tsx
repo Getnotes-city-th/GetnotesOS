@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { AiChatAuthorInfo } from '@gadgets/workshop-shared/api'
 import { hashPassword } from './passwordHash'
 import { CF_ACCESS_MODE } from './useAuth'
-import { User, Pencil, Check, X, Lock, Camera, Copy, Eye, EyeSlash } from '@phosphor-icons/react'
+import { User, Pencil, Check, X, Lock, Camera, Copy, Eye, EyeSlash, Translate } from '@phosphor-icons/react'
+import { useI18n } from './i18n/I18nContext'
 import { useAvatar, invalidateAvatarCache } from './useAvatar'
 import { compressAvatar, avatarBlobUrl } from './avatarUtils'
 import UsageSettings from './components/billing/UsageSettings'
@@ -85,6 +86,7 @@ function PasswordField({
 }
 
 export default function SettingsPage() {
+  const { t, language, setLanguage } = useI18n();
   useDocumentTitle('Profile')
 
   const { authenticatedApi } = useAuthenticatedApi()
@@ -372,6 +374,75 @@ export default function SettingsPage() {
                 className={ICON_BTN}
               >
                 <Copy size={14} />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        
+        {/* Language Settings */}
+        <section className="flex flex-col gap-3">
+          <SectionLabel>{t("languageSettings")}</SectionLabel>
+          <div className="rounded-xl border border-kumo-line bg-kumo-base p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-kumo-fill text-kumo-brand">
+                <Translate size={20} />
+              </div>
+              <div>
+                <p className="text-[14px] font-medium text-kumo-default">
+                  {t("languageSettings")}
+                </p>
+                <p className="text-[12px] text-kumo-subtle">
+                  {t("languageSettingsDesc")}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setLanguage("th")}
+                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all cursor-pointer ${
+                  language === "th"
+                    ? "border-kumo-brand bg-kumo-fill ring-2 ring-kumo-brand/20 shadow-sm"
+                    : "border-kumo-line bg-kumo-elevated hover:border-kumo-subtle"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🇹🇭</span>
+                  <div>
+                    <p className="text-[14px] font-medium text-kumo-default">ภาษาไทย (Thai)</p>
+                    <p className="text-[12px] text-kumo-subtle">ภาษาไทยเป็นค่าเริ่มต้น</p>
+                  </div>
+                </div>
+                {language === "th" && (
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-kumo-brand text-white">
+                    <Check size={12} weight="bold" />
+                  </div>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all cursor-pointer ${
+                  language === "en"
+                    ? "border-kumo-brand bg-kumo-fill ring-2 ring-kumo-brand/20 shadow-sm"
+                    : "border-kumo-line bg-kumo-elevated hover:border-kumo-subtle"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🇺🇸</span>
+                  <div>
+                    <p className="text-[14px] font-medium text-kumo-default">English (US)</p>
+                    <p className="text-[12px] text-kumo-subtle">English language</p>
+                  </div>
+                </div>
+                {language === "en" && (
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-kumo-brand text-white">
+                    <Check size={12} weight="bold" />
+                  </div>
+                )}
               </button>
             </div>
           </div>

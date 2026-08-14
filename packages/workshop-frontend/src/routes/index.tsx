@@ -1,6 +1,7 @@
 import { classifyRpcError, logRpcFailure } from "../rpcErrors";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useI18n } from "../i18n/I18nContext";
 import { useKumoToastManager } from "@cloudflare/kumo";
 import { ChatInput } from "../ChatInterface";
 import MeshBackground from "../components/MeshBackground";
@@ -40,6 +41,7 @@ function HomePage() {
 }
 
 export function HomePageContent({ prompt }: HomeSearch) {
+  const { t } = useI18n();
   useDocumentTitle("Home");
 
   const { authenticatedApi, currentUser } = useAuthenticatedApi();
@@ -173,10 +175,10 @@ export function HomePageContent({ prompt }: HomeSearch) {
         {/* Hero */}
         <header className="text-center">
           <h1 className="text-3xl font-semibold tracking-tight leading-tight text-kumo-default sm:text-4xl">
-            What are we working on?
+            {t("heroTitle")}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-[14px] leading-5 tracking-[-0.25px] text-kumo-subtle">
-            Ask a question, create an output, or create an app that works with your tools and data.
+            {t("heroSubtitle")}
           </p>
         </header>
 

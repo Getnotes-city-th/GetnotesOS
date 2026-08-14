@@ -1,3 +1,4 @@
+import { useI18n } from "../../i18n/I18nContext"
 import { logRpcFailure } from '../../rpcErrors'
 import {
   createContext,
@@ -293,6 +294,7 @@ export function SidebarWorkspacesTools({ collapsed = false }: { collapsed?: bool
  * ─────────────────────────────────────────────────────────────────────────────
  */
 export function SidebarWorkspacesLists({ collapsed = false }: { collapsed?: boolean }) {
+  const { t } = useI18n()
   const {
     search,
     favorites,
@@ -333,7 +335,7 @@ export function SidebarWorkspacesLists({ collapsed = false }: { collapsed?: bool
     <div className="flex flex-col pb-3">
       {/* Favorites */}
       <SidebarSection
-        label="Favorites"
+        label={t("favorites")}
         count={favorites.length}
         open={favOpen}
         onToggle={() => setFavOpen((o) => !o)}
@@ -341,7 +343,7 @@ export function SidebarWorkspacesLists({ collapsed = false }: { collapsed?: bool
       >
         {favorites.length === 0 ? (
           <p className="px-2.5 py-1.5 text-[12px] leading-4 tracking-[-0.2px] text-kumo-inactive">
-            Favorite a workspace to keep it here.
+            {t("favoriteEmpty")}
           </p>
         ) : (
           <div className="flex flex-col">
@@ -361,7 +363,7 @@ export function SidebarWorkspacesLists({ collapsed = false }: { collapsed?: bool
 
       {/* Recent workspaces — no count here; the "Show all (N)" link already carries it. */}
       <SidebarSection
-        label="Recent workspaces"
+        label={t("recentWorkspaces")}
         open={recentOpen}
         onToggle={() => setRecentOpen((o) => !o)}
       >
@@ -373,7 +375,7 @@ export function SidebarWorkspacesLists({ collapsed = false }: { collapsed?: bool
           </div>
         ) : recent.length === 0 ? (
           <p className="px-2.5 py-1.5 text-[12px] leading-4 tracking-[-0.2px] text-kumo-inactive">
-            {search ? 'No matches.' : 'No workspaces yet.'}
+            {search ? (t("language") === "th" ? "ไม่พบผลการค้นหา" : "No matches.") : t("noRecentWorkspaces")}
           </p>
         ) : (
           <>

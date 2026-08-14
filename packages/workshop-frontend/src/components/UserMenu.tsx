@@ -1,3 +1,5 @@
+import { useI18n } from "../i18n/I18nContext"
+import { Translate } from "@phosphor-icons/react"
 import { useNavigate } from '@tanstack/react-router'
 import { DropdownMenu } from '@cloudflare/kumo'
 import { useAuthenticatedApi } from '../AuthContext'
@@ -7,6 +9,7 @@ import { MENU_CONTENT, MENU_ITEM, MENU_ITEM_DANGER, MENU_POSITIONER_STYLE } from
 export default function UserMenu() {
   const { authenticatedApi, logout, currentUser, isAdmin } = useAuthenticatedApi()
   const navigate = useNavigate()
+  const { t, language, setLanguage } = useI18n()
 
   const avatarUrl = useAvatar(authenticatedApi, currentUser?.id)
 
@@ -52,6 +55,21 @@ export default function UserMenu() {
             Admin
           </DropdownMenu.Item>
         )}
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item
+          onClick={() => setLanguage(language === "th" ? "en" : "th")}
+          className={MENU_ITEM}
+        >
+          <div className="flex items-center justify-between w-full">
+            <span className="flex items-center gap-2">
+              <Translate size={15} />
+              {t("language")}
+            </span>
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-kumo-fill text-kumo-brand">
+              {language === "th" ? "TH 🇹🇭" : "EN 🇺🇸"}
+            </span>
+          </div>
+        </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           variant="danger"
