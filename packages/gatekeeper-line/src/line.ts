@@ -4,7 +4,7 @@ import {
   ApprovalQueue,
   stripTrailingSlashes,
   type AccountDescription,
-  type ActionDescription,
+  type ActionKind,
   type Gatekeeper,
   type GatekeeperConnectCallback,
   type GatekeeperConnectOptions,
@@ -494,7 +494,7 @@ export class UserAccount extends DurableObject<Env> {
     const callback = this.ctx.storage.kv.get<Fetcher<GatekeeperConnectCallback>>("callback");
     if (callback) {
       const user = this.ctx.exports.GatekeeperUserImpl({ props: { userObjectId: this.ctx.id.toString() } });
-      await callback.accepted(this.ctx.id.toString(), user);
+      await callback.complete(user);
     }
     return true;
   }
@@ -525,24 +525,27 @@ export class UserAccount extends DurableObject<Env> {
 
 @validateRpc()
 export class LineGatekeeperImpl extends DurableObject<Env, LineGatekeeperImplProps> implements Gatekeeper<LineSession> {
-  constructor(ctx: DurableObjectState, env: Env) {
-    super(ctx, env);
-  }
-
   async describe(): Promise<ResourceDescription> {
     return {
+      url: "https://line.me",
       title: "LINE Official Account",
-      icon: { url: LINE_LOGO_URL },
+      snippet: "Send messages and broadcast to LINE followers.",
+      suggestedBindingName: "line",
+      tsType: "LineSession",
     };
   }
 
-  async getAutoApprovableActions(): Promise<ActionDescription[]> {
+  async getTypeScriptTypes(): Promise<string> {
+    return TYPES_CODE;
+  }
+
+  async getAutoApprovableActions(): Promise<ActionKind[]> {
     return [];
   }
 
   async startSession(approvalQueue: RpcStub<ApprovalQueue>): Promise<LineSession> {
     const queue = approvalQueue.dup();
-    const userStub = this.env.UserAccount.get(this.env.UserAccount.idFromString(this.ctx.props.userObjectId));
+    const userStub = this.ctx.exports.UserAccount.get(this.ctx.exports.UserAccount.idFromString(this.ctx.props.userObjectId));
     const token = await userStub.getToken();
     const api = new LineApi(token);
     return new LineSessionImpl(api, queue);
@@ -568,7 +571,7 @@ class LineSessionImpl extends RpcTarget implements LineSession {
   }
 
   async sendTextMessage(to: string, text: string): Promise<LineMessageResult> {
-    await this.approvalQueue.authorizeMutatingAction({
+    await this.approvalQueue.authorizeObservation({
       title: `Send LINE message to ${to}`,
       description: `Send text message: "${text.slice(0, 50)}${text.length > 50 ? "..." : ""}" to ${to}`,
     });
@@ -577,7 +580,7 @@ class LineSessionImpl extends RpcTarget implements LineSession {
   }
 
   async sendFlexMessage(to: string, altText: string, contents: any): Promise<LineMessageResult> {
-    await this.approvalQueue.authorizeMutatingAction({
+    await this.approvalQueue.authorizeObservation({
       title: `Send LINE Flex Message to ${to}`,
       description: `Send flex card: "${altText}" to ${to}`,
     });
@@ -586,7 +589,7 @@ class LineSessionImpl extends RpcTarget implements LineSession {
   }
 
   async broadcastTextMessage(text: string): Promise<LineMessageResult> {
-    await this.approvalQueue.authorizeMutatingAction({
+    await this.approvalQueue.authorizeObservation({
       title: "Broadcast LINE message to all followers",
       description: `Broadcast: "${text.slice(0, 60)}${text.length > 60 ? "..." : ""}" to all followers`,
     });

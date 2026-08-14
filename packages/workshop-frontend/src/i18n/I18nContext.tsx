@@ -56,13 +56,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 export function useI18n() {
   const context = useContext(I18nContext)
   if (!context) {
-    // Fallback if rendered outside provider
-    const dict = translations.th
+    // Fallback if rendered outside provider (e.g. tests)
+    const dict = translations.en
     return {
-      language: 'th' as Language,
+      language: 'en' as Language,
       setLanguage: () => {},
       toggleLanguage: () => {},
-      t: (key: keyof TranslationDictionary, fallback?: string) => dict[key] ?? fallback ?? String(key),
+      t: (key: keyof TranslationDictionary, fallback?: string) => {
+        return dict[key] ?? fallback ?? String(key)
+      },
       dict,
     }
   }

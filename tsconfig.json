@@ -18,6 +18,6 @@
     // both faster and smaller here. Measurements in AGENTS.md.
     "singleThreaded": true
   },
-  "include": [],
+  "include": ["vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

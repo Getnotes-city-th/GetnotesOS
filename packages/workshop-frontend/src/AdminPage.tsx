@@ -10,6 +10,7 @@ import { cacheBustSiteLogoUrl, prepareSiteLogo } from './siteLogoUtils'
 import SiteLogo from './components/SiteLogo'
 import { useDocumentTitle } from './useDocumentTitle'
 import AdminFormatsPanel from './components/format/AdminFormatsPanel'
+import AdminUsersPanel from './components/admin/AdminUsersPanel'
 
 // Preset accent colors offered in the Theme section ('' = default brand).
 const ACCENT_PRESETS: { label: string; value: string }[] = [
@@ -30,6 +31,8 @@ const BANNER_SWATCH: Record<BannerColor, string> = {
   danger: 'var(--color-kumo-danger)',
   brand: 'var(--color-accent-100)',
 }
+
+const resourceKey = (vendorId: string, urlPattern: string) => `${vendorId}\u0000${urlPattern}`
 
 export default function AdminPage() {
   const { language } = useI18n();
@@ -86,8 +89,6 @@ export default function AdminPage() {
 
   // Promoted output formats, in menu order (see AdminFormatsPanel).
   const [formats, setFormats] = useState<AdminFormat[]>([])
-
-  const resourceKey = (vendorId: string, urlPattern: string) => `${vendorId}\u0000${urlPattern}`
 
   // Populate all editor state from a freshly-fetched settings view.
   const applySettings = (view: Awaited<ReturnType<RpcStub<AdminApi>['getSettings']>>) => {
@@ -403,11 +404,17 @@ export default function AdminPage() {
         onValueChange={setActiveTab}
         tabs={[
           { value: 'general', label: language === "th" ? "ทั่วไป" : "General" },
+          { value: 'users', label: language === "th" ? "จัดการผู้ใช้" : "Users" },
           { value: 'gatekeepers', label: language === "th" ? "ตัวเชื่อมต่อ" : "Gatekeepers" },
           { value: 'formats', label: language === "th" ? "รูปแบบผลงาน" : "Formats" },
           { value: 'access', label: language === "th" ? "การเข้าถึงและสิทธิ์" : "Access" },
         ]}
       />
+
+      {/* Users management */}
+      {activeTab === 'users' && admin && (
+        <AdminUsersPanel admin={admin.api} />
+      )}
 
       {/* Standard output formats */}
       {activeTab === 'formats' && admin && (

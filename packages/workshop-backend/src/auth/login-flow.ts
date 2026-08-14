@@ -129,6 +129,7 @@ export class LoginConnectCallbackImpl
       // Session tokens are "<doName>:<secret>"; PublicApi.authenticate() routes via idFromName of
       // the first part. The user DO is keyed by email, so the prefix must be the email.
       await pending.deliver(`${email}:${secret}`);
+      this.ctx.waitUntil(this.ctx.exports.AdminSettings.getByName("").recordLogin(email, email.split("@")[0]));
       loginLogger.info("gatekeeper login finished", {
         event: "gatekeeper.login.finished", outcome: "ok",
       });

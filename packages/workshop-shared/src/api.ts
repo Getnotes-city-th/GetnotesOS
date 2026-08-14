@@ -1014,7 +1014,40 @@ export interface AdminApi {
 
   /** Reorder the menu. `blueprintIds` must be a permutation of the currently promoted ids. */
   setFormatOrder(blueprintIds: string[]): Promise<void>;
+
+  // --- User Management ---
+
+  /** List all registered users on this deployment. */
+  listUsers(): Promise<AdminUserSummary[]>;
+
+  /** Grant or revoke deployment admin rights for a user. */
+  setUserAdmin(username: string, isAdmin: boolean): Promise<void>;
+
+  /** Suspend or unsuspend a user account. Suspended users cannot log in. */
+  setUserSuspended(username: string, suspended: boolean): Promise<void>;
+
+  /** Reset a user's password to a new password hash. */
+  resetUserPassword(username: string, newPasswordHash: Uint8Array): Promise<void>;
+
+  /** Delete a user account and purge all their workspaces and data. */
+  deleteUser(username: string): Promise<void>;
 }
+
+/** Summary of a user account for the admin User Management panel. */
+export type AdminUserSummary = {
+  /** The unique normalized username (e.g. "admin", "alice"). */
+  username: string;
+  /** Display name configured by the user. */
+  displayName: string;
+  /** ISO timestamp when the user account was created. */
+  createdAt: string;
+  /** ISO timestamp of the user's most recent login, if recorded. */
+  lastLoginAt?: string;
+  /** Whether the user has deployment admin rights. */
+  isAdmin: boolean;
+  /** Whether the user is currently suspended from logging in. */
+  suspended: boolean;
+};
 
 /** A partial edit to one promoted format. Absent fields are left alone. */
 export type AdminFormatPatch = {

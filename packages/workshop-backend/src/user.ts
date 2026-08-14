@@ -221,6 +221,9 @@ function makeUserStorage(storage: DurableObjectStorage) {
       //
       // null = password disabled (e.g. because some other auth mechanism is used)
       passwordHashHash: <Uint8Array | null>null,
+
+      // Whether this account is suspended by an administrator.
+      suspended: false,
     }
   });
 }
@@ -302,6 +305,9 @@ export class UserDurableObject extends DurableObject<Cloudflare.Env> {
   }
 
   async authenticate(token: string): Promise<void> {
+    if (this.storage.suspended.get()) {
+      throw createAuthError(AUTH_ERROR_CODES.invalidSessionToken);
+    }
     let tokenBytes: Uint8Array;
     try {
       tokenBytes = Uint8Array.fromBase64(token);
@@ -324,6 +330,9 @@ export class UserDurableObject extends DurableObject<Cloudflare.Env> {
    * existing users can still sign in.
    */
   async authenticateFromCfAccess(email: string, allowCreate: boolean): Promise<boolean> {
+    if (this.storage.suspended.get()) {
+      throw new Error("This account has been suspended by an administrator.");
+    }
     if (!this.storage.created.get()) {
       if (!allowCreate) {
         throw new Error("New sign-ups are currently disabled on this deployment.");
@@ -352,6 +361,9 @@ export class UserDurableObject extends DurableObject<Cloudflare.Env> {
   }
 
   async login(passwordHash: Uint8Array): Promise<string | null> {
+    if (this.storage.suspended.get()) {
+      throw new Error("This account has been suspended by an administrator.");
+    }
     let passwordHashHash = new Uint8Array(await crypto.subtle.digest('SHA-256', passwordHash));
 
     let actualHashHash = this.storage.passwordHashHash.get();
@@ -364,6 +376,31 @@ export class UserDurableObject extends DurableObject<Cloudflare.Env> {
     }
 
     return this.#newSessionToken();
+  }
+
+  async isSuspended(): Promise<boolean> {
+    return this.storage.suspended.get() ?? false;
+  }
+
+  async setSuspended(suspended: boolean): Promise<void> {
+    this.storage.suspended.put(suspended);
+    if (suspended) {
+      for (let session of Array.from(this.storage.sessions.list())) {
+        this.storage.sessions.delete(session.tokenId);
+      }
+    }
+  }
+
+  async resetPassword(newPasswordHash: Uint8Array): Promise<void> {
+    let hashHash = new Uint8Array(await crypto.subtle.digest('SHA-256', newPasswordHash));
+    this.storage.passwordHashHash.put(hashHash);
+    for (let session of Array.from(this.storage.sessions.list())) {
+      this.storage.sessions.delete(session.tokenId);
+    }
+  }
+
+  async deleteAccount(): Promise<void> {
+    await this.ctx.storage.deleteAll();
   }
 
   async createAccount(username: string, displayName: string, passwordHash: Uint8Array)

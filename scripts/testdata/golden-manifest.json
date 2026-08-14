@@ -237,6 +237,68 @@
         "BASE_URL": "$PUBLIC_BASE_URL/gatekeeper/email"
       }
     },
+    "gatekeeper-facebook": {
+      "bindings": [
+        {
+          "name": "CLIENT_ID",
+          "text": "$SECRET(CLIENT_ID)",
+          "type": "secret_text"
+        },
+        {
+          "name": "CLIENT_SECRET",
+          "text": "$SECRET(CLIENT_SECRET)",
+          "type": "secret_text"
+        }
+      ],
+      "compatibilityDate": "2026-02-02",
+      "compatibilityFlags": [
+        "allow_irrevocable_stub_storage"
+      ],
+      "inputs": [
+        {
+          "kind": "secret",
+          "label": "OAuth client ID",
+          "name": "CLIENT_ID"
+        },
+        {
+          "kind": "secret",
+          "label": "OAuth client secret",
+          "name": "CLIENT_SECRET"
+        }
+      ],
+      "installable": true,
+      "kind": "gatekeeper",
+      "mainModule": "facebook.js",
+      "migrations": [
+        {
+          "new_sqlite_classes": [
+            "UserAccount",
+            "FacebookGatekeeperImpl"
+          ],
+          "tag": "v0"
+        }
+      ],
+      "modules": [
+        {
+          "name": "facebook.js",
+          "r2Key": "blobs/modules/9f1d360c9357d647496fcfcef9799600ff2fa1b16a1085262448a5e41d7aa40c",
+          "sha256": "9f1d360c9357d647496fcfcef9799600ff2fa1b16a1085262448a5e41d7aa40c",
+          "size": 61,
+          "type": "esm"
+        }
+      ],
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "logs": {
+          "invocation_logs": false
+        }
+      },
+      "shortName": "facebook",
+      "vars": {
+        "BASE_URL": "$PUBLIC_BASE_URL/gatekeeper/facebook"
+      }
+    },
     "gatekeeper-github": {
       "bindings": [
         {
@@ -443,6 +505,68 @@
       "shortName": "homeassistant",
       "vars": {
         "BASE_URL": "$PUBLIC_BASE_URL/gatekeeper/homeassistant"
+      }
+    },
+    "gatekeeper-line": {
+      "bindings": [
+        {
+          "name": "CLIENT_ID",
+          "text": "$SECRET(CLIENT_ID)",
+          "type": "secret_text"
+        },
+        {
+          "name": "CLIENT_SECRET",
+          "text": "$SECRET(CLIENT_SECRET)",
+          "type": "secret_text"
+        }
+      ],
+      "compatibilityDate": "2026-02-02",
+      "compatibilityFlags": [
+        "allow_irrevocable_stub_storage"
+      ],
+      "inputs": [
+        {
+          "kind": "secret",
+          "label": "OAuth client ID",
+          "name": "CLIENT_ID"
+        },
+        {
+          "kind": "secret",
+          "label": "OAuth client secret",
+          "name": "CLIENT_SECRET"
+        }
+      ],
+      "installable": true,
+      "kind": "gatekeeper",
+      "mainModule": "line.js",
+      "migrations": [
+        {
+          "new_sqlite_classes": [
+            "UserAccount",
+            "LineGatekeeperImpl"
+          ],
+          "tag": "v0"
+        }
+      ],
+      "modules": [
+        {
+          "name": "line.js",
+          "r2Key": "blobs/modules/7ceea1df114c95aafc2535ef311981be15399694fe0a68d4d3c4a813c090a8e5",
+          "sha256": "7ceea1df114c95aafc2535ef311981be15399694fe0a68d4d3c4a813c090a8e5",
+          "size": 57,
+          "type": "esm"
+        }
+      ],
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "logs": {
+          "invocation_logs": false
+        }
+      },
+      "shortName": "line",
+      "vars": {
+        "BASE_URL": "$PUBLIC_BASE_URL/gatekeeper/line"
       }
     },
     "gatekeeper-linear": {
@@ -1122,6 +1246,10 @@
         }
       },
       "vars": {
+        "ADMINS": [
+          "admin",
+          "getnotesos"
+        ],
         "PUBLIC_BASE_URL": "$PUBLIC_BASE_URL"
       }
     }

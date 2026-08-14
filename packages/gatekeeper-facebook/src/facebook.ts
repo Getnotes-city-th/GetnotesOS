@@ -4,7 +4,7 @@ import {
   ApprovalQueue,
   stripTrailingSlashes,
   type AccountDescription,
-  type ActionDescription,
+  type ActionKind,
   type Gatekeeper,
   type GatekeeperConnectCallback,
   type GatekeeperConnectOptions,
@@ -494,7 +494,7 @@ export class UserAccount extends DurableObject<Env> {
     const callback = this.ctx.storage.kv.get<Fetcher<GatekeeperConnectCallback>>("callback");
     if (callback) {
       const user = this.ctx.exports.GatekeeperUserImpl({ props: { userObjectId: this.ctx.id.toString() } });
-      await callback.accepted(this.ctx.id.toString(), user);
+      await callback.complete(user);
     }
     return true;
   }
@@ -525,24 +525,27 @@ export class UserAccount extends DurableObject<Env> {
 
 @validateRpc()
 export class FacebookGatekeeperImpl extends DurableObject<Env, FacebookGatekeeperImplProps> implements Gatekeeper<FacebookSession> {
-  constructor(ctx: DurableObjectState, env: Env) {
-    super(ctx, env);
-  }
-
   async describe(): Promise<ResourceDescription> {
     return {
+      url: "https://facebook.com",
       title: "Facebook Page",
-      icon: { url: FACEBOOK_LOGO_URL },
+      snippet: "Manage posts, comments, messages, and insights for Facebook Page.",
+      suggestedBindingName: "facebook",
+      tsType: "FacebookSession",
     };
   }
 
-  async getAutoApprovableActions(): Promise<ActionDescription[]> {
+  async getTypeScriptTypes(): Promise<string> {
+    return TYPES_CODE;
+  }
+
+  async getAutoApprovableActions(): Promise<ActionKind[]> {
     return [];
   }
 
   async startSession(approvalQueue: RpcStub<ApprovalQueue>): Promise<FacebookSession> {
     const queue = approvalQueue.dup();
-    const userStub = this.env.UserAccount.get(this.env.UserAccount.idFromString(this.ctx.props.userObjectId));
+    const userStub = this.ctx.exports.UserAccount.get(this.ctx.exports.UserAccount.idFromString(this.ctx.props.userObjectId));
     const token = await userStub.getToken();
     const api = new FacebookApi(token);
     return new FacebookSessionImpl(api, queue);
@@ -568,7 +571,7 @@ class FacebookSessionImpl extends RpcTarget implements FacebookSession {
   }
 
   async publishPagePost(message: string, link?: string): Promise<FacebookPostResult> {
-    await this.approvalQueue.authorizeMutatingAction({
+    await this.approvalQueue.authorizeObservation({
       title: "Publish post to Facebook Page",
       description: `Publish: "${message.slice(0, 60)}${message.length > 60 ? "..." : ""}"`,
     });
@@ -577,7 +580,7 @@ class FacebookSessionImpl extends RpcTarget implements FacebookSession {
   }
 
   async sendPageMessage(recipientId: string, message: string): Promise<FacebookPostResult> {
-    await this.approvalQueue.authorizeMutatingAction({
+    await this.approvalQueue.authorizeObservation({
       title: `Send Messenger message to ${recipientId}`,
       description: `Send message: "${message.slice(0, 50)}${message.length > 50 ? "..." : ""}" to ${recipientId}`,
     });
@@ -602,7 +605,7 @@ class FacebookSessionImpl extends RpcTarget implements FacebookSession {
   }
 
   async replyComment(commentId: string, message: string): Promise<FacebookPostResult> {
-    await this.approvalQueue.authorizeMutatingAction({
+    await this.approvalQueue.authorizeObservation({
       title: `Reply to Facebook comment ${commentId}`,
       description: `Reply: "${message.slice(0, 50)}${message.length > 50 ? "..." : ""}"`,
     });

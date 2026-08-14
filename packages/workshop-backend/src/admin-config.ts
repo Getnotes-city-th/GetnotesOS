@@ -54,6 +54,9 @@ export type AdminConfig = {
    * the deployment offers.
    */
   formats: FormatCuration[];
+
+  /** Additional deployment admin usernames configured in settings. */
+  admins?: string[];
 };
 
 /**
@@ -313,6 +316,7 @@ export function parseAdminConfig(raw: string | null): AdminConfig {
       disabledGatekeepers: strings(p.disabledGatekeepers).map(v => v.toLowerCase()),
       ambientGatekeeperModes,
       formats: parseFormats(p.formats),
+      admins: strings(p.admins),
     };
   } catch {
     return { ...DEFAULT_ADMIN_CONFIG };

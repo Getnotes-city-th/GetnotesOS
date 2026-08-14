@@ -1,0 +1,24 @@
+{
+  "files.associations": {
+    "tsconfig*.json": "jsonc",
+    "*.jsonc": "jsonc",
+    ".npmrc": "ini"
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["tsconfig*.json"],
+      "schema": {
+        "properties": {
+          "compilerOptions": {
+            "properties": {
+              "singleThreaded": {
+                "type": "boolean",
+                "description": "tsgo single-threaded checker mode"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

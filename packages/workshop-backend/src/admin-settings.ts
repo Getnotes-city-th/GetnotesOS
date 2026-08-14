@@ -1,4 +1,4 @@
-import { AdminApi, AdminFormat, AdminFormatPatch, AdminResourceVendor, AdminSettingsView, AmbientGatekeeperMode, BannerColor, BlueprintPublicInfo, MAX_ANNOUNCEMENT_LENGTH, MAX_INSTANCE_INSTRUCTIONS_LENGTH, MAX_SITE_NAME_LENGTH, isAmbientGatekeeperMode, isBannerColor, isHexColor } from '@gadgets/workshop-shared/api';
+import { AdminApi, AdminFormat, AdminFormatPatch, AdminResourceVendor, AdminSettingsView, AdminUserSummary, AmbientGatekeeperMode, BannerColor, BlueprintPublicInfo, MAX_ANNOUNCEMENT_LENGTH, MAX_INSTANCE_INSTRUCTIONS_LENGTH, MAX_SITE_NAME_LENGTH, isAmbientGatekeeperMode, isBannerColor, isHexColor } from '@gadgets/workshop-shared/api';
 import { GatekeeperVendor } from '@gadgets/workshop-shared/gatekeeper';
 import { DurableObject } from 'cloudflare:workers';
 import { RpcTarget } from 'capnweb';
@@ -16,6 +16,15 @@ import { FORMAT_BLUEPRINTS } from './generated/format-blueprints.js';
 
 const logger = createWorkshopLogger("workshop.admin.settings");
 
+export type AdminUserRecord = {
+  username: string;
+  displayName: string;
+  createdAt: Date;
+  lastLoginAt?: Date;
+  isAdmin?: boolean;
+  suspended?: boolean;
+};
+
 function makeAdminSettingsStorage(storage: DurableObjectStorage) {
   return createTypedStorage(storage, {
     collections: {
@@ -23,6 +32,10 @@ function makeAdminSettingsStorage(storage: DurableObjectStorage) {
       // authoritative featured bit; this DO keeps the publishable deployment-wide copy.
       featuredBlueprints: collection<BlueprintPublicInfo>()({
         primaryKey: 'id',
+      }),
+      // Registry of all registered users on this deployment.
+      users: collection<AdminUserRecord>()({
+        primaryKey: 'username',
       }),
     },
     singletons: {
@@ -551,6 +564,127 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
     vendors.sort((a, b) => Number(b.autoProvisions) - Number(a.autoProvisions));
     return vendors;
   }
+
+  /**
+   * Record a user registration or ensure user exists in the registry.
+   */
+  async recordUser(username: string, displayName?: string): Promise<void> {
+    let existing = this.storage.users.get(username);
+    if (existing) {
+      this.storage.users.put({
+        ...existing,
+        displayName: displayName || existing.displayName,
+      });
+    } else {
+      this.storage.users.put({
+        username,
+        displayName: displayName || username,
+        createdAt: new Date(),
+        lastLoginAt: new Date(),
+      });
+    }
+  }
+
+  /**
+   * Record a user login timestamp.
+   */
+  async recordLogin(username: string, displayName?: string): Promise<void> {
+    let existing = this.storage.users.get(username);
+    if (existing) {
+      this.storage.users.put({
+        ...existing,
+        displayName: displayName || existing.displayName,
+        lastLoginAt: new Date(),
+      });
+    } else {
+      this.storage.users.put({
+        username,
+        displayName: displayName || username,
+        createdAt: new Date(),
+        lastLoginAt: new Date(),
+      });
+    }
+  }
+
+  /**
+   * List all registered users on this deployment.
+   */
+  async listUsers(): Promise<AdminUserSummary[]> {
+    let envAdmins = Array.isArray(this.env.ADMINS) ? (this.env.ADMINS as string[]) : [];
+    let configAdmins = this.storage.adminConfig.get().admins ?? [];
+    let allAdmins = new Set([...envAdmins, ...configAdmins]);
+
+    // Ensure known envAdmins are in the user registry
+    for (let admin of allAdmins) {
+      if (!this.storage.users.get(admin)) {
+        this.storage.users.put({
+          username: admin,
+          displayName: admin,
+          createdAt: new Date(),
+          isAdmin: true,
+        });
+      }
+    }
+
+    let records = Array.from(this.storage.users.list());
+    return records.map(r => ({
+      username: r.username,
+      displayName: r.displayName || r.username,
+      createdAt: (r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt)).toISOString(),
+      lastLoginAt: r.lastLoginAt ? (r.lastLoginAt instanceof Date ? r.lastLoginAt : new Date(r.lastLoginAt)).toISOString() : undefined,
+      isAdmin: allAdmins.has(r.username) || !!r.isAdmin,
+      suspended: !!r.suspended,
+    }));
+  }
+
+  /**
+   * Grant or revoke deployment admin rights for a user.
+   */
+  async setUserAdmin(username: string, isAdmin: boolean): Promise<void> {
+    let user = this.storage.users.get(username);
+    if (user) {
+      this.storage.users.put({ ...user, isAdmin });
+    }
+    let admins = new Set(this.storage.adminConfig.get().admins ?? []);
+    if (isAdmin) {
+      admins.add(username);
+    } else {
+      admins.delete(username);
+    }
+    await this.updateAdminConfig({ admins: Array.from(admins) });
+  }
+
+  /**
+   * Suspend or unsuspend a user account.
+   */
+  async setUserSuspended(username: string, suspended: boolean): Promise<void> {
+    let user = this.storage.users.get(username);
+    if (user) {
+      this.storage.users.put({ ...user, suspended });
+    }
+    let userStub = this.users.get(this.users.idFromName(username));
+    await userStub.setSuspended(suspended);
+  }
+
+  /**
+   * Reset a user's password.
+   */
+  async resetUserPassword(username: string, newPasswordHash: Uint8Array): Promise<void> {
+    let userStub = this.users.get(this.users.idFromName(username));
+    await userStub.resetPassword(newPasswordHash);
+  }
+
+  /**
+   * Delete a user account.
+   */
+  async deleteUser(username: string): Promise<void> {
+    this.storage.users.delete(username);
+    let admins = new Set(this.storage.adminConfig.get().admins ?? []);
+    admins.delete(username);
+    await this.updateAdminConfig({ admins: Array.from(admins) });
+    let userStub = this.users.get(this.users.idFromName(username));
+    await userStub.deleteAccount();
+  }
 }
 
 // Capability for managing deployment-wide admin settings, obtained via
@@ -654,5 +788,25 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
 
   setFormatOrder(blueprintIds: string[]): Promise<void> {
     return this.admin.setFormatOrder(blueprintIds);
+  }
+
+  listUsers(): Promise<AdminUserSummary[]> {
+    return this.admin.listUsers();
+  }
+
+  async setUserAdmin(username: string, isAdmin: boolean): Promise<void> {
+    await this.admin.setUserAdmin(username, isAdmin);
+  }
+
+  async setUserSuspended(username: string, suspended: boolean): Promise<void> {
+    await this.admin.setUserSuspended(username, suspended);
+  }
+
+  async resetUserPassword(username: string, newPasswordHash: Uint8Array): Promise<void> {
+    await this.admin.resetUserPassword(username, newPasswordHash);
+  }
+
+  async deleteUser(username: string): Promise<void> {
+    await this.admin.deleteUser(username);
   }
 }

@@ -97,23 +97,30 @@ class AuthenticatedApiImpl extends RpcTarget implements AuthenticatedApi {
     return wrapDoStubForTelemetry(this.users.get(this.#userId));
   }
 
-  #isAdmin(): boolean {
+  #isAdmin(config?: { admins?: string[] }): boolean {
     let name = this.#userId.name;
-    let admins = this.env.ADMINS;
+    if (!name) return false;
 
-    if (!name || !admins) return false;
+    let admins: unknown = this.env.ADMINS;
+    let adminList: string[] = [];
 
-    if (typeof admins === "string") {
-      // Admins should be a JSON binding of array type, but `.env` doesn't actually let you
-      // specify JSON bindings, so we also support a string that parses as JSON array.
-      admins = JSON.parse(admins);
+    if (admins) {
+      if (typeof admins === "string") {
+        try {
+          adminList = JSON.parse(admins);
+        } catch {
+          adminList = [admins];
+        }
+      } else if (Array.isArray(admins)) {
+        adminList = admins as string[];
+      }
     }
 
-    if (!Array.isArray(admins)) {
-      throw new TypeError("ADMINS must be configured as an array of usernames.");
+    if (config?.admins) {
+      adminList = [...adminList, ...config.admins];
     }
 
-    return admins.includes(name);
+    return adminList.includes(name);
   }
 
   whoami(): Promise<AiChatAuthorInfo> {
@@ -588,14 +595,17 @@ class AuthenticatedApiImpl extends RpcTarget implements AuthenticatedApi {
   // --- Deployment admin ---
 
   async amIAdmin(): Promise<boolean> {
-    return this.#isAdmin();
+    let config = await readAdminConfig(this.env);
+    return this.#isAdmin(config);
   }
 
   async getAdminApi(): Promise<RpcStub<AdminApi> | null> {
-    if (!this.#isAdmin()) return null;
-    // #isAdmin() guarantees a non-empty user id name. Forwarded to gatekeepers when listing the
-    // resource catalog so RBAC-gated ones still surface for this admin.
-    let adminUserId = this.#userId.name!;
+    let name = this.#userId.name;
+    if (!name) return null;
+    let config = await readAdminConfig(this.env);
+    if (!this.#isAdmin(config)) return null;
+    // Forwarded to gatekeepers when listing the resource catalog so RBAC-gated ones still surface for this admin.
+    let adminUserId = name;
     // @ts-expect-error Cap'n Web RPC stubs and native RPC targets are compatible but the type
     //     system doesn't know this.
     return new AdminApiImpl(this.adminSettings.getByName(""), adminUserId);
@@ -637,12 +647,14 @@ class LoginAttemptImpl extends RpcTarget implements LoginAttempt {
 @validateRpc()
 class PublicApiImpl extends RpcTarget implements PublicApi {
   users: DurableObjectNamespace<UserDurableObject>;
+  adminSettings: DurableObjectNamespace<AdminSettings>;
 
   constructor(private ctx: ExecutionContext, private env: Env,
       private abortSession: (reason: Error) => void,
       private accessPayload?: JWTPayload) {
     super();
     this.users = this.ctx.exports.UserDurableObject;
+    this.adminSettings = this.ctx.exports.AdminSettings;
   }
 
   async getServerConfig(): Promise<ServerConfig> {
@@ -707,6 +719,9 @@ class PublicApiImpl extends RpcTarget implements PublicApi {
         user_id: userId.toString(),
         source: "cf_access",
       });
+      this.ctx.waitUntil(this.adminSettings.getByName("").recordUser(email, email.split("@")[0]));
+    } else {
+      this.ctx.waitUntil(this.adminSettings.getByName("").recordLogin(email, email.split("@")[0]));
     }
     recordAnalytics(this.ctx, this.env, {
       event_name: "user_authenticated",
@@ -735,6 +750,7 @@ class PublicApiImpl extends RpcTarget implements PublicApi {
       user_id: id.toString(),
       source: "password",
     });
+    this.ctx.waitUntil(this.adminSettings.getByName("").recordLogin(username));
 
     return `${username}:${token}`;
   }
@@ -764,6 +780,7 @@ class PublicApiImpl extends RpcTarget implements PublicApi {
       user_id: id.toString(),
       source: "password",
     });
+    this.ctx.waitUntil(this.adminSettings.getByName("").recordUser(username, displayName));
 
     return `${username}:${token}`;
   }
