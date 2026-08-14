@@ -77,6 +77,12 @@
       "bucket_name": "gadgets-blueprint-content"
     }
   ],
+  "vars": {
+    "ADMINS": [
+      "admin",
+      "getnotesos"
+    ]
+  },
   "worker_loaders": [
     {
       "binding": "LOADER"
