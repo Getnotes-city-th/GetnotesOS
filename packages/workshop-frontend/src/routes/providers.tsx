@@ -1,68 +1,83 @@
 import { useI18n } from "../i18n/I18nContext"
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect, useRef } from 'react'
-import { DropdownMenu, useKumoToastManager } from '@cloudflare/kumo'
-import { useAuthenticatedApi } from '../AuthContext'
+import { createFileRoute } from "@tanstack/react-router"
+import { useState, useEffect, useRef } from "react"
+import { DropdownMenu, useKumoToastManager } from "@cloudflare/kumo"
+import { useAuthenticatedApi } from "../AuthContext"
 import {
   AiChatAuthorInfo,
   AiGatewayInfo,
   AiModelProvider,
   SUGGESTED_MODELS,
-} from '@gadgets/workshop-shared/api'
+} from "@gadgets/workshop-shared/api"
 import {
   Plus,
   Trash,
   Lightning,
+  Star,
   MagnifyingGlass,
   DotsThreeVertical,
-} from '@phosphor-icons/react'
-import AddModelModal from '../AddModelModal'
-import { useDocumentTitle } from '../useDocumentTitle'
-import { MENU_CONTENT, MENU_ITEM, MENU_ITEM_DANGER } from '../components/menuStyles'
+} from "@phosphor-icons/react"
+import AddModelModal from "../AddModelModal"
+import { useDocumentTitle } from "../useDocumentTitle"
+import { MENU_CONTENT, MENU_ITEM, MENU_ITEM_DANGER } from "../components/menuStyles"
 
-export const Route = createFileRoute('/providers')({ component: ProvidersPage })
+export const Route = createFileRoute("/providers")({ component: ProvidersPage })
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
 const PROVIDER_ORDER = Object.keys(SUGGESTED_MODELS) as AiModelProvider[]
 
 const PRIMARY_BTN =
-  'press inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-kumo-brand px-3.5 text-[13px] font-medium tracking-[-0.25px] text-white transition-colors hover:bg-kumo-brand-hover'
+  "press inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-kumo-brand px-3.5 text-[13px] font-medium tracking-[-0.25px] text-white transition-colors hover:bg-kumo-brand-hover"
 
 // ─── model row ─────────────────────────────────────────────────────────────────
 
-// Rows mirror the Blueprints list: a clickable row (here, clicking sets/clears the quick model)
-// plus a kebab for the rest. The whole row is the primary affordance, so it shows a pointer.
 function ModelRow({
   model,
+  isPreferred,
   isQuick,
   isBuiltIn,
   onDelete,
+  onSetPreferred,
   onSetQuick,
+  language,
 }: {
   model: AiChatAuthorInfo
+  isPreferred: boolean
   isQuick: boolean
   isBuiltIn: boolean
   onDelete: () => void
+  onSetPreferred: () => void
   onSetQuick: () => void
+  language: string
 }) {
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={onSetQuick}
+      onClick={onSetPreferred}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault()
-          onSetQuick()
+          onSetPreferred()
         }
       }}
-      title={isQuick ? 'Quick model. Click to clear' : 'Click to set as quick model'}
-      className="group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 ease-out hover:bg-kumo-tint"
+      title={
+        isPreferred
+          ? (language === "th" ? "โมเดลหลักปัจจุบัน (คลิกเพื่อยกเลิก)" : "Primary model. Click to clear")
+          : (language === "th" ? "คลิกเพื่อตั้งเป็นโมเดลหลักสำหรับการสนทนา" : "Click to set as primary model")
+      }
+      className={`group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 ease-out hover:bg-kumo-tint ${
+        isPreferred ? "bg-emerald-500/5 ring-1 ring-emerald-500/20" : ""
+      }`}
     >
-      {/* Neutral monogram — matches the sidebar/workspaces treatment */}
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-kumo-fill text-[12px] font-medium text-kumo-subtle">
-        {model.name[0]?.toUpperCase()}
+      {/* Monogram */}
+      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[12px] font-medium ${
+        isPreferred
+          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+          : "bg-kumo-fill text-kumo-subtle"
+      }`}>
+        {isPreferred ? <Star size={16} weight="fill" /> : model.name[0]?.toUpperCase()}
       </div>
 
       {/* Info */}
@@ -76,10 +91,16 @@ function ModelRow({
               built-in
             </span>
           )}
+          {isPreferred && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.4px] text-emerald-600 dark:text-emerald-400">
+              <Star size={9} weight="fill" />
+              {language === "th" ? "โมเดลหลัก" : "primary"}
+            </span>
+          )}
           {isQuick && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[rgba(255,72,1,0.10)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.4px] text-kumo-brand">
               <Lightning size={9} weight="fill" />
-              quick
+              {language === "th" ? "ความเร็วสูง" : "quick"}
             </span>
           )}
         </div>
@@ -102,14 +123,22 @@ function ModelRow({
             }
           />
           <DropdownMenu.Content className={MENU_CONTENT}>
+            <DropdownMenu.Item onClick={onSetPreferred} className={MENU_ITEM}>
+              <Star size={13} className="mr-2" weight={isPreferred ? "fill" : "regular"} />
+              {isPreferred
+                ? (language === "th" ? "ยกเลิกโมเดลหลัก" : "Clear primary model")
+                : (language === "th" ? "ตั้งเป็นโมเดลหลัก (Primary)" : "Set as primary model")}
+            </DropdownMenu.Item>
             <DropdownMenu.Item onClick={onSetQuick} className={MENU_ITEM}>
-              <Lightning size={13} className="mr-2" weight={isQuick ? 'fill' : 'regular'} />
-              {isQuick ? 'Clear quick model' : 'Set as quick model'}
+              <Lightning size={13} className="mr-2" weight={isQuick ? "fill" : "regular"} />
+              {isQuick
+                ? (language === "th" ? "ยกเลิกโมเดลความเร็วสูง" : "Clear quick model")
+                : (language === "th" ? "ตั้งเป็นโมเดลความเร็วสูง (Quick)" : "Set as quick model")}
             </DropdownMenu.Item>
             {!isBuiltIn && (
               <DropdownMenu.Item variant="danger" onClick={onDelete} className={MENU_ITEM_DANGER}>
                 <Trash size={13} className="mr-2" />
-                Delete provider
+                {language === "th" ? "ลบผู้ให้บริการ" : "Delete provider"}
               </DropdownMenu.Item>
             )}
           </DropdownMenu.Content>
@@ -119,11 +148,11 @@ function ModelRow({
   )
 }
 
-// ─── notice ────────────────────────────────────────────────────────────────────
+// ─── notice callout ───────────────────────────────────────────────────────────
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-kumo-line bg-kumo-tint px-4 py-3 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
+    <div className="flex items-start gap-2.5 rounded-lg border border-kumo-line bg-kumo-base px-3 py-2.5 text-[12px] leading-[17px] text-kumo-subtle">
       {children}
     </div>
   )
@@ -132,15 +161,16 @@ function Notice({ children }: { children: React.ReactNode }) {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 function ProvidersPage() {
-  const { t, language } = useI18n();
-  useDocumentTitle('AI Providers')
+  const { t, language } = useI18n()
+  useDocumentTitle(language === "th" ? "ผู้ให้บริการ AI" : "AI Providers")
 
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
   const [models, setModels] = useState<AiChatAuthorInfo[]>([])
   const [quickModel, setQuickModel] = useState<string | null>(null)
+  const [preferredModel, setPreferredModel] = useState<string | null>(null)
   const [aiConfig, setAiConfig] = useState<AiGatewayInfo | null>(null)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -149,16 +179,18 @@ function ProvidersPage() {
   const fetchAll = async () => {
     setLoadError(false)
     try {
-      const [modelList, qm, cfg] = await Promise.all([
+      const [modelList, qm, pm, cfg] = await Promise.all([
         authenticatedApi.listModels(),
         authenticatedApi.getQuickModel(),
+        authenticatedApi.getPreferredModel(),
         authenticatedApi.getAiConfig(),
       ])
       setModels(modelList)
       setQuickModel(qm)
+      setPreferredModel(pm)
       setAiConfig(cfg)
     } catch (err) {
-      console.error('Failed to load providers:', err)
+      console.error("Failed to load providers:", err)
       setLoadError(true)
     } finally {
       setLoading(false)
@@ -167,8 +199,7 @@ function ProvidersPage() {
 
   useEffect(() => { fetchAll() }, [authenticatedApi])
 
-  const gatewayMode = aiConfig?.enabled === true
-
+  
   const isBuiltIn = (modelId: string): boolean => {
     if (!aiConfig?.enabled) return false
     const enabled = new Set((aiConfig as Extract<AiGatewayInfo, { enabled: true }>).enabledProviders)
@@ -176,21 +207,42 @@ function ProvidersPage() {
   }
 
   const handleDelete = async (model: AiChatAuthorInfo) => {
-    if (!confirm(language === "th" ? `ลบ "${model.name}" หรือไม่? การกระทำนี้ไม่สามารถเรียกคืนได้` : `Delete "${model.name}"? This cannot be undone.`)) return
+    if (!confirm(language === "th" ? "ลบ " + JSON.stringify(model.name) + " หรือไม่? การกระทำนี้ไม่สามารถเรียกคืนได้" : "Delete " + JSON.stringify(model.name) + "? This cannot be undone.")) return
     setDeletingId(model.id)
     try {
       await authenticatedApi.deleteModel(model.id)
       await fetchAll()
     } catch (err) {
-      console.error('Failed to delete model:', err)
+      console.error("Failed to delete model:", err)
       toasts.add({ title: language === "th" ? "ไม่สามารถลบผู้ให้บริการได้" : "Failed to delete provider", variant: "error" })
     } finally {
       setDeletingId(null)
     }
   }
 
-  // Overlapping setQuickModel calls have no ordering guarantee, so ignore clicks while one is
-  // in flight.
+  const preferredInFlight = useRef(false)
+  const handleSetPreferred = async (modelId: string) => {
+    if (preferredInFlight.current) return
+    preferredInFlight.current = true
+    const next = preferredModel === modelId ? null : modelId
+    setPreferredModel(next)
+    try {
+      await authenticatedApi.setPreferredModel(next)
+      toasts.add({
+        title: next
+          ? (language === "th" ? "ตั้งเป็นโมเดลหลักเรียบร้อยแล้ว" : "Set as primary model")
+          : (language === "th" ? "ยกเลิกโมเดลหลักแล้ว" : "Cleared primary model"),
+        variant: "success",
+      })
+    } catch (err) {
+      console.error("Failed to set preferred model:", err)
+      setPreferredModel(preferredModel)
+      toasts.add({ title: language === "th" ? "ไม่สามารถอัปเดตโมเดลหลักได้" : "Failed to update primary model", variant: "error" })
+    } finally {
+      preferredInFlight.current = false
+    }
+  }
+
   const quickInFlight = useRef(false)
   const handleSetQuick = async (modelId: string) => {
     if (quickInFlight.current) return
@@ -199,9 +251,15 @@ function ProvidersPage() {
     setQuickModel(next)
     try {
       await authenticatedApi.setQuickModel(next)
+      toasts.add({
+        title: next
+          ? (language === "th" ? "ตั้งเป็นโมเดลความเร็วสูงเรียบร้อยแล้ว" : "Set as quick model")
+          : (language === "th" ? "ยกเลิกโมเดลความเร็วสูงแล้ว" : "Cleared quick model"),
+        variant: "success",
+      })
     } catch (err) {
-      console.error('Failed to set quick model:', err)
-      setQuickModel(quickModel) // revert
+      console.error("Failed to set quick model:", err)
+      setQuickModel(quickModel)
       toasts.add({ title: language === "th" ? "ไม่สามารถอัปเดตโมเดลเริ่มต้นได้" : "Failed to update default model", variant: "error" })
     } finally {
       quickInFlight.current = false
@@ -229,7 +287,7 @@ function ProvidersPage() {
         </button>
       </header>
 
-      {/* Search — hidden when the user has no models */}
+      {/* Search */}
       {!loading && !loadError && models.length > 0 && (
         <div className="mb-3 px-3">
           <div className="relative">
@@ -247,31 +305,37 @@ function ProvidersPage() {
 
       <div className="chat-panel flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pt-1 pb-16">
         {/* Notices */}
-        {(gatewayMode || (!gatewayMode && models.length > 0)) && !loading && !loadError && (
-          <div className="flex flex-col gap-2.5 px-3 pb-2">
-            {gatewayMode && (
-              <Notice>
-                <Lightning size={15} className="mt-px shrink-0 text-kumo-brand" />
-                <span>
-                  <strong className="font-medium text-kumo-default">AI Gateway mode:</strong> built-in
-                  models are managed by your deployment. You can still add custom models with your own
-                  API tokens.
-                </span>
-              </Notice>
-            )}
+        {!loading && !loadError && models.length > 0 && (
+          <div className="flex flex-col gap-2 px-3 pb-2">
+            <Notice>
+              <Star size={15} weight="fill" className="mt-px shrink-0 text-emerald-500" />
+              <span>
+                <strong className="font-medium text-kumo-default">
+                  {language === "th" ? "โมเดลหลัก (Primary model):" : "Primary model:"}
+                </strong>{" "}
+                {preferredModel
+                  ? (models.find((m) => m.id === preferredModel)?.name ?? preferredModel) + "."
+                  : (language === "th" ? "ยังไม่ได้กำหนด (จะใช้โมเดลแรกในรายการ)" : "none set (defaults to first model).")}{" "}
+                {language === "th"
+                  ? "ใช้สำหรับการสร้างและสนทนาในพื้นที่ทำงาน (คลิกที่แถวโมเดลเพื่อเลือก)"
+                  : "Used for creating and chatting in workspaces. Click any model to set it."}
+              </span>
+            </Notice>
 
-            {!gatewayMode && models.length > 0 && (
-              <Notice>
-                <Lightning size={15} className="mt-px shrink-0 text-kumo-brand" />
-                <span>
-                  <strong className="font-medium text-kumo-default">Quick model:</strong>{' '}
-                  {quickModel
-                    ? `${models.find((m) => m.id === quickModel)?.name ?? quickModel}.`
-                    : 'none set.'}{' '}
-                  Used for fast tasks like generating chat titles. Click a model to set it.
-                </span>
-              </Notice>
-            )}
+            <Notice>
+              <Lightning size={15} className="mt-px shrink-0 text-kumo-brand" />
+              <span>
+                <strong className="font-medium text-kumo-default">
+                  {language === "th" ? "โมเดลความเร็วสูง (Quick model):" : "Quick model:"}
+                </strong>{" "}
+                {quickModel
+                  ? (models.find((m) => m.id === quickModel)?.name ?? quickModel) + "."
+                  : (language === "th" ? "ยังไม่ได้กำหนด" : "none set.")}{" "}
+                {language === "th"
+                  ? "ใช้สำหรับงานขนาดเล็ก เช่น การตั้งชื่อแชทอัตโนมัติ"
+                  : "Used for fast tasks like generating chat titles."}
+              </span>
+            </Notice>
           </div>
         )}
 
@@ -311,14 +375,17 @@ function ProvidersPage() {
           filtered.map((model) => (
             <div
               key={model.id}
-              className={deletingId === model.id ? 'pointer-events-none opacity-50' : ''}
+              className={deletingId === model.id ? "pointer-events-none opacity-50" : ""}
             >
               <ModelRow
                 model={model}
+                isPreferred={preferredModel === model.id}
                 isQuick={quickModel === model.id}
                 isBuiltIn={isBuiltIn(model.id)}
                 onDelete={() => handleDelete(model)}
+                onSetPreferred={() => handleSetPreferred(model.id)}
                 onSetQuick={() => handleSetQuick(model.id)}
+                language={language}
               />
             </div>
           ))

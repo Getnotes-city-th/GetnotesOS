@@ -1205,9 +1205,13 @@ export const SUGGESTED_MODELS: Record<
     "gemini-3.6-flash": {name: "Gemini 3.6 Flash", contextWindow: 1048576},
   },
   "nous": {
-    "hermes-3-llama-3.1-70b": {name: "Hermes 3 Llama 3.1 70B (Nous)", contextWindow: 128000},
-    "hermes-3-llama-3.1-8b": {name: "Hermes 3 Llama 3.1 8B (Nous)", contextWindow: 128000},
-    "hermes-3-llama-3.1-405b": {name: "Hermes 3 Llama 3.1 405B (Nous)", contextWindow: 128000},
+    "nousresearch/hermes-4-70b": {name: "Hermes 4 70B (Nous)", contextWindow: 128000},
+    "nousresearch/hermes-4-405b": {name: "Hermes 4 405B (Nous)", contextWindow: 128000},
+    "deepseek/deepseek-chat": {name: "DeepSeek V3 (Nous)", contextWindow: 64000},
+    "deepseek/deepseek-r1": {name: "DeepSeek R1 (Nous)", contextWindow: 64000},
+    "meta-llama/llama-3.3-70b-instruct": {name: "Llama 3.3 70B (Nous)", contextWindow: 128000},
+    "openai/gpt-4o": {name: "GPT-4o (Nous)", contextWindow: 128000},
+    "anthropic/claude-3-haiku": {name: "Claude 3 Haiku (Nous)", contextWindow: 200000},
   },
   "ollama": {
   },
