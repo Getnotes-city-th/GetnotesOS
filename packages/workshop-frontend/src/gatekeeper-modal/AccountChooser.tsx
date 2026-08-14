@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { useState } from 'react'
 import { Check, Plus, UserCircle } from '@phosphor-icons/react'
 import { AccountDescription, SupportedResource, VendorDescription } from '@gadgets/workshop-shared/gatekeeper'
@@ -31,6 +32,7 @@ export function AccountAvatar({ avatarUrl, logoUrl }: { avatarUrl: string | unde
 }
 
 export function AccountChooser({
+
   accounts,
   selectedAccountId,
   vendorId,
@@ -59,16 +61,17 @@ export function AccountChooser({
   onReconnect: (id: number) => void
   onGrantAccess?: (id: number) => void
 }) {
+  const { language } = useI18n()
   const isEmailMailbox = vendorId === 'email' && resourceTitle === 'Email Mailbox'
 
   return (
     <section className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base">
       <div className="border-b border-kumo-line px-3 py-2.5">
-        <p className="text-[12px] leading-4 font-medium tracking-[-0.2px] text-kumo-default">Account</p>
+        <p className="text-[12px] leading-4 font-medium tracking-[-0.2px] text-kumo-default">{language === "th" ? "บัญชีผู้ใช้" : "Account"}</p>
         <p className="mt-0.5 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
           {isEmailMailbox
-            ? 'Enable the Email receiver account, then choose the mailbox name below.'
-            : `Pick which ${vendorName} identity this ${resourceTitle ?? 'connection'} should use.`}
+            ? (language === "th" ? "เปิดใช้งานบัญชีผู้รับอีเมล จากนั้นเลือกชื่อกล่องจดหมายด้านล่าง" : "Enable the Email receiver account, then choose the mailbox name below.")
+            : (language === "th" ? `เลือกบัญชี ${vendorName} ที่ต้องการให้การเชื่อมต่อนี้ใช้งาน` : `Pick which ${vendorName} identity this ${resourceTitle ?? "connection"} should use.`)}
         </p>
       </div>
       <div className="divide-y divide-kumo-line">
@@ -108,10 +111,10 @@ export function AccountChooser({
                   <p className="truncate text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-default">{name}</p>
                   <p className={`truncate text-[12px] leading-4 font-normal tracking-[-0.2px] ${needsAccess ? 'text-kumo-brand' : 'text-kumo-subtle'}`}>
                     {expired
-                      ? 'Expired credentials'
+                      ? (language === "th" ? "ข้อมูลรับรองหมดอายุ" : "Expired credentials")
                       : needsAccess
-                      ? 'Additional permission needed'
-                      : resourceTitle ? `Connected ${vendorName} account` : 'Connected'}
+                      ? (language === "th" ? "ต้องการสิทธิ์การเข้าถึงเพิ่มเติม" : "Additional permission needed")
+                      : resourceTitle ? (language === "th" ? `บัญชี ${vendorName} ที่เชื่อมต่อแล้ว` : `Connected ${vendorName} account`) : (language === "th" ? "เชื่อมต่อแล้ว" : "Connected")}
                   </p>
                 </div>
               </button>
@@ -122,7 +125,7 @@ export function AccountChooser({
                   disabled={reconnecting}
                   className="shrink-0 cursor-pointer rounded-md border border-kumo-line px-2 py-1 text-[12px] leading-4 font-medium tracking-[-0.2px] text-kumo-default transition-colors hover:bg-kumo-elevated disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {reconnecting ? 'Opening...' : 'Reconnect'}
+                  {reconnecting ? (language === "th" ? "กำลังเปิด..." : "Opening...") : (language === "th" ? "เชื่อมต่อใหม่" : "Reconnect")}
                 </button>
               ) : needsAccess ? (
                 <button
@@ -131,7 +134,7 @@ export function AccountChooser({
                   disabled={granting}
                   className="shrink-0 cursor-pointer rounded-md border border-kumo-line px-2 py-1 text-[12px] leading-4 font-medium tracking-[-0.2px] text-kumo-default transition-colors hover:bg-kumo-elevated disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {granting ? 'Opening...' : 'Grant access'}
+                  {granting ? (language === "th" ? "กำลังเปิด..." : "Opening...") : (language === "th" ? "อนุญาตสิทธิ์" : "Grant access")}
                 </button>
               ) : null}
               {selected && <Check size={15} weight="bold" className="shrink-0 text-kumo-brand" />}
@@ -152,8 +155,8 @@ export function AccountChooser({
               <Plus size={14} />
             )}
             {isEmailMailbox
-              ? 'Enable Email mailboxes'
-              : accounts.length === 0 ? `Connect ${vendorName}` : `Use another ${vendorName} account`}
+              ? (language === "th" ? "เปิดใช้งานกล่องจดหมายอีเมล" : "Enable Email mailboxes")
+              : accounts.length === 0 ? (language === "th" ? `เชื่อมต่อ ${vendorName}` : `Connect ${vendorName}`) : (language === "th" ? `ใช้บัญชี ${vendorName} อื่น` : `Use another ${vendorName} account`)}
           </button>
         )}
       </div>

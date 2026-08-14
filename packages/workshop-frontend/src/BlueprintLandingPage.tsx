@@ -902,7 +902,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                       onClick={() => setShowDeleteConfirm(true)}
                       className={MENU_ITEM_DANGER}
                     >
-                      Delete blueprint
+                      {language === "th" ? "ลบแม่แบบพิมพ์เขียว" : "Delete blueprint"}
                     </DropdownMenu.Item>
                   </>
                 )}
@@ -927,7 +927,7 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
                         disabled={removingFromLibrary}
                         className={MENU_ITEM_DANGER}
                       >
-                        {removingFromLibrary ? 'Removing...' : 'Remove from library'}
+                        {removingFromLibrary ? (language === "th" ? "กำลังลบ..." : "Removing...") : (language === "th" ? "ลบออกจากคลัง" : "Remove from library")}
                       </DropdownMenu.Item>
                     )}
                   </>
@@ -1082,12 +1082,10 @@ export default function BlueprintLandingPage({ rpcStub }: Props) {
       >
         <Dialog className="p-8" size="sm">
           <Dialog.Title className="text-lg font-semibold">
-            Delete blueprint
+            {language === "th" ? "ลบแม่แบบพิมพ์เขียว" : "Delete blueprint"}
           </Dialog.Title>
           <Dialog.Description className="mt-2 text-kumo-subtle">
-            Delete "{blueprint?.metadata.title}"? {canDeleteOwnedBlueprint
-              ? 'This blueprint link will stop working, but gadgets already created from it won’t be affected.'
-              : 'This blueprint was uploaded manually and cannot be recovered.'}
+            {language === "th" ? `ต้องการลบแม่แบบ “${blueprint?.metadata.title}” หรือไม่? ลิงก์แม่แบบนี้จะไม่สามารถใช้งานได้อีก แต่ชิ้นงานที่สร้างไปแล้วจะไม่ได้รับผลกระทบ` : `Delete "${blueprint?.metadata.title}"? ${canDeleteOwnedBlueprint ? "This blueprint link will stop working, but gadgets already created from it won’t be affected." : "This blueprint was uploaded manually and cannot be recovered."}`}
           </Dialog.Description>
           <div className="mt-6 flex justify-end gap-2">
             <Dialog.Close

@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Switch, useKumoToastManager } from '@cloudflare/kumo'
 import { CaretRight, Check, Eye, Lightning, ShieldCheck } from '@phosphor-icons/react'
@@ -116,6 +117,7 @@ export default function Activity({
   onAutoApproveChange,
   autoApproveReloadTrigger,
 }: ActivityProps) {
+  const { language } = useI18n()
   const { actionsById, isReady } = useActions(overseer)
   const [historyFilter, setHistoryFilter] = useState<HistoryFilter>('all')
   const [processingActions, setProcessingActions] = useState<Set<number>>(new Set())
@@ -198,13 +200,13 @@ export default function Activity({
               <Check size={17} weight="bold" />
             </span>
             <p className="mt-3 text-[13px] font-medium leading-[18px] tracking-[-0.25px] text-kumo-default">
-              Nothing to review
+              {language === "th" ? "ไม่มีรายการที่ต้องตรวจทาน" : "Nothing to review"}
             </p>
             <p className="mt-1 max-w-xs text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-              Requests that need your approval show up here and in the workspace header.
+              {language === "th" ? "คำขอที่ต้องได้รับการอนุมัติจากคุณจะแสดงที่นี่และบนแถบด้านบนของพื้นที่ทำงาน" : "Requests that need your approval show up here and in the workspace header."}
             </p>
             <WorkshopButton className="mt-4" onClick={() => onViewChange('history')}>
-              View history
+              {language === "th" ? "ดูประวัติกิจกรรม" : "View history"}
             </WorkshopButton>
           </div>
         ) : (
@@ -213,7 +215,7 @@ export default function Activity({
               <span className="text-[12.5px] font-medium leading-[17px] tracking-[-0.15px] text-kumo-default">
                 {pendingActions.length} {pendingActions.length === 1 ? 'request' : 'requests'} waiting
               </span>
-              <span className="ml-auto text-[11.5px] leading-[17px] text-kumo-inactive">Oldest first</span>
+              <span className="ml-auto text-[11.5px] leading-[17px] text-kumo-inactive">{language === "th" ? "เก่าสุดก่อน" : "Oldest first"}</span>
             </div>
             <div className="min-h-0 flex-1 overflow-auto">
               {pendingActions.map(record => {
@@ -276,29 +278,29 @@ export default function Activity({
           {historyTotal === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
               <p className="m-0 text-[13px] font-medium leading-[18px] tracking-[-0.25px] text-kumo-default">
-                No activity yet
+                {language === "th" ? "ยังไม่มีกิจกรรม" : "No activity yet"}
               </p>
               <p className="mt-1 max-w-xs text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-                Every resource an agent reads or changes is recorded here.
+                {language === "th" ? "ทุกข้อมูลและทรัพยากรที่ AI อ่านหรือแก้ไขจะถูกบันทึกไว้ที่นี่" : "Every resource an agent reads or changes is recorded here."}
               </p>
             </div>
           ) : historyShown === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-              <p className="m-0 text-[13px] font-medium text-kumo-default">No matching events</p>
+              <p className="m-0 text-[13px] font-medium text-kumo-default">{language === "th" ? "ไม่พบกิจกรรมที่ตรงกัน" : "No matching events"}</p>
               <button
                 type="button"
                 onClick={() => setHistoryFilter('all')}
                 className="mt-1.5 cursor-pointer text-[12px] font-medium text-kumo-subtle hover:text-kumo-default"
               >
-                Show all activity
+                {language === "th" ? "แสดงกิจกรรมทั้งหมด" : "Show all activity"}
               </button>
             </div>
           ) : (
             <div className="min-h-0 flex-1 overflow-auto">
               <div className="grid grid-cols-[54px_minmax(0,1fr)_auto_16px] items-center gap-3 border-b border-kumo-line bg-kumo-elevated/50 px-5 py-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
-                <span>Time</span>
-                <span>Event</span>
-                <span>Status</span>
+                <span>{language === "th" ? "เวลา" : "Time"}</span>
+                <span>{language === "th" ? "กิจกรรม" : "Event"}</span>
+                <span>{language === "th" ? "สถานะ" : "Status"}</span>
                 <span />
               </div>
               {historyGroups.map(group => (

@@ -1,3 +1,4 @@
+import { useI18n } from "../../i18n/I18nContext"
 import { useState } from 'react'
 import { Table } from '@cloudflare/kumo'
 import { Badge } from '@cloudflare/kumo'
@@ -5,6 +6,7 @@ import { Button } from '@cloudflare/kumo'
 import { sampleDataRows } from '../../data/chat'
 
 export default function DataTab() {
+  const { language } = useI18n();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   function toggleRow(id: string) {
@@ -30,16 +32,16 @@ export default function DataTab() {
       <div className="flex items-center justify-between px-4 py-2 border-b border-kumo-fill bg-kumo-elevated">
         <div className="flex items-center gap-3">
           <span className="font-mono text-sm text-kumo-default">channels</span>
-          <Badge variant="secondary">{sampleDataRows.length} rows</Badge>
+          <Badge variant="secondary">{sampleDataRows.length} {language === "th" ? "แถว" : "rows"}</Badge>
         </div>
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
             <span className="text-xs text-kumo-subtle">
-              {selectedIds.size} selected
+              {selectedIds.size} {language === "th" ? "ที่เลือก" : "selected"}
             </span>
           )}
-          <Button variant="ghost" size="xs">Filter</Button>
-          <Button variant="ghost" size="xs">Sort</Button>
+          <Button variant="ghost" size="xs">{language === "th" ? "ตัวกรอง" : "Filter"}</Button>
+          <Button variant="ghost" size="xs">{language === "th" ? "เรียงลำดับ" : "Sort"}</Button>
         </div>
       </div>
 
@@ -54,10 +56,10 @@ export default function DataTab() {
                 onValueChange={toggleAll}
                 aria-label="Select all rows"
               />
-              <Table.Head>Channel</Table.Head>
-              <Table.Head>Messages</Table.Head>
-              <Table.Head>Last Active</Table.Head>
-              <Table.Head>Status</Table.Head>
+              <Table.Head>{language === "th" ? "ช่องทาง" : "Channel"}</Table.Head>
+              <Table.Head>{language === "th" ? "ข้อความ" : "Messages"}</Table.Head>
+              <Table.Head>{language === "th" ? "ใช้งานล่าสุด" : "Last Active"}</Table.Head>
+              <Table.Head>{language === "th" ? "สถานะ" : "Status"}</Table.Head>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -81,9 +83,9 @@ export default function DataTab() {
                 </Table.Cell>
                 <Table.Cell>
                   {row.unread ? (
-                    <Badge variant="primary">Unread</Badge>
+                    <Badge variant="primary">{language === "th" ? "ยังไม่อ่าน" : "Unread"}</Badge>
                   ) : (
-                    <Badge variant="secondary">Read</Badge>
+                    <Badge variant="secondary">{language === "th" ? "อ่านแล้ว" : "Read"}</Badge>
                   )}
                 </Table.Cell>
               </Table.Row>

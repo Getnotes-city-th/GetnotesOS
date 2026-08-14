@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useI18n } from './i18n/I18nContext'
 import { Popover } from '@cloudflare/kumo'
 import { ArrowRight, Pulse } from '@phosphor-icons/react'
 import type { RpcStub } from 'capnweb'
@@ -21,6 +22,7 @@ export default function ActivityNotifications({
   pendingActions,
   onViewActivity,
 }: ActivityNotificationsProps) {
+  const { language } = useI18n()
   const [open, setOpen] = useState(false)
   const [processing, setProcessing] = useState<Set<number>>(new Set())
   const resolveAction = useResolveAction(overseer, setProcessing)
@@ -62,14 +64,14 @@ export default function ActivityNotifications({
       >
         <div className="flex items-center justify-between gap-2 px-3.5 pb-1 pt-2.5">
           <Popover.Title className="text-[11px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
-            Needs review
+            {language === "th" ? "รอการตรวจสอบ" : "Needs review"}
           </Popover.Title>
           <CountBadge count={pending.length} />
         </div>
 
         {pending.length === 0 ? (
           <p className="m-0 px-3.5 pb-3 pt-1 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-            Nothing is waiting on you.
+            {language === "th" ? "ไม่มีรายการที่รอดำเนินการ" : "Nothing is waiting on you."}
           </p>
         ) : (
           <div className="max-h-[min(58vh,420px)] overflow-y-auto pb-1">
@@ -125,8 +127,8 @@ export default function ActivityNotifications({
           >
             <span>
               {pending.length > PREVIEW_LIMIT
-                ? `View all ${pending.length} requests`
-                : 'View all activity'}
+                ? (language === "th" ? `ดูคำขอทั้งหมด (${pending.length} รายการ)` : `View all ${pending.length} requests`)
+                : (language === "th" ? "ดูกิจกรรมทั้งหมด" : "View all activity")}
             </span>
             <ArrowRight size={13} className="text-kumo-inactive" />
           </button>

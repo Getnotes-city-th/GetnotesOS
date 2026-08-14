@@ -3530,7 +3530,7 @@ export const ChatInput = ({
                   <span className="mr-2 inline-flex h-4 w-4 items-center justify-center text-kumo-inactive">
                     <FileIcon size={14} />
                   </span>
-                  <span className="flex-1">Upload file</span>
+                  <span className="flex-1">{language === "th" ? "อัปโหลดไฟล์" : "Upload file"}</span>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
@@ -3813,6 +3813,7 @@ function DiscardPendingChangesPopover({
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }) {
+  const { language } = useI18n();
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <Popover.Trigger
@@ -3822,7 +3823,7 @@ function DiscardPendingChangesPopover({
             disabled={disabled}
             className="inline-flex h-[30px] cursor-pointer items-center justify-center rounded-md border border-kumo-fill bg-kumo-base px-2.5 text-[12px] font-medium leading-[18px] tracking-[-0.25px] text-kumo-default transition-colors enabled:hover:bg-kumo-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-ring disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Discard…
+            {language === "th" ? "ทิ้งการเปลี่ยนแปลง…" : "Discard…"}
           </button>
         }
       />
@@ -3835,11 +3836,10 @@ function DiscardPendingChangesPopover({
       >
         <div className="px-3.5 pb-2.5 pt-3">
           <Popover.Title className="text-[13px] font-medium leading-[18px] tracking-[-0.25px] text-kumo-default">
-            Discard all pending changes?
+            {language === "th" ? "ทิ้งการเปลี่ยนแปลงทั้งหมดที่รออยู่?" : "Discard all pending changes?"}
           </Popover.Title>
           <p className="mt-0.5 text-[11.5px] leading-4 tracking-[-0.15px] text-kumo-subtle">
-            Return to the last accepted version. Any gadgets created by these changes will be
-            permanently deleted. Pending changes can&apos;t be restored.
+            {language === "th" ? "ย้อนกลับไปยังเวอร์ชันที่ยอมรับล่าสุด ชิ้นงานใดๆ ที่สร้างในการเปลี่ยนแปลงนี้จะถูกลบถาวร" : "Return to the last accepted version. Any gadgets created by these changes will be permanently deleted. Pending changes can't be restored."}
           </p>
           <p className="mt-2 border-t border-kumo-line pt-2 text-[11px] leading-[15px] tracking-[-0.1px] text-kumo-inactive">
             Use the <ArrowUUpLeft size={12} className="mx-0.5 inline-block align-[-2px]" aria-hidden="true" /><span className="sr-only">undo arrow</span> under any agent response to discard from that turn onward.
@@ -3852,7 +3852,7 @@ function DiscardPendingChangesPopover({
             onClick={() => onOpenChange(false)}
             className="flex h-6 cursor-pointer items-center rounded-md px-2 text-[12px] font-medium tracking-[-0.15px] text-kumo-inactive transition-colors enabled:hover:bg-kumo-tint enabled:hover:text-kumo-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-ring disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Cancel
+            {language === "th" ? "ยกเลิก" : "Cancel"}
           </button>
           <button
             type="button"
@@ -3860,7 +3860,7 @@ function DiscardPendingChangesPopover({
             onClick={onConfirm}
             className="flex h-6 cursor-pointer items-center rounded-md px-2 text-[12px] font-medium tracking-[-0.15px] text-kumo-default transition-colors enabled:hover:bg-kumo-tint enabled:hover:text-kumo-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-ring disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {isDiscarding ? "Discarding..." : "Discard changes"}
+            {isDiscarding ? (language === "th" ? "กำลังทิ้ง..." : "Discarding...") : (language === "th" ? "ทิ้งการเปลี่ยนแปลง" : "Discard changes")}
           </button>
         </div>
       </Popover.Content>
@@ -6772,13 +6772,13 @@ function ChatInterface({
                         {!isRenaming && chat.activeAgent ? (
                           <span className="inline-flex flex-shrink-0 cursor-pointer items-center gap-1 text-[11px] leading-4 font-medium text-kumo-brand">
                             <span className="h-1.5 w-1.5 rounded-full bg-kumo-brand animate-pulse" />
-                            Working
+                            {language === "th" ? "กำลังทำงาน" : "Working"}
                           </span>
                         ) : !isRenaming && chat.hasProposedChanges ? (
                           <Tooltip content="This conversation has pending changes" asChild>
                             <span className="inline-flex flex-shrink-0 cursor-pointer items-center gap-1 text-[11px] leading-4 font-medium text-kumo-warning">
                               <span className="h-1.5 w-1.5 rounded-full bg-kumo-warning" />
-                              Pending changes
+                              {language === "th" ? "รอตรวจทาน" : "Pending changes"}
                             </span>
                           </Tooltip>
                         ) : null}
@@ -7495,8 +7495,8 @@ function ChatInterface({
                                     <span className="font-medium">
                                       {msg.author.name}{" "}
                                       {isMerge
-                                        ? "accepted changes"
-                                        : "discarded changes"}
+                                        ? (language === "th" ? "ยอมรับการเปลี่ยนแปลงแล้ว" : "accepted changes")
+                                        : (language === "th" ? "ทิ้งการเปลี่ยนแปลงแล้ว" : "discarded changes")}
                                     </span>
                                   </span>
                                 </Tooltip>
@@ -7515,7 +7515,7 @@ function ChatInterface({
                                 <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-kumo-inactive" aria-hidden="true">
                                   <Plug size={16} />
                                 </span>
-                                <span>Used the gadget</span>
+                                <span>{language === "th" ? "เรียกใช้งานชิ้นงาน" : "Used the gadget"}</span>
                               </span>
                             </Tooltip>
                           </div>
@@ -7878,7 +7878,7 @@ function ChatInterface({
                         <div className="themed-surface-inset relative flex items-center gap-2 overflow-hidden rounded-t-[calc(1rem-1px)] border-b border-kumo-line bg-kumo-elevated px-3.5 py-2">
                           <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-kumo-brand/40 to-transparent" aria-hidden="true" />
                           <span className="min-w-0 flex-1 truncate text-[12px] font-medium leading-4 tracking-[-0.2px] text-kumo-default">
-                            Pending changes
+                            {language === "th" ? "การเปลี่ยนแปลงที่รอตรวจทาน" : "Pending changes"}
                           </span>
                           <DiscardPendingChangesPopover
                             open={discardChangesTarget?.chatId === currentChatMetadata.id}
@@ -7906,7 +7906,7 @@ function ChatInterface({
                               className="!h-7 !cursor-pointer !rounded-md !border-transparent !shadow-none gap-1 text-[12px]"
                             >
                               <Check size={11} weight="bold" />
-                              Accept changes
+                              {language === "th" ? "ยอมรับการเปลี่ยนแปลง" : "Accept changes"}
                             </WorkshopButton>
                           </Tooltip>
                         </div>
@@ -7918,7 +7918,7 @@ function ChatInterface({
                   <div className="-mt-1 flex min-h-[1.25rem] items-start justify-end gap-4 px-4 pb-1 font-mono text-[11px] leading-4 text-kumo-inactive">
                     {currentChatMetadata?.totalTokens != null && (
                       <span>
-                        {currentChatMetadata.totalTokens.toLocaleString()} tokens
+                        {currentChatMetadata.totalTokens.toLocaleString()} {language === "th" ? "โทเค็น" : "tokens"}
                       </span>
                     )}
                     {currentChatMetadata?.totalCost != null && (

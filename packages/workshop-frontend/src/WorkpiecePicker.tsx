@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useI18n } from './i18n/I18nContext'
 import { CaretLeft, CaretRight, Check, Lightning, PencilSimple, Pulse, X } from '@phosphor-icons/react'
 import { FormatGlyph } from './components/format/FormatVisuals'
 import { Tooltip } from '@cloudflare/kumo'
@@ -10,7 +11,7 @@ export const WORKPIECE_RAIL_COLLAPSED_WIDTH = 48
 export const WORKPIECE_RAIL_EXPANDED_WIDTH = 220
 
 interface WorkpiecePickerProps {
-  // Draft apps remain listed globally; selecting one returns to its creating conversation.
+  // {language === "th" ? "ร่าง" : "Draft"} apps remain listed globally; selecting one returns to its creating conversation.
   gadgets: WorkpieceSummary[]
   selectedId: WorkpieceId | null
   // The gadget the agent is currently streaming edits into, if any. Shown as an activity dot when
@@ -38,6 +39,7 @@ export default function WorkpiecePicker({
   pendingActivityCount,
   onOpenActivity,
 }: WorkpiecePickerProps) {
+  const { language } = useI18n()
   const [editing, setEditing] = useState<{ id: WorkpieceId; value: string } | null>(null)
 
   const commitRename = () => {
@@ -60,15 +62,15 @@ export default function WorkpiecePicker({
       <button
         type="button"
         onClick={toggleExpanded}
-        title={expanded ? 'Collapse outputs' : 'Expand outputs'}
-        aria-label={expanded ? 'Collapse outputs' : 'Expand outputs'}
+        title={expanded ? (language === "th" ? "ยุบแถบผลลัพธ์" : "Collapse outputs") : (language === "th" ? "ขยายแถบผลลัพธ์" : "Expand outputs")}
+        aria-label={expanded ? (language === "th" ? "ยุบแถบผลลัพธ์" : "Collapse outputs") : (language === "th" ? "ขยายแถบผลลัพธ์" : "Expand outputs")}
         aria-expanded={expanded}
         className={`flex h-12 flex-shrink-0 cursor-pointer items-center text-kumo-inactive transition-colors hover:text-kumo-subtle ${
           expanded ? 'justify-between px-3' : 'justify-center'
         }`}
       >
         {expanded && (
-          <span className="text-[11px] font-medium uppercase tracking-[0.06em]">Outputs</span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.06em]">{language === "th" ? "ผลลัพธ์" : "Outputs"}</span>
         )}
         {expanded ? <CaretRight size={14} /> : <CaretLeft size={14} />}
       </button>
@@ -183,7 +185,7 @@ export default function WorkpiecePicker({
           )
         })}
 
-        <Tooltip content="View activity" asChild>
+        <Tooltip content={language === "th" ? "ดูกิจกรรม" : "View activity"} asChild>
           <button
             type="button"
             onClick={onOpenActivity}
@@ -192,7 +194,7 @@ export default function WorkpiecePicker({
             }`}
           >
             <Pulse size={expanded ? 15 : 17} className="flex-shrink-0 text-kumo-inactive" />
-            {expanded && <span className="min-w-0 flex-1 truncate">View activity</span>}
+            {expanded && <span className="min-w-0 flex-1 truncate">{language === "th" ? "ดูกิจกรรม" : "View activity"}</span>}
             {expanded ? (
               <CountBadge count={pendingActivityCount} />
             ) : pendingActivityCount > 0 && (

@@ -1,3 +1,16 @@
+
+function formatNounDisplay(noun: string, language: string) {
+  if (language !== "th") return noun;
+  const map: Record<string, string> = {
+    "Doc": "เอกสาร (Doc)",
+    "Sheet": "สเปรดชีต (Sheet)",
+    "Slides": "สไลด์นำเสนอ (Slides)",
+    "Document": "เอกสาร (Doc)",
+    "Spreadsheet": "สเปรดชีต (Sheet)",
+  };
+  return map[noun] || noun;
+}
+import { useI18n } from "../../i18n/I18nContext"
 // The deployment's standard formats as rows in the composer's `+` menu.
 //
 // Picking one drops its name into the message at the caret (`onSelect`) rather than creating
@@ -22,6 +35,7 @@ export default function ComposerFormatMenuItems({
 }: {
   onSelect: (format: OutputFormatOffer) => void
 }) {
+  const { language } = useI18n()
   const { formats, creating, create } = useOutputFormats()
 
   if (formats.length === 0) return null
@@ -32,7 +46,7 @@ export default function ComposerFormatMenuItems({
   return (
     <>
       <p className="px-2 pb-1 pt-1.5 text-[10px] font-medium uppercase leading-4 tracking-[0.06em] text-kumo-inactive">
-        Start with
+        {language === "th" ? "สร้างชิ้นงานเริ่มต้น" : "Start with"}
       </p>
       {formats.map((format) => (
         <DropdownMenu.Item
@@ -49,7 +63,7 @@ export default function ComposerFormatMenuItems({
             />
           </span>
           <span className="flex-1 truncate">
-            {creating === format.blueprintId ? 'Creating…' : format.output.noun}
+            {creating === format.blueprintId ? (language === "th" ? "กำลังสร้าง…" : "Creating…") : formatNounDisplay(format.output.noun, language)}
           </span>
         </DropdownMenu.Item>
       ))}

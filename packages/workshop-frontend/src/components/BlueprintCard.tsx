@@ -138,8 +138,8 @@ export function BlueprintCard({
       />
       <div className="pointer-events-none relative z-20 flex flex-1 flex-col p-4">
         <div className="flex items-start gap-3">
-          <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-kumo-brand">
-            <img src="/getnotes-logo.png" alt="" className="w-10 h-10 rounded-full object-contain" />
+          <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
+            <img src="/getnotes-logo.png" alt="" className="w-10 h-10 object-contain" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="m-0 line-clamp-2 text-[15px] leading-5 font-medium tracking-[-0.25px] text-kumo-default">

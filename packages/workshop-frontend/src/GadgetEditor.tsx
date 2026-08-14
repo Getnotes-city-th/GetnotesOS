@@ -141,7 +141,7 @@ function formatConsoleLogs(logs: BufferedLogEntry[]): string {
     const parts = log.message.map(p => (typeof p === 'string' ? p : JSON.stringify(p)))
     return `[${log.source} ${log.level}] ${parts.join(' ')}`
   })
-  return 'Console logs:\n' + lines.join('\n')
+  return 'บันทึกข้อผิดพลาดจากคอนโซล (Console logs):\n' + lines.join('\n')
 }
 
 // ─── right-panel tabs ─────────────────────────────────────────────────────────
@@ -1366,14 +1366,14 @@ export default function GadgetEditor() {
                 onClick={handleSaveTitle}
                 disabled={!titleInput.trim()}
                 className="!h-7 !w-7 hover:text-kumo-brand disabled:opacity-30"
-                aria-label="Save workspace title"
+                aria-label={language === "th" ? "บันทึกชื่อพื้นที่ทำงาน" : "Save workspace title"}
               >
                 <Check size={14} />
               </WorkshopIconButton>
               <WorkshopIconButton
                 onClick={handleCancelEdit}
                 className="!h-7 !w-7"
-                aria-label="Cancel title edit"
+                aria-label={language === "th" ? "ยกเลิกการแก้ไขชื่อ" : "Cancel title edit"}
               >
                 <X size={14} />
               </WorkshopIconButton>
@@ -1386,8 +1386,8 @@ export default function GadgetEditor() {
               <WorkshopIconButton
                 onClick={() => setIsEditingTitle(true)}
                 className="!h-7 !w-7 flex-shrink-0"
-                title="Rename workspace"
-                aria-label="Rename workspace"
+                title={language === "th" ? "เปลี่ยนชื่อพื้นที่ทำงาน" : "Rename workspace"}
+                aria-label={language === "th" ? "เปลี่ยนชื่อพื้นที่ทำงาน" : "Rename workspace"}
               >
                 <Pencil size={16} />
               </WorkshopIconButton>
@@ -1396,7 +1396,7 @@ export default function GadgetEditor() {
 
           {metadata.owner && (
             <span className="text-xs text-kumo-inactive flex-shrink-0">
-              by {metadata.owner.name}
+              {language === "th" ? "โดย " : "by "}{metadata.owner.name}
             </span>
           )}
         </div>
@@ -1434,8 +1434,8 @@ export default function GadgetEditor() {
           <WorkshopIconButton
             onClick={() => setBlueprintModalOpen(true)}
             disabled={!selectedGadgetStub}
-            title="Blueprints"
-            aria-label="Blueprints"
+            title={language === "th" ? "พิมพ์เขียว (Blueprints)" : "Blueprints"}
+            aria-label={language === "th" ? "พิมพ์เขียว (Blueprints)" : "Blueprints"}
           >
             <Blueprint size={16} />
           </WorkshopIconButton>

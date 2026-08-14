@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { Checkbox, Select, type PortalContainer } from '@cloudflare/kumo'
 import { AiChatAuthorInfo, WorkpieceId, validateBindingName } from '@gadgets/workshop-shared/api'
 import { WorkshopInput } from '../components/WorkshopControls'
@@ -66,6 +67,7 @@ export interface AgentSpawnerConfigFormProps {
 }
 
 export function AgentSpawnerConfigForm({
+
   availableModels,
   displayName,
   modelId,
@@ -76,6 +78,7 @@ export function AgentSpawnerConfigForm({
   onEnvChange,
   selectContainer,
 }: AgentSpawnerConfigFormProps) {
+  const { language } = useI18n()
   const updateRow = (index: number, updates: Partial<SpawnerEnvRow>) => {
     onEnvChange(env.map((row, i) => (i === index ? { ...row, ...updates } : row)))
   }
@@ -83,8 +86,8 @@ export function AgentSpawnerConfigForm({
   return (
     <section className="grid gap-4">
       <ConnectionConfigField
-        label="Display name"
-        description="Name this agent capability for this connection."
+        label={language === "th" ? "ชื่อที่แสดง" : "Display name"}
+        description={language === "th" ? "ตั้งชื่อความสามารถของ Agent สำหรับการเชื่อมต่อนี้" : "Name this agent capability for this connection."}
       >
         <WorkshopInput
           aria-label="Agent display name"
@@ -96,14 +99,14 @@ export function AgentSpawnerConfigForm({
       </ConnectionConfigField>
 
       <ConnectionConfigField
-        label="Model"
-        description="Choose the model spawned agents will use."
+        label={language === "th" ? "โมเดล AI" : "Model"}
+        description={language === "th" ? "เลือกโมเดลที่ Agent ที่สร้างขึ้นจะใช้งาน" : "Choose the model spawned agents will use."}
       >
         <Select
           aria-label="Agent model"
           className="w-full text-sm [&_button]:!h-9"
           container={selectContainer}
-          placeholder="Select a model"
+          placeholder={language === "th" ? "เลือกโมเดล AI" : "Select a model"}
           value={modelId}
           onValueChange={(v) => onModelIdChange(v as string | null)}
           renderValue={(id) => {
@@ -126,8 +129,8 @@ export function AgentSpawnerConfigForm({
       </ConnectionConfigField>
 
       <ConnectionConfigField
-        label="Agent bindings"
-        description="What spawned agents may use, and the names they see it under."
+        label={language === "th" ? "การเชื่อมโยงข้อมูล (Agent Bindings)" : "Agent bindings"}
+        description={language === "th" ? "แหล่งข้อมูลที่ Agent สามารถเรียกใช้ได้" : "What spawned agents may use, and the names they see it under."}
       >
         {env.length === 0 ? (
           <p className="text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">

@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { logRpcFailure } from './rpcErrors'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, useKumoToastManager, type PortalContainer } from '@cloudflare/kumo'
@@ -74,6 +75,113 @@ type ConnectionTypeId =
   | 'ai-model'
   | 'agent-spawner'
   | `resource:${string}:${string}`
+
+
+
+const RESOURCE_DESC_TH: Record<string, string> = {
+  "Send push messages, flex messages, and broadcasts with LINE Messaging API.": "ส่งข้อความ Push, Flex Messages และบรอดแคสต์ด้วย LINE Messaging API",
+  "Connect your LINE Official Account so GetnotesOS can send push messages, rich flex messages, reply to users, and broadcast announcements to your followers.": "เชื่อมต่อบัญชี LINE Official Account เพื่อให้ GetnotesOS ส่งข้อความ Push, Flex Messages, ตอบกลับ และบรอดแคสต์หาผู้ติดตาม",
+  "Search, browse, and edit any space or page on a Confluence site.": "ค้นหา เรียกดู และแก้ไข Space หรือหน้าเอกสารใดๆ บนเว็บไซต์ Confluence",
+  "Read and edit the pages and blog posts in a single Confluence space.": "อ่านและแก้ไขหน้าเอกสารและบล็อกโพสต์ใน Space ของ Confluence ที่ระบุ",
+  "Read and edit a specific Confluence page or blog post (and its child pages).": "อ่านและแก้ไขหน้าเอกสารหรือบล็อกโพสต์ใน Confluence ที่ระบุ (รวมถึงหน้าย่อย)",
+  "Access to an entire Confluence site: search, read, and edit all spaces, pages, and blog posts.": "เข้าถึงทั้งเว็บไซต์ Confluence: ค้นหา อ่าน และแก้ไขทุก Space, หน้า และบล็อกโพสต์",
+  "Access to a single Confluence space: search, read, and edit all pages and blog posts within it.": "อ่านและจัดการหน้า เอกสาร และบล็อกใน Space ที่เลือก",
+  "Access to a single Confluence page or blog post (and optionally its descendants).": "อ่านและแก้ไขหน้า Confluence หรือโพสต์บล็อกที่ระบุ",
+  "An MCP endpoint you supply. Tools are discovered automatically, and writes need approval.": "เชื่อมต่อ Endpoint ของเซิร์ฟเวอร์ MCP ที่คุณระบุ ค้นพบเครื่องมืออัตโนมัติ และต้องได้รับการอนุมัติเมื่อมีการเขียนข้อมูล",
+  "Connect a Model Context Protocol server and use its tools from a Gadget. Reads happen without prompting; tool invocations require confirmation.": "เชื่อมต่อเซิร์ฟเวอร์ MCP และเรียกใช้เครื่องมือในชิ้นงาน การอ่านทำได้ทันที การเรียกใช้เครื่องมือต้องได้รับการยืนยัน",
+  "Tools from the servers behind this portal. Writes need approval.": "เรียกใช้เครื่องมือจาก MCP Servers ที่ผ่านการรับรองจาก Portal นี้ การเขียนข้อมูลต้องได้รับการอนุมัติ",
+  "Use the MCP servers this organization has approved, through its MCP server portal. Reads happen without prompting; tool invocations require confirmation.": "ใช้งานเซิร์ฟเวอร์ MCP ที่องค์กรอนุมัติผ่าน Portal การอ่านทำได้ทันที การเรียกใช้เครื่องมือต้องได้รับการยืนยัน",
+  "Read and manage issues, pull requests, reviews, and discussions in a GitHub repository.": "อ่านและจัดการ Issues, Pull Requests, รีวิว และการสนทนาใน GitHub Repository",
+  "Read and manage a specific GitHub issue.": "อ่านและจัดการ GitHub Issue ที่ระบุ",
+  "Read and manage a specific GitHub pull request and its review threads.": "อ่านและจัดการ GitHub Pull Request และการรีวิวโค้ด",
+  "Read emails and apply labels.": "อ่านอีเมลและจัดการป้ายกำกับ (Labels)",
+  "Read and edit documents you choose.": "อ่านและแก้ไขเอกสาร Google Docs ที่คุณเลือก",
+  "Read values from a spreadsheet you choose.": "อ่านและแก้ไขข้อมูลใน Google Sheets ที่คุณเลือก",
+  "Read and manage a Google Calendar.": "อ่านและจัดการกำหนดการใน Google Calendar",
+  "Choose a Google Cloud project, then optionally narrow access to a dataset or table.": "เลือก Google Cloud Project และกำหนดสิทธิ์การเข้าถึง Dataset หรือตารางที่ต้องการ",
+  "Read channels, direct messages, members, and search across the whole connected workspace. The workspace must install the GetnotesOS Slack app to authorize.": "อ่านแชนเนล, ข้อความส่วนตัว (DM), สมาชิก และค้นหาข้อมูลทั่วทั้ง Workspace ที่เชื่อมต่อ",
+  "Read channels, direct messages, members, and search across the whole connected workspace.": "อ่านแชนเนล, ข้อความส่วนตัว (DM), สมาชิก และค้นหาข้อมูลทั่วทั้ง Workspace ที่เชื่อมต่อ",
+  "Read a single channel, direct message, or group DM.": "อ่านแชนเนลเดี่ยว, ข้อความส่วนตัว หรือการสนทนากลุ่ม (Group DM)",
+  "Read a single message thread and its replies.": "อ่านเธรดข้อความเฉพาะและการตอบกลับทั้งหมด",
+  "Whole-account access: profile, catalog search, your library, your playlists, and playback control.": "เข้าถึงทั้งบัญชี: โปรไฟล์, ค้นหาเพลง, คลังเพลง, เพลย์ลิสต์ และควบคุมการเล่นเพลง",
+  "Read and edit a single Spotify playlist.": "อ่านและแก้ไขเพลย์ลิสต์ Spotify ที่เลือก",
+  "Query and manage a project's Postgres database, and inspect its edge functions and storage.": "เรียกดูและจัดการฐานข้อมูล Postgres ของโปรเจกต์ รวมถึงตรวจสอบ Edge Functions และ Storage",
+  "Query and manage a project’s Postgres database, and inspect its edge functions and storage.": "เรียกดูและจัดการฐานข้อมูล Postgres ของโปรเจกต์ รวมถึงตรวจสอบ Edge Functions และ Storage",
+  "Discover and manage every project in a Supabase organization.": "ค้นหาและจัดการทุกโปรเจกต์ภายใน Supabase Organization",
+  "Whole-account access: lookup, company/contact/intent/scoop/news search, record enrichment (consumes credits).": "เข้าถึงทั้งบัญชี: ค้นหาบริษัท/ผู้ติดต่อ/Intent/ข่าวสาร และเสริมข้อมูลประวัติธุรกิจ",
+  "Whole-account access: lookup, company/contact/intent/scoop/news search, record enrichment": "เข้าถึงทั้งบัญชี: ค้นหาบริษัท/ผู้ติดต่อ/Intent/ข่าวสาร และเสริมข้อมูลประวัติธุรกิจ",
+  "Read and manage every team and issue in a Linear workspace. This is the broadest option — prefer scoping down to a team when possible.": "อ่านและจัดการทุกทีมและ Issue ใน Linear Workspace (ตัวเลือกที่ครอบคลุมที่สุด)",
+  "Read and manage every team and issue in a Linear workspace.": "อ่านและจัดการทุกทีมและ Issue ใน Linear Workspace",
+  "Read and manage the issues, labels, states, and cycles of a single Linear team.": "อ่านและจัดการ Issues, ป้ายกำกับ (Labels), สถานะงาน และรอบการทำงาน (Cycles) ของทีมที่เลือก",
+  "Read and manage a single Linear issue and its comments.": "อ่านและจัดการ Linear Issue และความคิดเห็นที่ระบุ",
+  "Search, read, and edit any page or database shared with this connection.": "ค้นหา อ่าน และแก้ไขทุกหน้าและฐานข้อมูลที่แชร์กับการเชื่อมต่อนี้",
+  "Read and edit a specific Notion page or database (and its rows).": "อ่านและแก้ไขหน้าหรือฐานข้อมูล Notion ที่ระบุ (รวมถึงแถวข้อมูล)",
+  "Access to a Home Assistant instance: every area, device, entity, and dashboard.": "เข้าถึงทั้งระบบ Home Assistant: ทุกโซน (Area), อุปกรณ์, Entity และแดชบอร์ด",
+  "Access to a single Home Assistant area (room): its devices and entities only.": "เข้าถึงเฉพาะห้องหรือโซนที่ระบุใน Home Assistant",
+  "Access to all Home Assistant entities carrying a particular label.": "เข้าถึงอุปกรณ์และ Entity ทั้งหมดที่มีป้ายกำกับ (Label) ที่กำหนด",
+  "Access to a single physical device and the entities it provides.": "เข้าถึงอุปกรณ์จริงและ Entity ทั้งหมดของอุปกรณ์นั้น",
+  "Access to a single Home Assistant entity (light, sensor, switch, etc).": "เข้าถึง Entity เดี่ยว (เช่น หลอดไฟ, เซนเซอร์, สวิตช์)",
+  "Expose a selected model through this connection.": "เปิดใช้งานโมเดล AI ที่เลือกผ่านการเชื่อมต่อนี้",
+  "Allow this connection to start new AI agent conversations with selected tools.": "อนุญาตให้เริ่มการสนทนาของ AI Agent ใหม่พร้อมเครื่องมือที่กำหนด",
+  "Send and receive emails.": "ส่งและรับอีเมล",
+  "The Context Library lets you and your team author collections of context documents and agent skills.": "เข้าถึงคลังเอกสารบริบทและทักษะความรู้สำหรับ AI Agent",
+  "Register recurring and one-shot workspace tasks.": "ตั้งเวลาทำงานอัตโนมัติทั้งแบบครั้งเดียวและแบบทำซ้ำ"
+};
+
+const RESOURCE_TITLE_TH: Record<string, string> = {
+  "LINE Official Account": "บัญชี LINE Official Account (LINE Bot)",
+  "LINE": "LINE",
+  "GitHub Repository": "GitHub Repository",
+  "GitHub Issue": "GitHub Issue",
+  "GitHub Pull Request": "GitHub Pull Request",
+  "Gmail Mailbox": "กล่องข้อความ Gmail",
+  "Google Doc": "เอกสาร Google Docs",
+  "Google Spreadsheet": "สเปรดชีต Google Sheets",
+  "Google Calendar": "ปฏิทิน Google Calendar",
+  "BigQuery": "BigQuery",
+  "Slack Workspace": "Slack Workspace",
+  "Slack Conversation": "การสนทนา Slack",
+  "Slack Thread": "เธรดข้อความ Slack",
+  "Spotify Account": "บัญชี Spotify",
+  "Spotify Playlist": "เพลย์ลิสต์ Spotify",
+  "Supabase Project": "โปรเจกต์ Supabase",
+  "Supabase Organization": "องค์กร Supabase",
+  "ZoomInfo Account": "บัญชี ZoomInfo",
+  "Linear Workspace": "Linear Workspace",
+  "Linear Team": "ทีม Linear",
+  "Linear Issue": "Linear Issue",
+  "Notion Workspace": "Notion Workspace",
+  "Notion Page or Database": "หน้าหรือฐานข้อมูล Notion",
+  "Home Assistant": "Home Assistant",
+  "Home Assistant Area": "โซนใน Home Assistant (Area)",
+  "Home Assistant Label": "ป้ายกำกับ Home Assistant (Label)",
+  "Home Assistant Device": "อุปกรณ์ Home Assistant",
+  "Home Assistant Entity": "Entity ใน Home Assistant",
+  "Confluence Site": "เว็บไซต์ Confluence",
+  "Confluence Space": "Space ใน Confluence",
+  "Confluence Page or Blog Post": "หน้า Confluence / บล็อกโพสต์",
+  "AI Model": "โมเดล AI",
+  "Agent": "AI Agent",
+  "Email Mailbox": "กล่องจดหมายอีเมล",
+  "Context & Skills": "บริบทและทักษะ (Context & Skills)",
+  "Any MCP server": "เซิร์ฟเวอร์ MCP ที่ระบุ (Any MCP server)",
+  "MCP Server": "MCP Server",
+  "Scheduled Tasks": "งานตั้งเวลาอัตโนมัติ (Scheduled Tasks)"
+};
+
+function translateResourceTitle(title: string, language: string): string {
+  if (language !== "th") return title;
+  return RESOURCE_TITLE_TH[title] || title;
+}
+
+function translateResourceDesc(desc: string, language: string): string {
+  if (language !== "th") return desc;
+  if (RESOURCE_DESC_TH[desc]) return RESOURCE_DESC_TH[desc];
+  for (const [k, v] of Object.entries(RESOURCE_DESC_TH)) {
+    if (desc.startsWith(k) || k.startsWith(desc.slice(0, 25))) return v;
+  }
+  return desc;
+}
 
 type ConnectionType = {
   id: ConnectionTypeId
@@ -186,6 +294,7 @@ export default function GatekeeperModal({
   open, onClose, getOverseer, onCreated, spawnerEnvCandidates,
   initialVendorId, initialResourceUrl, initialResourceUrlPattern,
 }: GatekeeperModalProps) {
+  const { language } = useI18n()
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
 
@@ -780,8 +889,8 @@ export default function GatekeeperModal({
   }
 
   const createLabel = selectedConnection?.resourceUrlPattern
-    ? 'Add connection'
-    : 'Create connection'
+    ? (language === "th" ? "เพิ่มการเชื่อมต่อ" : "Add connection")
+    : (language === "th" ? "สร้างการเชื่อมต่อ" : "Create connection")
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => { if (!o) onClose() }}>
@@ -793,12 +902,12 @@ export default function GatekeeperModal({
         <div ref={headerRef} className="shrink-0 flex items-start justify-between gap-4 border-b border-kumo-line px-5 py-4">
           <div className="min-w-0">
             <Dialog.Title className="text-[17px] leading-6 font-medium tracking-[-0.35px] text-kumo-default">
-              {selectedConnection ? selectedConnection.title : 'Create New Connection'}
+              {selectedConnection ? translateResourceTitle(selectedConnection.title, language) : (language === "th" ? "สร้างการเชื่อมต่อใหม่" : "Create New Connection")}
             </Dialog.Title>
             <Dialog.Description className="mt-1 text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
               {selectedConnection
-                ? selectedConnection.description
-                : 'Choose what this gadget should be able to use.'}
+                ? translateResourceDesc(selectedConnection.description, language)
+                : (language === "th" ? "เลือกแหล่งข้อมูลหรือบริการที่ต้องการให้ชิ้นงานนี้เข้าถึงได้" : "Choose what this gadget should be able to use.")}
             </Dialog.Description>
           </div>
           <Dialog.Close
@@ -819,7 +928,7 @@ export default function GatekeeperModal({
                 className="mb-4 inline-flex cursor-pointer items-center gap-1.5 text-[12px] leading-4 font-medium tracking-[-0.2px] text-kumo-subtle transition-colors hover:text-kumo-default"
               >
                 <CaretLeft size={13} />
-                All connection types
+                {language === "th" ? "ประเภทการเชื่อมต่อทั้งหมด" : "All connection types"}
               </button>
 
               <div className="space-y-4">
@@ -893,7 +1002,7 @@ export default function GatekeeperModal({
                 <input
                   value={searchText}
                   onChange={(event) => setSearchText(event.target.value)}
-                  placeholder="Search services, apps, data sources..."
+                  placeholder={language === "th" ? "ค้นหาบริการ, แอปพลิเคชัน, แหล่งข้อมูล..." : "Search services, apps, data sources..."}
                   autoFocus
                   className="h-10 w-full rounded-xl border border-kumo-line bg-kumo-base pl-9 pr-3 text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive shadow-none outline-none transition-[border-color,box-shadow] focus:border-kumo-ring focus:ring-2 focus:ring-kumo-ring/10"
                 />
@@ -905,7 +1014,7 @@ export default function GatekeeperModal({
                 {isSearching ? (
                   filteredConnections.length === 0 ? (
                     <div className="px-4 py-8 text-center text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-                      No matching connection types.
+                      {language === "th" ? "ไม่พบประเภทการเชื่อมต่อที่ตรงกัน" : "No matching connection types."}
                     </div>
                   ) : filteredConnections.map((connection, index) => (
                     <ConnectionTypeRow
@@ -918,7 +1027,7 @@ export default function GatekeeperModal({
                 ) : (
                   groupedConnections.length === 0 ? (
                     <div className="px-4 py-8 text-center text-[13px] leading-[18px] font-normal tracking-[-0.25px] text-kumo-subtle">
-                      No connection types available.
+                      {language === "th" ? "ไม่มีประเภทการเชื่อมต่อที่พร้อมใช้งาน" : "No connection types available."}
                     </div>
                   ) : groupedConnections.map((group, index) => (
                     <ConnectionGroupRow
@@ -943,14 +1052,14 @@ export default function GatekeeperModal({
             <div />
             <div className="flex shrink-0 items-center gap-2">
               <WorkshopButton onClick={() => setSelectedConnectionId(null)} disabled={creating} className="!h-9">
-                Back
+                {language === "th" ? "ย้อนกลับ" : "Back"}
               </WorkshopButton>
               <WorkshopButton
                 tone="primary"
                 onClick={handleCreate}
                 disabled={!canCreate || creating}
               >
-                {creating ? 'Creating...' : createLabel}
+                {creating ? (language === "th" ? "กำลังสร้าง..." : "Creating...") : createLabel}
               </WorkshopButton>
             </div>
           </div>
@@ -969,6 +1078,7 @@ function ConnectionTypeRow({
   first: boolean
   onClick: () => void
 }) {
+  const { language } = useI18n()
   const Icon = connection.icon
   const iconUrl = connection.iconUrl ?? connection.logoUrl
 
@@ -997,10 +1107,10 @@ function ConnectionTypeRow({
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-default">
-          {connection.title}
+          {translateResourceTitle(connection.title, language)}
         </p>
         <p className="mt-0.5 line-clamp-1 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-          {connection.vendor} · {connection.description}
+          {connection.vendor} · {translateResourceDesc(connection.description, language)}
         </p>
       </div>
       <CaretRight size={14} className="shrink-0 text-kumo-inactive transition-transform group-hover:translate-x-0.5 group-hover:text-kumo-default" />
@@ -1025,6 +1135,7 @@ function ConnectionGroupRow({
   onToggle: (key: string) => void
   onSelectItem: (connection: ConnectionType) => void
 }) {
+  const { language } = useI18n()
   // Defensive: the grouping memo guarantees every group has >= 1 item, but the
   // prop type can't express that. Bail out if the invariant is ever violated.
   if (items.length === 0) return null
@@ -1045,8 +1156,8 @@ function ConnectionGroupRow({
   // group label (e.g. "AI Model"), so fall back to the richer vendor +
   // description subtitle used in the flat search results.
   const subtitle = items.length === 1
-    ? `${representative.vendor} · ${representative.description}`
-    : items.map(item => item.title).join(', ')
+    ? `${representative.vendor} · ${translateResourceDesc(representative.description, language)}`
+    : items.map(item => translateResourceTitle(item.title, language)).join(', ')
 
   return (
     <div className={first ? '' : 'border-t border-kumo-line'}>
@@ -1108,10 +1219,10 @@ function ConnectionGroupRow({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12.5px] leading-[18px] font-medium tracking-[-0.25px] text-kumo-default">
-                  {item.title}
+                  {translateResourceTitle(item.title, language)}
                 </p>
                 <p className="mt-0.5 line-clamp-1 text-[11.5px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-                  {item.description}
+                  {translateResourceDesc(item.description, language)}
                 </p>
               </div>
               <CaretRight size={13} className="shrink-0 text-kumo-inactive transition-transform group-hover:translate-x-0.5 group-hover:text-kumo-default" />

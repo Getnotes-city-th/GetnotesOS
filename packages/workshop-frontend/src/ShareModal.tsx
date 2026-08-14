@@ -862,17 +862,17 @@ export default function ShareModal({
               <div className="min-w-[160px] flex-1">
                 <div className="flex items-baseline gap-1.5">
                   <p className="text-[13px] leading-[18px] font-medium text-kumo-default">
-                    Added {invitedName}
+                    {language === "th" ? `เพิ่ม ${invitedName} แล้ว` : `Added ${invitedName}`}
                   </p>
                   <span className="text-[11px] leading-4 text-kumo-inactive">
-                    {invitedLinkCopied ? 'Link copied to your clipboard' : 'Send them this link to open it'}
+                    {invitedLinkCopied ? (language === "th" ? "คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว" : "Link copied to your clipboard") : (language === "th" ? "ส่งลิงก์นี้ให้เพื่อเปิดพื้นที่ทำงาน" : "Send them this link to open it")}
                   </span>
                 </div>
                 <p className="truncate font-mono text-[11px] leading-4 text-kumo-subtle">{workspaceUrl}</p>
               </div>
               <WorkshopButton tone="primary" onClick={copyWorkspaceUrl} className="gap-1.5 !rounded-xl">
                 {invitedLinkCopied ? <Check size={13} weight="bold" /> : <Copy size={13} />}
-                {invitedLinkCopied ? 'Copied' : 'Copy link'}
+                {invitedLinkCopied ? (language === "th" ? "คัดลอกแล้ว" : "Copied") : (language === "th" ? "คัดลอกลิงก์" : "Copy link")}
               </WorkshopButton>
               <WorkshopIconButton
                 aria-label="Dismiss added collaborator"
@@ -896,7 +896,7 @@ export default function ShareModal({
                           {newShareLinkCopied ? 'Link copied' : 'Link ready'}
                         </p>
                         <span className="text-[11px] leading-4 text-kumo-inactive">
-                          You can copy it again anytime from Share links
+                          You can copy it again anytime from {language === "th" ? "ลิงก์สำหรับแชร์" : "Share links"}
                         </span>
                       </div>
                       <p className="truncate font-mono text-[11px] leading-4 text-kumo-subtle">{newShareLink}</p>
@@ -922,7 +922,7 @@ export default function ShareModal({
                       value={newLinkNote}
                       onChange={(e) => setNewLinkNote(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleCreateShareLink() }}
-                      placeholder="Name this link (optional)…"
+                      placeholder={language === "th" ? "ตั้งชื่อลิงก์นี้ (ไม่บังคับ)…" : "Name this link (optional)…"}
                       aria-label="Share link name (optional)"
                       className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-[14px] leading-5 tracking-[-0.25px] text-kumo-default outline-none placeholder:text-kumo-inactive"
                       disabled={creatingLink || sharingProhibited}
@@ -935,7 +935,7 @@ export default function ShareModal({
                       container={menuContainer}
                     />
                     <WorkshopButton tone="primary" className="shrink-0 !rounded-xl" onClick={handleCreateShareLink} disabled={creatingLink || sharingProhibited}>
-                      {creatingLink ? 'Creating…' : 'Create link'}
+                      {creatingLink ? (language === "th" ? "กำลังสร้าง…" : "Creating…") : (language === "th" ? "สร้างลิงก์" : "Create link")}
                     </WorkshopButton>
                     <WorkshopIconButton aria-label="Cancel creating link" onClick={() => setShowLinkComposer(false)}>
                       <X size={14} />
@@ -949,7 +949,7 @@ export default function ShareModal({
                 disabled={sharingProhibited}
                 className="themed-compact-shadow flex h-12 w-full cursor-pointer items-center justify-center gap-1.5 rounded-2xl border border-kumo-line/80 bg-kumo-base px-3 text-[13px] font-medium text-kumo-subtle transition-[background-color,color,transform] duration-150 ease-out hover:bg-kumo-elevated/60 hover:text-kumo-default active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <Link size={14} /> Create a share link
+                <Link size={14} /> {language === "th" ? "สร้างลิงก์สำหรับแชร์" : "Create a share link"}
               </button>
             )}
           </div>
@@ -960,7 +960,7 @@ export default function ShareModal({
           <section aria-labelledby="people-heading" className="mt-4">
             <div className="mb-2 px-1">
               <h3 id="people-heading" className="text-[12px] leading-4 font-medium tracking-[-0.15px] text-kumo-subtle">
-                People with access
+                {language === "th" ? "ผู้มีสิทธิ์เข้าถึง" : "People with access"}
               </h3>
             </div>
             <div className="overflow-hidden rounded-2xl border border-kumo-line/80 bg-kumo-base">
@@ -977,14 +977,14 @@ export default function ShareModal({
                       <PersonAvatar api={authenticatedApi} userId={profile.id} name={profile.name} size={32} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-[13px] leading-[17px] font-medium tracking-[-0.25px] text-kumo-default">
-                          {profile.name}{profile.id === currentUser?.id ? ' (you)' : ''}
+                          {profile.name}{profile.id === currentUser?.id ? (language === "th" ? " (คุณ)" : " (you)") : ""}
                         </p>
                         <p className="truncate text-[12px] leading-[15px] tracking-[-0.15px] text-kumo-subtle">
                           {row.kind === 'owner' ? profile.id : describeAccess(row.info)}
                         </p>
                       </div>
                       {row.kind === 'owner' ? (
-                        <span className="px-2 text-[12px] text-kumo-subtle">Owner</span>
+                        <span className="px-2 text-[12px] text-kumo-subtle">{language === "th" ? "เจ้าของ" : "Owner"}</span>
                       ) : isRemoving ? (
                         <InlineConfirm
                           label="Remove"
@@ -1058,7 +1058,7 @@ export default function ShareModal({
                                 if (e.key === 'Enter') handleSaveShareLinkNote()
                                 if (e.key === 'Escape') cancelRenameShareLink()
                               }}
-                              placeholder="Name this link…"
+                              placeholder={language === "th" ? "ตั้งชื่อลิงก์นี้…" : "Name this link…"}
                               aria-label="Share link name"
                               className="block w-full border-0 bg-transparent p-0 text-[13px] leading-[17px] font-medium tracking-[-0.25px] text-kumo-default outline-none shadow-[inset_0_-1px_0_0_var(--color-kumo-line)] transition-shadow placeholder:font-normal placeholder:text-kumo-inactive focus:shadow-[inset_0_-1px_0_0_var(--color-kumo-fill)]"
                               disabled={savingShareLinkNote}

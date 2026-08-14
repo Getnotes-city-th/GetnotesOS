@@ -456,7 +456,7 @@ function OutputsPage() {
       // A failed *refresh* must not discard a page already showing something: it is still the last
       // good answer, and the next focus retries. The error state is for having nothing to show.
       if (loadedOnce.current) {
-        toastsRef.current.add({ title: "Couldn't refresh outputs", variant: 'error' })
+        toastsRef.current.add({ title: language === "th" ? "ไม่สามารถรีเฟรชผลงานได้" : "Couldn't refresh outputs", variant: 'error' })
       } else {
         setLoadError(true)
       }
@@ -505,7 +505,7 @@ function OutputsPage() {
       setRenameOutput(null)
     } catch (err) {
       console.error('Failed to rename output:', err)
-      toasts.add({ title: "Couldn't rename this output", variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถเปลี่ยนชื่อผลงานนี้ได้" : "Couldn't rename this output", variant: 'error' })
     } finally {
       gadget?.[Symbol.dispose]()
       overseer?.[Symbol.dispose]()
@@ -527,7 +527,7 @@ function OutputsPage() {
       setRemoveOutput(null)
     } catch (err) {
       console.error('Failed to remove output:', err)
-      toasts.add({ title: "Couldn't remove this output", variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถลบผลงานนี้ได้" : "Couldn't remove this output", variant: 'error' })
     } finally {
       gadget?.[Symbol.dispose]()
       overseer?.[Symbol.dispose]()

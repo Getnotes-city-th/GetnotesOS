@@ -41,7 +41,7 @@ function HomePage() {
 }
 
 export function HomePageContent({ prompt }: HomeSearch) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   useDocumentTitle("Home");
 
   const { authenticatedApi, currentUser } = useAuthenticatedApi();
@@ -72,7 +72,7 @@ export function HomePageContent({ prompt }: HomeSearch) {
         // Toast unless it's a connection error (reconnect refetches); a do-reset here already
         // survived the Worker's same-colo retry, so the user should hear about it.
         if (classifyRpcError(err) !== "connection") {
-          toasts.add({ title: "Couldn't load AI models", variant: "error" });
+          toasts.add({ title: language === "th" ? "ไม่สามารถโหลดโมเดล AI ได้" : "Couldn't load AI models", variant: "error" });
         }
       });
     return () => {
@@ -132,7 +132,7 @@ export function HomePageContent({ prompt }: HomeSearch) {
           provisionalOverseerRef.current = null;
         }
         if (!transient) {
-          toasts.add({ title: "Failed to create workspace", variant: "error" });
+          toasts.add({ title: language === "th" ? "ไม่สามารถสร้างพื้นที่ทำงานได้" : "Failed to create workspace", variant: "error" });
         }
         throw err;
       }

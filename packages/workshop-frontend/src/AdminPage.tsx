@@ -443,10 +443,9 @@ export default function AdminPage() {
       {/* Site name */}
       {activeTab === 'general' && (
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-kumo-strong mb-1">Site name</h2>
+          <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "ชื่อเว็บไซต์" : "Site name"}</h2>
           <p className="text-sm text-kumo-subtle mb-5">
-            Shown next to the logo in the top bar. Leave empty to use the default
-            (&ldquo;{DEFAULT_SITE_NAME}&rdquo;). Applies on each user&rsquo;s next connection.
+            {language === "th" ? `แสดงถัดจากโลโก้ในแถบด้านบน เว้นว่างไว้เพื่อใช้ค่าเริ่มต้น (“${DEFAULT_SITE_NAME}”)` : `Shown next to the logo in the top bar. Leave empty to use the default (“${DEFAULT_SITE_NAME}”). Applies on each user’s next connection.`}
           </p>
 
           <Input
@@ -483,11 +482,9 @@ export default function AdminPage() {
       {/* Site logo */}
       {activeTab === 'general' && (
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-kumo-strong mb-1">Logo</h2>
+          <h2 className="text-lg font-semibold text-kumo-strong mb-1">{language === "th" ? "โลโก้เว็บไซต์" : "Logo"}</h2>
           <p className="text-sm text-kumo-subtle mb-5">
-            Shown in the app chrome, sign-in screens, and browser tab. Images are scaled without
-            cropping and converted to a static PNG. Square images work best. Applies on each
-            user&rsquo;s next connection.
+            {language === "th" ? "แสดงในแถบเมนู หน้าจอเข้าสู่ระบบ และแท็บบราวเซอร์ รูปภาพจะถูกปรับขนาดโดยอัตโนมัติ" : "Shown in the app chrome, sign-in screens, and browser tab. Images are scaled without cropping and converted to a static PNG. Square images work best. Applies on each user’s next connection."}
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -512,7 +509,7 @@ export default function AdminPage() {
                 loading={savingSiteLogo}
                 disabled={savingSiteLogo}
               >
-                {siteLogoUrl ? 'Change logo' : 'Upload logo'}
+                {siteLogoUrl ? (language === "th" ? "เปลี่ยนโลโก้" : "Change logo") : (language === "th" ? "อัปโหลดโลโก้" : "Upload logo")}
               </Button>
               {siteLogoUrl && (
                 <Button

@@ -1,3 +1,4 @@
+import { useI18n } from "../../i18n/I18nContext"
 import { RpcStub } from "capnweb";
 import { createPortal } from "react-dom";
 import {
@@ -48,6 +49,7 @@ function computePopupLayout(anchor: HTMLElement): SlashCommandPopupLayout {
 }
 
 export function useSlashCommandPicker({
+
   inputValue,
   cursorPosition,
   selectedCommand,
@@ -76,6 +78,7 @@ export function useSlashCommandPicker({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dismissedToken, setDismissedToken] = useState<string | null>(null);
+  const { language } = useI18n();
   const [explicitChoiceToken, setExplicitChoiceToken] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
   const [layout, setLayout] = useState<SlashCommandPopupLayout | null>(null);
@@ -231,7 +234,7 @@ export function useSlashCommandPicker({
         maxHeight: layout.maxHeight,
       }}
     >
-      <p className={`m-0 shrink-0 px-3.5 pb-1 pt-2.5 ${PICKER_CAPTION}`}>Commands</p>
+      <p className={`m-0 shrink-0 px-3.5 pb-1 pt-2.5 ${PICKER_CAPTION}`}>{language === "th" ? "คำสั่งลัด (Slash Commands)" : "Commands"}</p>
       <div
         ref={listRef}
         id={listboxId}
@@ -241,7 +244,7 @@ export function useSlashCommandPicker({
         className="sidebar-scroll min-h-0 flex-1 overflow-y-auto"
       >
         {loading && choices.length === 0 ? (
-          <p className={PICKER_EMPTY}>Loading commands…</p>
+          <p className={PICKER_EMPTY}>{language === "th" ? "กำลังโหลดคำสั่ง…" : "Loading commands…"}</p>
         ) : choices.length > 0 ? (
           choices.map((choice, optionIndex) => (
             <button
@@ -276,8 +279,8 @@ export function useSlashCommandPicker({
             {error
               ? `Couldn’t load commands. ${error}`
               : query
-                ? "No commands match your search."
-                : "No commands are available."}
+                ? (language === "th" ? "ไม่พบคำสั่งที่ตรงกับการค้นหา" : "No commands match your search.")
+                : (language === "th" ? "ไม่มีคำสั่งที่พร้อมใช้งาน" : "No commands are available.")}
           </p>
         )}
       </div>

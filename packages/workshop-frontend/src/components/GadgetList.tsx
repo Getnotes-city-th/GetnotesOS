@@ -243,7 +243,7 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
     try {
       if (deleteTarget.owner) {
         await authenticatedApi.dismissSharedGadget(deleteTarget.id)
-        toasts.add({ title: 'Workspace removed from list', variant: 'success' })
+        toasts.add({ title: language === "th" ? "นำพื้นที่ทำงานออกจากรายการแล้ว" : "Workspace removed from list", variant: "success" })
       } else {
         const overseer = await authenticatedApi.openGadget(deleteTarget.id)
         try {
@@ -251,12 +251,12 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
         } finally {
           overseer[Symbol.dispose]()
         }
-        toasts.add({ title: 'Workspace deleted', variant: 'success' })
+        toasts.add({ title: language === "th" ? "ลบพื้นที่ทำงานเรียบร้อยแล้ว" : "Workspace deleted", variant: "success" })
       }
       setGadgets(prev => prev.filter(g => g.id !== deleteTarget.id))
     } catch (err) {
       console.error('Failed to delete workspace:', err)
-      toasts.add({ title: 'Failed to delete workspace', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถลบพื้นที่ทำงานได้" : "Failed to delete workspace", variant: "error" })
     } finally {
       setIsDeleting(false)
       setDeleteTarget(null)
@@ -274,7 +274,7 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
     } catch (err) {
       overseer?.[Symbol.dispose]()
       console.error('Failed to open workspace for sharing:', err)
-      toasts.add({ title: 'Failed to open share settings', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถเปิดการตั้งค่าแชร์ได้" : "Failed to open share settings", variant: "error" })
     }
   }
 
@@ -303,7 +303,7 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
           return b.lastActive.getTime() - a.lastActive.getTime()
         })
       })
-      toasts.add({ title: 'Failed to update favorite status', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถอัปเดตสถานะรายการโปรดได้" : "Failed to update favorite status", variant: "error" })
     } finally {
       (await overseer)[Symbol.dispose]()
     }
@@ -319,7 +319,7 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
     } catch (err) {
       console.error('Failed to rename workspace:', err)
       setGadgets(prev => prev.map(g => g.id === gadget.id ? { ...g, title: gadget.title } : g))
-      toasts.add({ title: 'Failed to rename workspace', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถเปลี่ยนชื่อพื้นที่ทำงานได้" : "Failed to rename workspace", variant: "error" })
     } finally {
       (await overseer)[Symbol.dispose]()
     }
@@ -512,8 +512,8 @@ function HomeFeaturedBlueprintCard({
           className="mb-3"
         />
         <div className="flex min-w-0 items-start gap-2 px-1 pb-1">
-          <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-kumo-brand">
-            <img src="/getnotes-logo.png" alt="" className="w-8 h-8 rounded-full object-contain" />
+          <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
+            <img src="/getnotes-logo.png" alt="" className="w-8 h-8 object-contain" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="m-0 truncate text-[13px] leading-[18px] font-semibold tracking-[-0.25px] text-kumo-default">

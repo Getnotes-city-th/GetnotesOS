@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { Dialog } from '@cloudflare/kumo'
 import { X } from '@phosphor-icons/react'
 import { WorkshopButton, WorkshopIconButton } from './WorkshopControls'
@@ -25,6 +26,7 @@ export default function AutoApproveConfirmDialog({
   onOpenChange,
   onConfirm,
 }: AutoApproveConfirmDialogProps) {
+  const { t, language } = useI18n()
   return (
     <Dialog.Root
       open={open}
@@ -39,12 +41,14 @@ export default function AutoApproveConfirmDialog({
         <div className="flex items-start justify-between gap-4 border-b border-kumo-line px-5 py-4">
           <div className="min-w-0">
             <Dialog.Title className="text-[15px] leading-5 font-medium tracking-[-0.3px] text-kumo-default">
-              Always approve “{actionLabel}”?
+              {language === "th" ? `อนุมัติ “${actionLabel}” อัตโนมัติตลอดไป?` : `Always approve “${actionLabel}”?`}
             </Dialog.Title>
             <Dialog.Description className="mt-1 text-[12px] leading-4 font-normal tracking-[-0.2px] text-kumo-subtle">
-              Future <span className="font-medium text-kumo-default">{actionLabel}</span> actions on{' '}
-              <span className="font-medium text-kumo-default">{resourceTitle}</span> will be applied
-              automatically, without asking for approval. This action will be applied now too.
+              {language === "th" ? (
+                <>การกระทำ <span className="font-medium text-kumo-default">{actionLabel}</span> ในอนาคตบน <span className="font-medium text-kumo-default">{resourceTitle}</span> จะได้รับการอนุมัติและดำเนินการอัตโนมัติโดยไม่ต้องรอการตรวจสอบ การกระทำนี้จะมีผลทันที</>
+              ) : (
+                <>Future <span className="font-medium text-kumo-default">{actionLabel}</span> actions on <span className="font-medium text-kumo-default">{resourceTitle}</span> will be applied automatically, without asking for approval. This action will be applied now too.</>
+              )}
             </Dialog.Description>
           </div>
           <Dialog.Close
@@ -65,7 +69,7 @@ export default function AutoApproveConfirmDialog({
           <Dialog.Close
             render={(props) => (
               <WorkshopButton {...props} className="!h-9" disabled={isProcessing}>
-                Cancel
+                {t("cancel")}
               </WorkshopButton>
             )}
           />
@@ -75,7 +79,7 @@ export default function AutoApproveConfirmDialog({
             disabled={isProcessing}
             className="!h-9 min-w-[64px]"
           >
-            {isProcessing ? 'Enabling...' : 'Always approve'}
+            {isProcessing ? (language === "th" ? "กำลังเปิดใช้งาน..." : "Enabling...") : (language === "th" ? "อนุมัติอัตโนมัติตลอดไป" : "Always approve")}
           </WorkshopButton>
         </div>
       </Dialog>

@@ -443,7 +443,7 @@ type ModalTarget =
   | null
 
 function ConnectorsPage() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   useDocumentTitle(t("gatekeepers"))
   const siteName = useSiteName()
 
@@ -584,7 +584,7 @@ function ConnectorsPage() {
       handleCloseModal()
     } catch (err) {
       console.error('Failed to connect account:', err)
-      toasts.add({ title: 'Failed to start connection', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถเริ่มการเชื่อมต่อได้" : "Failed to start connection", variant: 'error' })
     } finally {
       setConnecting(false)
     }
@@ -605,7 +605,7 @@ function ConnectorsPage() {
       // once `grantedResourceUrlPatterns` updates.
     } catch (err) {
       console.error('Failed to expand account access:', err)
-      toasts.add({ title: 'Failed to request additional access', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถขอสิทธิ์การเข้าถึงเพิ่มเติมได้" : "Failed to request additional access", variant: 'error' })
     } finally {
       setEnsuringResourceUrlPatterns((prev) =>
         prev.filter((p) => !resourceUrlPatterns.includes(p)),
@@ -626,7 +626,7 @@ function ConnectorsPage() {
       handleCloseModal()
     } catch (err) {
       console.error('Failed to disconnect account:', err)
-      toasts.add({ title: 'Failed to disconnect account', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถตัดการเชื่อมต่อบัญชีได้" : "Failed to disconnect account", variant: 'error' })
     } finally {
       setDisconnecting(false)
     }
@@ -639,7 +639,7 @@ function ConnectorsPage() {
       window.open(url, '_blank', 'noopener,noreferrer')
     } catch (err) {
       console.error('Failed to reconnect account:', err)
-      toasts.add({ title: 'Failed to reconnect account', variant: 'error' })
+      toasts.add({ title: language === "th" ? "ไม่สามารถเชื่อมต่อบัญชีใหม่ได้" : "Failed to reconnect account", variant: 'error' })
     } finally {
       setReconnectingAccountId(null)
     }

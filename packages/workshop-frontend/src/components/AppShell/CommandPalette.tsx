@@ -141,7 +141,7 @@ export default function CommandPalette({
   open: boolean
   onClose: () => void
 }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const navigate = useNavigate()
   const toasts = useKumoToastManager()
@@ -229,7 +229,7 @@ export default function CommandPalette({
     // general starting point; the format shortcuts follow it in the admin's configured order.
     const formatCommands: Command[] = formats.map((format) => ({
       id: `format-${format.blueprintId}`,
-      label: `New ${format.output.noun}`,
+      label: language === "th" ? `สร้าง${format.output.noun === "Doc" ? "เอกสาร (Doc)" : format.output.noun === "Sheet" ? "สเปรดชีต (Sheet)" : format.output.noun === "Slides" ? "สไลด์นำเสนอ (Slides)" : format.output.noun}ใหม่` : `New ${format.output.noun}`,
       hint: 'Format',
       icon: <FormatGlyph output={format.output} size="md" />,
       run: () => { void createFormat(format) },
@@ -261,7 +261,7 @@ export default function CommandPalette({
       .toSorted((a, b) => b.lastActive.getTime() - a.lastActive.getTime())
       .map((g) => ({
         id: `ws-${g.id}`,
-        label: g.title || 'Untitled workspace',
+        label: g.title || (language === "th" ? "พื้นที่ทำงานไม่มีชื่อ" : "Untitled workspace"),
         hint: 'Workspace',
         icon: <SquaresFour size={15} className="text-kumo-inactive" />,
         run: () => navigate({ to: '/workspace/$id', params: { id: g.id } }),
@@ -292,19 +292,19 @@ export default function CommandPalette({
 
     const built: Group[] = searching
       ? [
-          { heading: 'Actions', items: refine(nav, nav.length) },
-          { heading: 'Workspaces', items: refine(wsBase, 8) },
-          { heading: 'Blueprints', items: refine(bpBase, 8) },
+          { heading: language === "th" ? "คำสั่งและการกระทำ" : "Actions", items: refine(nav, nav.length) },
+          { heading: language === "th" ? "พื้นที่ทำงาน" : "Workspaces", items: refine(wsBase, 8) },
+          { heading: language === "th" ? "แม่แบบพิมพ์เขียว" : "Blueprints", items: refine(bpBase, 8) },
         ]
       : [
-          { heading: 'Actions', items: refine(nav, nav.length) },
-          { heading: 'Recent workspaces', items: refine(wsBase, 4) },
+          { heading: language === "th" ? "คำสั่งและการกระทำ" : "Actions", items: refine(nav, nav.length) },
+          { heading: language === "th" ? "พื้นที่ทำงานล่าสุด" : "Recent workspaces", items: refine(wsBase, 4) },
         ]
 
     const groups = built.filter((g) => g.items.length > 0)
     const flat = groups.flatMap((g) => g.items)
     return { groups, flat }
-  }, [query, gadgets, blueprints, formats, navigate, createFormat])
+  }, [query, gadgets, blueprints, formats, navigate, createFormat, language])
 
   // Keep the active index in range as the result set changes.
   useEffect(() => {
@@ -368,7 +368,7 @@ export default function CommandPalette({
 
         <div ref={listRef} className="sidebar-scroll max-h-[min(60vh,420px)] overflow-y-auto p-1.5">
           {flat.length === 0 ? (
-            <p className="px-3 py-6 text-center text-[13px] text-kumo-inactive">No results.</p>
+            <p className="px-3 py-6 text-center text-[13px] text-kumo-inactive">{language === "th" ? "ไม่พบผลลัพธ์" : "No results."}</p>
           ) : (
             groups.map((group, gi) => {
               // Compute the flat index offset for this group so keyboard nav stays in sync.
@@ -413,15 +413,15 @@ export default function CommandPalette({
           <span className="flex items-center gap-1">
             <kbd className="rounded border border-kumo-line px-1 py-0.5 font-sans leading-none">↑</kbd>
             <kbd className="rounded border border-kumo-line px-1 py-0.5 font-sans leading-none">↓</kbd>
-            navigate
+            {language === "th" ? "เลื่อนเลือก" : "navigate"}
           </span>
           <span className="flex items-center gap-1">
             <kbd className="rounded border border-kumo-line px-1 py-0.5 font-sans leading-none">↵</kbd>
-            open
+            {language === "th" ? "เปิด" : "open"}
           </span>
           <span className="flex items-center gap-1">
             <kbd className="rounded border border-kumo-line px-1 py-0.5 font-sans leading-none">esc</kbd>
-            close
+            {language === "th" ? "ปิด" : "close"}
           </span>
         </div>
       </div>

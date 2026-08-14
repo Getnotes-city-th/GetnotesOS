@@ -112,7 +112,7 @@ export default function RecentApps() {
     return (
       <section className="w-full max-w-2xl mx-auto">
         <div className="text-center py-8 text-sm text-kumo-danger">
-          Unable to load your workspaces. Check your connection and try refreshing.
+          {language === "th" ? "ไม่สามารถโหลดพื้นที่ทำงานของคุณได้ โปรดตรวจสอบการเชื่อมต่อแล้วลองรีเฟรชใหม่" : "Unable to load your workspaces. Check your connection and try refreshing."}
         </div>
       </section>
     )

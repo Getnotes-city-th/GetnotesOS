@@ -126,10 +126,8 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
       <div className="w-full max-w-sm relative">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <SiteLogo size={40} className="mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-kumo-brand mb-3">
-              <img src="/getnotes-logo.png" alt="GetnotesOS" className="w-10 h-10 rounded-full object-contain" />
-            </div>
+          <SiteLogo size={48} className="mb-3">
+            <img src="/getnotes-logo.png" alt="GetnotesOS" className="w-12 h-12 object-contain" />
           </SiteLogo>
           <h1 className="text-xl font-semibold text-kumo-default">
             {siteName}

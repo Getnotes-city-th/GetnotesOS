@@ -268,6 +268,7 @@ export function SidebarWorkspacesProvider({ children }: { children: ReactNode })
  * ─────────────────────────────────────────────────────────────────────────────
  */
 export function SidebarWorkspacesTools({ collapsed = false }: { collapsed?: boolean }) {
+  const { t } = useI18n()
   // No "New workspace" button: Home *is* the new-workspace launcher, so it would be redundant.
   // Search lives as a magnifying-glass icon in the brand row when expanded; when collapsed the
   // brand-row buttons are hidden, so we surface a compact search icon here instead.
@@ -278,8 +279,8 @@ export function SidebarWorkspacesTools({ collapsed = false }: { collapsed?: bool
       <button
         type="button"
         onClick={() => openCommandPalette()}
-        aria-label="Search"
-        title="Search (⌘K)"
+        aria-label={t("search")}
+        title={`${t("search")} (⌘K)`}
         className="press flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-kumo-subtle transition-colors hover:bg-kumo-tint hover:text-kumo-default"
       >
         <MagnifyingGlass size={15} />
