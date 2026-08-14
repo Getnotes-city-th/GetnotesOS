@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { RpcStub } from 'capnweb'
@@ -17,6 +18,7 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
+  const { t } = useI18n();
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,7 +27,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
   const serverConfigError = useServerConfigError()
   const siteName = useSiteName()
   const connectionLost = useConnectionLost()
-  useDocumentTitle('Sign in')
+  useDocumentTitle(t("signIn"))
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -106,7 +108,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
             </div>
           </SiteLogo>
           <h1 className="text-xl font-semibold text-kumo-default">{siteName}</h1>
-          <p className="text-sm text-kumo-subtle mt-1">Sign in to your account</p>
+          <p className="text-sm text-kumo-subtle mt-1">{t("signIn")}</p>
         </div>
 
         {passwordAuthEnabled && (
@@ -114,7 +116,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
             {/* Username / password form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
-                label="Username"
+                label={t("username")}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoFocus
@@ -125,7 +127,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
 
               <Input
                 type="password"
-                label="Password"
+                label={t("password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
@@ -149,9 +151,9 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
             </form>
 
             <p className="text-center text-sm text-kumo-subtle mt-6">
-              Don't have an account?{' '}
+              {t("noAccountPrompt")}{' '}
               <Link to="/signup" className="text-kumo-brand hover:underline font-medium">
-                Create one
+                {t("createAccount")}
               </Link>
             </p>
           </>

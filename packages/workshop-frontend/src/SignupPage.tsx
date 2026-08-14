@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { RpcStub } from "capnweb";
@@ -15,6 +16,7 @@ interface SignupPageProps {
 }
 
 export default function SignupPage({ rpcStub }: SignupPageProps) {
+  const { t } = useI18n();
   const serverConfig = useServerConfig();
   const serverConfigError = useServerConfigError();
   const siteName = useSiteName();
@@ -132,7 +134,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
           <h1 className="text-xl font-semibold text-kumo-default">
             {siteName}
           </h1>
-          <p className="text-sm text-kumo-subtle mt-1">Create your account</p>
+          <p className="text-sm text-kumo-subtle mt-1">{t("signUp")}</p>
         </div>
 
         {!signupsEnabled && (
@@ -150,7 +152,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
-                label="Username"
+                label={t("username")}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoFocus
@@ -162,7 +164,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
 
               <Input
                 type="password"
-                label="Password"
+                label={t("password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
@@ -213,9 +215,9 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
 
         {passwordAuthEnabled && (
           <p className="text-center text-sm text-kumo-subtle mt-6">
-            Already have an account?{" "}
+            {t("hasAccountPrompt")}{" "}
             <Link to="/" className="text-kumo-brand hover:underline font-medium">
-              Sign in
+              {t("signIn")}
             </Link>
           </p>
         )}

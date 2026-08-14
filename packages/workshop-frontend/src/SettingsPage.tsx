@@ -87,7 +87,7 @@ function PasswordField({
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useI18n();
-  useDocumentTitle('Profile')
+  useDocumentTitle(t("profileTitle"))
 
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
@@ -250,16 +250,16 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto flex h-full w-full max-w-2xl flex-col px-6 pb-16 sm:px-10">
       <header className="px-1 pb-2 pt-10">
-        <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">Profile</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">{t("profileTitle")}</h1>
         <p className="mt-1 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-          Manage your account details, avatar, and security.
+          {t("profileSubtitle")}
         </p>
       </header>
 
       <div className="mt-6 flex flex-col gap-9">
         {/* Account */}
         <section className="flex flex-col gap-3">
-          <SectionLabel>Account</SectionLabel>
+          <SectionLabel>{t("account")}</SectionLabel>
           <div className="divide-y divide-kumo-line overflow-hidden rounded-xl border border-kumo-line bg-kumo-base">
             {/* Avatar */}
             <div className="flex items-center gap-4 px-5 py-4">
@@ -307,7 +307,7 @@ export default function SettingsPage() {
             {/* Display name */}
             <div className="flex items-end gap-2 px-5 py-4">
               <div className="min-w-0 flex-1">
-                <FieldLabel>Display name</FieldLabel>
+                <FieldLabel>{t("displayName")}</FieldLabel>
                 {isEditingName ? (
                   <input
                     value={nameInput}
@@ -332,7 +332,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={handleSaveName}
                     disabled={!nameInput.trim()}
-                    aria-label="Save display name"
+                    aria-label={t("saveDisplayName")}
                     className={PRIMARY_BTN}
                   >
                     <Check size={15} weight="bold" />
@@ -351,7 +351,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setIsEditingName(true)}
-                  aria-label="Edit display name"
+                  aria-label={t("editDisplayName")}
                   className={ICON_BTN}
                 >
                   <Pencil size={14} />
@@ -362,7 +362,7 @@ export default function SettingsPage() {
             {/* User ID */}
             <div className="flex items-center gap-2 px-5 py-4">
               <div className="min-w-0 flex-1">
-                <FieldLabel>User ID</FieldLabel>
+                <FieldLabel>{t("userId")}</FieldLabel>
                 <p className="mt-1 truncate font-mono text-[12px] tracking-[-0.1px] text-kumo-subtle">
                   {userInfo?.id}
                 </p>
@@ -370,7 +370,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={handleCopyId}
-                aria-label="Copy user ID"
+                aria-label={t("copyUserId")}
                 className={ICON_BTN}
               >
                 <Copy size={14} />
@@ -454,11 +454,11 @@ export default function SettingsPage() {
         {/* Security — only for password accounts (hidden under CF Access or gatekeeper sign-in) */}
         {!CF_ACCESS_MODE && hasPassword === true && (
           <section className="flex flex-col gap-3">
-            <SectionLabel>Security</SectionLabel>
+            <SectionLabel>{t("security")}</SectionLabel>
             <div className="rounded-xl border border-kumo-line bg-kumo-base p-5">
               <div className="flex max-w-sm flex-col gap-4">
                 <PasswordField
-                  label="Current password"
+                  label={t("currentPassword")}
                   value={currentPassword}
                   onChange={setCurrentPassword}
                   placeholder="Enter current password"
@@ -466,7 +466,7 @@ export default function SettingsPage() {
                 />
 
                 <PasswordField
-                  label="New password"
+                  label={t("newPassword")}
                   value={newPassword}
                   onChange={setNewPassword}
                   placeholder="Enter new password"
@@ -475,7 +475,7 @@ export default function SettingsPage() {
                 />
 
                 <PasswordField
-                  label="Confirm new password"
+                  label={t("confirmPassword")}
                   value={confirmPassword}
                   onChange={setConfirmPassword}
                   placeholder="Confirm new password"
@@ -491,7 +491,7 @@ export default function SettingsPage() {
                     className={PRIMARY_BTN}
                   >
                     <Lock size={14} weight="bold" />
-                    {passwordLoading ? 'Changing…' : 'Change password'}
+                    {passwordLoading ? 'Changing…' : '{t("changePassword")}'}
                   </button>
                 </div>
               </div>

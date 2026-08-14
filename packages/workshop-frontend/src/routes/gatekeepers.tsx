@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { logRpcFailure } from '../rpcErrors'
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
@@ -442,7 +443,8 @@ type ModalTarget =
   | null
 
 function ConnectorsPage() {
-  useDocumentTitle('Gatekeepers')
+  const { t } = useI18n();
+  useDocumentTitle(t("gatekeepers"))
   const siteName = useSiteName()
 
   const { authenticatedApi } = useAuthenticatedApi()
@@ -720,11 +722,10 @@ function ConnectorsPage() {
         <header className="mb-8 grid gap-8 lg:grid-cols-[minmax(0,540px)_444px] lg:items-center lg:justify-between">
           <div>
             <h1 className="m-0 text-3xl font-semibold leading-tight tracking-tight text-kumo-default sm:text-[34px]">
-              Gatekeepers
+              {t("gatekeepersTitle")}
             </h1>
             <p className="mt-2 text-[14px] leading-[20px] font-normal tracking-[-0.25px] text-kumo-subtle">
-              Add the apps and accounts your workspaces can use. Connect once, then wire
-              them into anything you build.
+              {t("gatekeepersSubtitle")}
             </p>
           </div>
           <ConnectorsHeroDiagram accounts={accounts} vendors={vendors} siteName={siteName} />
@@ -740,7 +741,7 @@ function ConnectorsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search gatekeepers…"
+              placeholder={t("searchGatekeepers")}
               className="h-10 w-full rounded-lg border border-kumo-line bg-kumo-base pl-9 pr-4 text-[14px] leading-5 tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive transition-[border-color,box-shadow] focus:border-kumo-ring focus:outline-none focus:ring-[3px] focus:ring-kumo-ring/15"
             />
           </div>
@@ -766,7 +767,7 @@ function ConnectorsPage() {
 
         {filteredAccounts.length > 0 && (
           <section className="mb-10">
-            <SectionEyebrow label="Connected" count={filteredAccounts.length} />
+            <SectionEyebrow label={t("connectedGatekeepers")} count={filteredAccounts.length} />
             <div className={sectionGridClass}>
               {filteredAccounts.map((account) => {
                 const displayName =

@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 import { DropdownMenu, useKumoToastManager } from '@cloudflare/kumo'
@@ -131,6 +132,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 function ProvidersPage() {
+  const { t } = useI18n();
   useDocumentTitle('AI Providers')
 
   const { authenticatedApi } = useAuthenticatedApi()
@@ -216,14 +218,14 @@ function ProvidersPage() {
     <div className="mx-auto flex h-full w-full max-w-4xl flex-col px-6 sm:px-10">
       <header className="flex items-end justify-between gap-4 px-3 pb-3 pt-10">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">AI providers</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">{t("providersTitle")}</h1>
           <p className="mt-1 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-            Configure the AI models available to your workspaces.
+            {t("providersSubtitle")}
           </p>
         </div>
         <button type="button" onClick={() => setSheetOpen(true)} className={PRIMARY_BTN}>
           <Plus size={14} weight="bold" />
-          Add provider
+          {t("addProvider")}
         </button>
       </header>
 
@@ -236,7 +238,7 @@ function ProvidersPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search providers…"
+              placeholder={t("searchProviders")}
               className="h-9 w-full rounded-lg border border-kumo-line bg-kumo-base pl-9 pr-4 text-[13px] tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive transition-[border-color,box-shadow] duration-150 ease-out focus:border-kumo-ring focus:outline-none focus:ring-[3px] focus:ring-kumo-ring/15"
             />
           </div>

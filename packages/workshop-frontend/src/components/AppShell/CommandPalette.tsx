@@ -1,3 +1,4 @@
+import { useI18n } from "../../i18n/I18nContext"
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
@@ -140,6 +141,7 @@ export default function CommandPalette({
   open: boolean
   onClose: () => void
 }) {
+  const { t } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const navigate = useNavigate()
   const toasts = useKumoToastManager()
@@ -236,20 +238,20 @@ export default function CommandPalette({
     const nav: Command[] = [
       {
         id: 'nav-new',
-        label: 'New workspace',
+        label: t("paletteNewWorkspace"),
         icon: <Plus size={15} weight="bold" />,
         run: () => navigate({ to: '/' }),
       },
       ...formatCommands,
       {
         id: 'nav-workspaces',
-        label: 'Workspaces',
+        label: t("workspaces"),
         icon: <SquaresFour size={15} />,
         run: () => navigate({ to: '/workspaces' }),
       },
       {
         id: 'nav-blueprints',
-        label: 'Blueprints',
+        label: t("blueprints"),
         icon: <Blueprint size={15} />,
         run: () => navigate({ to: '/explore' }),
       },
@@ -356,7 +358,7 @@ export default function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Search workspaces and actions…"
+            placeholder={t("palettePlaceholder")}
             className="h-12 w-full bg-transparent text-[14px] leading-5 tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive focus:outline-none"
           />
           <kbd className="shrink-0 rounded border border-kumo-line px-1.5 py-0.5 font-sans text-[10px] leading-none text-kumo-inactive">

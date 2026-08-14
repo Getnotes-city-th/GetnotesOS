@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DropdownMenu, useKumoToastManager } from '@cloudflare/kumo'
@@ -388,7 +389,8 @@ function RenameOutputDialog({
 type TypeFilter = 'all' | string
 
 function OutputsPage() {
-  useDocumentTitle('Outputs')
+  const { t } = useI18n();
+  useDocumentTitle(t("outputs"))
   const { authenticatedApi } = useAuthenticatedApi()
   const navigate = useNavigate()
   const toasts = useKumoToastManager()
@@ -576,9 +578,9 @@ function OutputsPage() {
     <div className="mx-auto flex h-full w-full max-w-5xl flex-col px-6 sm:px-10">
       <header className="flex items-end justify-between gap-4 px-3 pb-4 pt-10">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">Outputs</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">{t("outputsTitle")}</h1>
           <p className="mt-1 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-subtle">
-            Everything your workspaces have produced, in one place.
+            {t("outputsSubtitle")}
           </p>
         </div>
         <ViewToggle view={view} onChange={setView} />
@@ -591,7 +593,7 @@ function OutputsPage() {
         <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 sidebar-scroll">
           {showTypeFilters && (
             <>
-              <FilterChip active={typeFilter === 'all'} label="All" count={inTypeScope.length}
+              <FilterChip active={typeFilter === 'all'} label={t("allOutputs")} count={inTypeScope.length}
                           onClick={() => setTypeFilter('all')} />
               {presentTypes.map(([id, plural]) => (
                 <FilterChip
