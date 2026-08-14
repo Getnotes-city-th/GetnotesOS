@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useState, useEffect, useCallback, useMemo, useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import { useParams, useNavigate, useSearch, Link } from '@tanstack/react-router'
 import { useKumoToastManager } from '@cloudflare/kumo'
@@ -161,19 +162,21 @@ function formatHeaderCost(cost: number) {
 
 // The first tab is named after what the selected workpiece is ("Document" for a gadget built from
 // a document blueprint), falling back to "App" when it declares no format.
-function rightTabs(output?: BlueprintOutput): { value: RightTab; label: string }[] {
+function rightTabs(output?: BlueprintOutput, t?: (k: any) => string): { value: RightTab; label: string }[] {
   return [
     { value: 'app', label: formatOf(output).noun },
-    { value: 'code', label: 'Code' },
-    { value: 'connections', label: 'Connections' },
+    { value: 'code', label: t ? t("code") : "Code" },
+    { value: 'connections', label: t ? t("connections") : "Connections" },
   ]
 }
 
-const ACTIVITY_TABS: { value: ActivityView; label: string }[] = [
-  { value: 'review', label: 'Needs review' },
-  { value: 'auto', label: 'Auto-approval' },
-  { value: 'history', label: 'History' },
-]
+function getActivityTabs(t: (k: any) => string): { value: ActivityView; label: string }[] {
+  return [
+    { value: 'review', label: t("needsReview") },
+    { value: 'auto', label: t("autoApproval") },
+    { value: 'history', label: t("history") },
+  ]
+}
 
 // Names what the pane is showing. `icon` is for the workspace-level views (Activity); a workpiece
 // passes its `output` instead, so a Doc gets a document glyph rather than the gadget hexagon.
@@ -416,6 +419,7 @@ function NoGadgetPlaceholder({ height }: { height: string }) {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function GadgetEditor() {
+  const { t } = useI18n();
   const params = useParams({ strict: false }) as { id?: string }
   const id = params.id
   const navigate = useNavigate()
@@ -1421,8 +1425,8 @@ export default function GadgetEditor() {
 
           <WorkshopIconButton
             onClick={() => setShareModalOpen(true)}
-            title="Share workspace"
-            aria-label="Share workspace"
+            title={t("shareWorkspace")}
+            aria-label={t("shareWorkspace")}
           >
             <ShareNetwork size={15} />
           </WorkshopIconButton>
@@ -1576,7 +1580,7 @@ export default function GadgetEditor() {
             <div className="flex flex-shrink-0 items-center gap-1.5">
               <div className="flex items-center rounded-lg border border-kumo-line p-0.5">
                 {paneShowsActivity
-                  ? ACTIVITY_TABS.map(tab => (
+                  ? getActivityTabs(t).map(tab => (
                     <PaneTab
                       key={tab.value}
                       active={activityView === tab.value}
@@ -1585,7 +1589,7 @@ export default function GadgetEditor() {
                       onClick={() => setActivityView(tab.value)}
                     />
                   ))
-                  : rightTabs(selectedGadgetSummary?.output).map(tab => (
+                  : rightTabs(selectedGadgetSummary?.output, t).map(tab => (
                     <PaneTab
                       key={tab.value}
                       active={activeTab === tab.value}
@@ -1608,7 +1612,7 @@ export default function GadgetEditor() {
                 <WorkshopIconButton
                   aria-label="Enter full screen"
                   title={activeTab === 'app' && !previewMode
-                    ? 'Full screen'
+                    ? t("fullScreen")
                     : `Full screen is available in ${formatOf(selectedGadgetSummary?.output).noun} view`}
                   onClick={enterGadgetFullscreen}
                   disabled={activeTab !== 'app' || previewMode}

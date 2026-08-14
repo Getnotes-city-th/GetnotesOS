@@ -3513,7 +3513,7 @@ export const ChatInput = ({
                       <Brain size={14} />
                     </span>
                     <span className="flex-1">
-                      {showThinkingTraces ? "Hide thinking" : "Show thinking"}
+                      {showThinkingTraces ? (language === "th" ? "ซ่อนกระบวนการคิด" : "Hide thinking") : (language === "th" ? "แสดงกระบวนการคิด" : "Show thinking")}
                     </span>
                   </DropdownMenu.Item>
                 )}

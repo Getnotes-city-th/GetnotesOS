@@ -48,6 +48,13 @@ export interface TranslationDictionary {
   workspacesTitle: string
   workspacesSubtitle: string
   createWorkspace: string
+  yourWorkspaces: string
+  noWorkspacesMatch: string
+  unfavorite: string
+  favoriteAction: string
+  rename: string
+  shareWorkspace: string
+  deleteWorkspace: string
 
   // Blueprints Page
   blueprintsTitle: string
@@ -55,6 +62,10 @@ export interface TranslationDictionary {
   createBlueprint: string
   featuredBlueprints: string
   searchBlueprints: string
+  upload: string
+  uploading: string
+  exploreAction: string
+  removeFromLibrary: string
 
   // Outputs Page
   outputsTitle: string
@@ -73,6 +84,9 @@ export interface TranslationDictionary {
   searchGatekeepers: string
   connectedGatekeepers: string
   availableGatekeepers: string
+  connect: string
+  disconnect: string
+  manage: string
 
   // Providers Page
   providersTitle: string
@@ -100,7 +114,20 @@ export interface TranslationDictionary {
   connections: string
   connectionsDesc: string
 
-  // Auth (Login / Signup)
+  // Workspace Editor & Tabs
+  code: string
+  needsReview: string
+  autoApproval: string
+  history: string
+  fullScreen: string
+  hideThinking: string
+  showThinking: string
+  thinking: string
+  copyMessage: string
+  copied: string
+  stopGeneration: string
+
+  // Auth
   signIn: string
   signUp: string
   username: string
@@ -172,6 +199,13 @@ export const translations: Record<Language, TranslationDictionary> = {
     workspacesTitle: "พื้นที่ทำงาน",
     workspacesSubtitle: "แต่ละพื้นที่ทำงานเป็นสภาพแวดล้อมเฉพาะ พร้อมการสนทนา ตัวเชื่อมต่อ และผลงานที่แยกจากกัน",
     createWorkspace: "สร้างพื้นที่ทำงานใหม่",
+    yourWorkspaces: "พื้นที่ทำงานของคุณ",
+    noWorkspacesMatch: "ไม่พบพื้นที่ทำงานที่ตรงกัน",
+    unfavorite: "ยกเลิกรายการโปรด",
+    favoriteAction: "เพิ่มในรายการโปรด",
+    rename: "เปลี่ยนชื่อ",
+    shareWorkspace: "แชร์พื้นที่ทำงาน",
+    deleteWorkspace: "ลบพื้นที่ทำงาน",
 
     // Blueprints Page
     blueprintsTitle: "แม่แบบพิมพ์เขียว",
@@ -179,6 +213,10 @@ export const translations: Record<Language, TranslationDictionary> = {
     createBlueprint: "สร้างแม่แบบใหม่",
     featuredBlueprints: "แม่แบบแนะนำ",
     searchBlueprints: "ค้นหาแม่แบบ...",
+    upload: "อัปโหลด",
+    uploading: "กำลังอัปโหลด…",
+    exploreAction: "สำรวจแม่แบบ",
+    removeFromLibrary: "ลบออกจากคลัง",
 
     // Outputs Page
     outputsTitle: "ผลงานที่สร้าง",
@@ -197,6 +235,9 @@ export const translations: Record<Language, TranslationDictionary> = {
     searchGatekeepers: "ค้นหาตัวเชื่อมต่อ…",
     connectedGatekeepers: "เชื่อมต่อแล้ว",
     availableGatekeepers: "ตัวเชื่อมต่อที่พร้อมใช้งาน",
+    connect: "เชื่อมต่อ",
+    disconnect: "ยกเลิกการเชื่อมต่อ",
+    manage: "จัดการ",
 
     // Providers Page
     providersTitle: "ผู้ให้บริการ AI",
@@ -223,6 +264,19 @@ export const translations: Record<Language, TranslationDictionary> = {
     appearance: "รูปลักษณ์และธีม",
     connections: "การเชื่อมต่อภายนอก",
     connectionsDesc: "เชื่อมต่อบัญชีกับบริการต่างๆ เพื่อให้ AI ดึงข้อมูลและทำงานร่วมกันได้",
+
+    // Workspace Editor & Tabs
+    code: "โค้ด",
+    needsReview: "รอการตรวจสอบ",
+    autoApproval: "อนุมัติอัตโนมัติ",
+    history: "ประวัติ",
+    fullScreen: "เต็มจอ",
+    hideThinking: "ซ่อนกระบวนการคิด",
+    showThinking: "แสดงกระบวนการคิด",
+    thinking: "กำลังประมวลผลความคิด…",
+    copyMessage: "คัดลอกข้อความ",
+    copied: "คัดลอกแล้ว",
+    stopGeneration: "หยุดการทำงาน",
 
     // Auth
     signIn: "เข้าสู่ระบบ",
@@ -294,6 +348,13 @@ export const translations: Record<Language, TranslationDictionary> = {
     workspacesTitle: "Workspaces",
     workspacesSubtitle: "Each workspace is an isolated environment with its own conversations, gatekeepers, and outputs.",
     createWorkspace: "Create workspace",
+    yourWorkspaces: "Your workspaces",
+    noWorkspacesMatch: "No workspaces match",
+    unfavorite: "Unfavorite",
+    favoriteAction: "Favorite",
+    rename: "Rename",
+    shareWorkspace: "Share workspace",
+    deleteWorkspace: "Delete workspace",
 
     // Blueprints Page
     blueprintsTitle: "Blueprints",
@@ -301,6 +362,10 @@ export const translations: Record<Language, TranslationDictionary> = {
     createBlueprint: "New blueprint",
     featuredBlueprints: "Featured",
     searchBlueprints: "Search blueprints…",
+    upload: "Upload",
+    uploading: "Uploading…",
+    exploreAction: "Explore",
+    removeFromLibrary: "Remove from library",
 
     // Outputs Page
     outputsTitle: "Outputs",
@@ -319,6 +384,9 @@ export const translations: Record<Language, TranslationDictionary> = {
     searchGatekeepers: "Search gatekeepers…",
     connectedGatekeepers: "Connected",
     availableGatekeepers: "Available gatekeepers",
+    connect: "Connect",
+    disconnect: "Disconnect",
+    manage: "Manage",
 
     // Providers Page
     providersTitle: "AI providers",
@@ -345,6 +413,19 @@ export const translations: Record<Language, TranslationDictionary> = {
     appearance: "Appearance",
     connections: "Connections",
     connectionsDesc: "Connect external accounts to let AI read and write data with your tools",
+
+    // Workspace Editor & Tabs
+    code: "Code",
+    needsReview: "Needs review",
+    autoApproval: "Auto-approval",
+    history: "History",
+    fullScreen: "Full screen",
+    hideThinking: "Hide thinking",
+    showThinking: "Show thinking",
+    thinking: "Thinking",
+    copyMessage: "Copy message",
+    copied: "Copied",
+    stopGeneration: "Stop",
 
     // Auth
     signIn: "Sign in",

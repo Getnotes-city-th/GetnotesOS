@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { Link } from '@tanstack/react-router'
 import { Clock, MagnifyingGlass, Hexagon, DotsThreeVertical, ShareNetwork, Trash, Info, Star, Pencil, ArrowRight } from '@phosphor-icons/react'
 import { useState, useEffect, useRef } from 'react'
@@ -35,6 +36,7 @@ function formatCost(cost: number): string {
 }
 
 function AppRow({
+
   gadget,
   onDelete,
   onShare,
@@ -49,6 +51,7 @@ function AppRow({
   onTogglePin: (gadget: GadgetMetadataWithTimestamps) => void
   onRename: (gadget: GadgetMetadataWithTimestamps, newTitle: string) => void
 }) {
+  const { t } = useI18n();
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(gadget.title || '')
   const renameInputRef = useRef<HTMLInputElement>(null)
@@ -140,7 +143,7 @@ function AppRow({
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => onTogglePin(gadget)} className={MENU_ITEM}>
             <Star size={13} className="mr-2" weight={gadget.pinned ? 'fill' : 'regular'} />
-            {gadget.pinned ? 'Unfavorite' : 'Favorite'}
+            {gadget.pinned ? t("unfavorite") : t("favoriteAction")}
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => onInfo(gadget)} className={MENU_ITEM}>
             <Info size={13} className="mr-2" />
@@ -167,6 +170,7 @@ function AppRow({
 }
 
 export default function GadgetList({ showHeader = true }: { showHeader?: boolean } = {}) {
+  const { t } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
   const [gadgets, setGadgets] = useState<GadgetMetadataWithTimestamps[]>([])
@@ -334,7 +338,7 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
       {showHeader && (
         <div className="px-6 sm:px-10 lg:px-10 pt-10 lg:pt-10 mb-4">
           <h2 className="text-lg font-semibold text-kumo-default">
-            Your workspaces
+            {t("yourWorkspaces")}
           </h2>
           {!loading && gadgets.length === 0 && !loadError && (
             <p className="mt-1 text-sm text-kumo-inactive">
@@ -356,7 +360,7 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search workspaces…"
+              placeholder={t("searchPlaceholder")}
               className="h-9 w-full rounded-lg border border-kumo-line bg-kumo-base pl-9 pr-4 text-[13px] tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive transition-[border-color,box-shadow] duration-150 ease-out focus:border-kumo-ring focus:outline-none focus:ring-[3px] focus:ring-kumo-ring/15"
             />
           </div>

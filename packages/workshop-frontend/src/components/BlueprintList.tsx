@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n/I18nContext"
 import { Link } from '@tanstack/react-router'
 import {
   Blueprint as BlueprintIcon,
@@ -52,6 +53,7 @@ function sortItems(items: BlueprintItem[]): BlueprintItem[] {
 }
 
 function BlueprintRow({
+
   item,
   onTogglePin,
   onRemoveFromLibrary,
@@ -60,6 +62,7 @@ function BlueprintRow({
   onTogglePin: (b: BlueprintItem) => void
   onRemoveFromLibrary: (b: BlueprintItem) => void
 }) {
+  const { t } = useI18n();
   return (
     <Link
       to="/blueprint/$id"
@@ -105,7 +108,7 @@ function BlueprintRow({
           <DropdownMenu.Content className={MENU_CONTENT}>
             <DropdownMenu.Item onClick={() => onTogglePin(item)} className={MENU_ITEM}>
               <Star size={13} className="mr-2" weight={item.pinned ? 'fill' : 'regular'} />
-              {item.pinned ? 'Unfavorite' : 'Favorite'}
+              {item.pinned ? t("unfavorite") : t("favoriteAction")}
             </DropdownMenu.Item>
             {item.inLibrary && (
               <DropdownMenu.Item variant="danger" onClick={() => onRemoveFromLibrary(item)} className={MENU_ITEM_DANGER}>
@@ -121,6 +124,7 @@ function BlueprintRow({
 }
 
 export default function BlueprintList() {
+  const { t } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
 
@@ -266,7 +270,7 @@ export default function BlueprintList() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search blueprints…"
+              placeholder={t("searchBlueprints")}
               className="h-9 w-full rounded-lg border border-kumo-line bg-kumo-base pl-9 pr-4 text-[13px] tracking-[-0.25px] text-kumo-default placeholder:text-kumo-inactive transition-[border-color,box-shadow] duration-150 ease-out focus:border-kumo-ring focus:outline-none focus:ring-[3px] focus:ring-kumo-ring/15"
             />
           </div>
@@ -275,7 +279,7 @@ export default function BlueprintList() {
           <div className="grid shrink-0 grid-cols-2 gap-2">
             <Link to="/explore" className={ACTION_BUTTON}>
               <Compass size={14} />
-              Explore
+              {t("exploreAction")}
             </Link>
             <button
               type="button"
@@ -285,7 +289,7 @@ export default function BlueprintList() {
               className={ACTION_BUTTON}
             >
               <UploadSimple size={14} weight="bold" />
-              {uploading ? 'Uploading…' : 'Upload'}
+              {uploading ? t("uploading") : t("upload")}
             </button>
           </div>
         </div>
