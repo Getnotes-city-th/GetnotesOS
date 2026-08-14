@@ -419,7 +419,7 @@ function NoGadgetPlaceholder({ height }: { height: string }) {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function GadgetEditor() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const params = useParams({ strict: false }) as { id?: string }
   const id = params.id
   const navigate = useNavigate()
@@ -1444,8 +1444,8 @@ export default function GadgetEditor() {
             <WorkshopIconButton
               danger
               onClick={() => setDeleteDialogOpen(true)}
-              title="Delete workspace"
-              aria-label="Delete workspace"
+              title={t("deleteWorkspace")}
+              aria-label={t("deleteWorkspace")}
             >
               <Trash size={16} />
             </WorkshopIconButton>
@@ -1784,8 +1784,8 @@ export default function GadgetEditor() {
 
       <DeleteConfirmationDialog
         open={deleteDialogOpen}
-        title="Delete workspace?"
-        description={<>This removes <span className="font-medium text-kumo-default">{metadata.title}</span>. You can&apos;t undo this.</>}
+        title={language === "th" ? "ลบพื้นที่ทำงานหรือไม่?" : "Delete workspace?"}
+        description={language === "th" ? <>การกระทำนี้จะลบ <span className="font-medium text-kumo-default">{metadata.title}</span> และไม่สามารถเรียกคืนได้</> : <>This removes <span className="font-medium text-kumo-default">{metadata.title}</span>. You can&apos;t undo this.</>}
         isDeleting={isDeleting}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDeleteConfirm}

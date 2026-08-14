@@ -7934,8 +7934,8 @@ function ChatInterface({
 
       <DeleteConfirmationDialog
         open={deleteTarget !== null}
-        title="Delete conversation?"
-        description={<>This removes <span className="font-medium text-kumo-default">{deleteTarget?.title}</span>. You can&apos;t undo this.</>}
+        title={language === "th" ? "ลบการสนทนาหรือไม่?" : "Delete conversation?"}
+        description={language === "th" ? <>การกระทำนี้จะลบการสนทนา <span className="font-medium text-kumo-default">{deleteTarget?.title}</span> และไม่สามารถเรียกคืนได้</> : <>This removes <span className="font-medium text-kumo-default">{deleteTarget?.title}</span>. You can&apos;t undo this.</>}
         isDeleting={isDeleting}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);

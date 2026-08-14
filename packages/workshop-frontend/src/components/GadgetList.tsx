@@ -172,7 +172,7 @@ function AppRow({
 }
 
 export default function GadgetList({ showHeader = true }: { showHeader?: boolean } = {}) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { authenticatedApi } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
   const [gadgets, setGadgets] = useState<GadgetMetadataWithTimestamps[]>([])
@@ -412,14 +412,14 @@ export default function GadgetList({ showHeader = true }: { showHeader?: boolean
         open={deleteTarget !== null}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
         isDeleting={isDeleting}
-        title={deleteTarget?.owner ? 'Remove workspace' : 'Delete workspace'}
+        title={deleteTarget?.owner ? (language === "th" ? "ยกเลิกพื้นที่ทำงานที่แชร์" : "Remove workspace") : (language === "th" ? "ลบพื้นที่ทำงาน" : "Delete workspace")}
         description={
           deleteTarget?.owner
-            ? `Remove "${deleteTarget?.title || 'Untitled Workspace'}" from your list? You can still access it via its link.`
-            : `Delete "${deleteTarget?.title || 'Untitled Workspace'}"? This cannot be undone.`
+            ? (language === "th" ? `นำ "${deleteTarget?.title || "พื้นที่ทำงานไม่มีชื่อ"}" ออกจากรายการของคุณหรือไม่? คุณยังสามารถเข้าถึงได้ผ่านลิงก์แชร์` : `Remove "${deleteTarget?.title || "Untitled Workspace"}" from your list? You can still access it via its link.`)
+            : (language === "th" ? `ลบ "${deleteTarget?.title || "พื้นที่ทำงานไม่มีชื่อ"}" หรือไม่? การกระทำนี้ไม่สามารถเรียกคืนได้` : `Delete "${deleteTarget?.title || "Untitled Workspace"}"? This cannot be undone.`)
         }
-        confirmLabel={deleteTarget?.owner ? 'Remove' : 'Delete'}
-        confirmingLabel={deleteTarget?.owner ? 'Removing...' : 'Deleting...'}
+        confirmLabel={deleteTarget?.owner ? (language === "th" ? "นำออก" : "Remove") : (language === "th" ? "ลบ" : "Delete")}
+        confirmingLabel={deleteTarget?.owner ? (language === "th" ? "กำลังนำออก..." : "Removing...") : (language === "th" ? "กำลังลบ..." : "Deleting...")}
         onConfirm={handleDeleteConfirm}
       />
 

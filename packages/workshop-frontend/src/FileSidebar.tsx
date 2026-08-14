@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n/I18nContext"
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react'
 import { Dialog, DropdownMenu, useKumoToastManager } from '@cloudflare/kumo'
 import { DotsThree, DownloadSimple, Pencil, Plus, Trash, X } from '@phosphor-icons/react'
@@ -28,6 +29,7 @@ export interface FileSidebarHandle {
 }
 
 export default function FileSidebar({
+
   files,
   activeFile,
   streamingActiveFile,
@@ -44,6 +46,7 @@ export default function FileSidebar({
   ref,
 }: FileSidebarProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const { t, language } = useI18n();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [deletingFile, setDeletingFile] = useState<string | null>(null)
   const [newFileName, setNewFileName] = useState('')
@@ -232,7 +235,7 @@ export default function FileSidebar({
                   {...props}
                   className="!h-9"
                 >
-                  Cancel
+                  {t("cancel")}
                 </WorkshopButton>
               )}
             />
@@ -241,7 +244,7 @@ export default function FileSidebar({
               onClick={handleCreateFile}
               disabled={!newFileName.trim()}
             >
-              Create file
+              {language === "th" ? "สร้างไฟล์" : "Create file"}
             </WorkshopButton>
           </div>
         </Dialog>
@@ -255,8 +258,8 @@ export default function FileSidebar({
             setDeletingFile(null)
           }
         }}
-        title="Delete file?"
-        description={<>This removes <span className="font-mono text-kumo-default">{deletingFile}</span> from the gadget. You can&apos;t undo this.</>}
+        title={language === "th" ? "ลบไฟล์หรือไม่?" : "Delete file?"}
+        description={language === "th" ? <>การกระทำนี้จะลบไฟล์ <span className="font-mono text-kumo-default">{deletingFile}</span> ออกจากพื้นที่ทำงาน และไม่สามารถเรียกคืนได้</> : <>This removes <span className="font-mono text-kumo-default">{deletingFile}</span> from the gadget. You can&apos;t undo this.</>}
         onConfirm={confirmDelete}
       />
     </div>
