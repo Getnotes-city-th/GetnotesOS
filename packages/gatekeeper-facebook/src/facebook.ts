@@ -73,111 +73,164 @@ const CONNECT_FORM_HTML = (doId: string, nonce: string) => `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>เชื่อมต่อ Facebook Page - GetnotesOS</title>
   <style>
+    :root {
+      --bg: #0c0a09;
+      --card-bg: #141210;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #fcfcfb;
+      --text-muted: #a8a29e;
+      --input-bg: #1c1917;
+      --input-border: rgba(255, 255, 255, 0.12);
+      --brand: #0866FF;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #fcfcfb;
+        --card-bg: #ffffff;
+        --border: rgba(20, 17, 16, 0.08);
+        --text: #14110f;
+        --text-muted: #78716c;
+        --input-bg: #f8f8f7;
+        --input-border: rgba(20, 17, 16, 0.12);
+      }
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 16px;
-      color: #1c1e21;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
     }
     .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.25), 0 8px 10px -6px rgba(0,0,0,0.2);
       padding: 32px;
-      max-width: 480px;
+      max-width: 440px;
       width: 100%;
-      box-sizing: border-box;
     }
-    .logo-container {
+    .header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 20px;
     }
+    .logo-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
     .logo {
-      width: 44px;
-      height: 44px;
+      width: 32px;
+      height: 32px;
     }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 8px 0;
-      color: #050505;
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.01em;
     }
-    p {
-      font-size: 14px;
+    .subtitle {
+      font-size: 12px;
+      color: var(--brand);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .desc {
+      font-size: 13.5px;
       line-height: 1.5;
-      color: #65676b;
+      color: var(--text-muted);
       margin: 0 0 24px 0;
+    }
+    .field-group {
+      margin-bottom: 20px;
     }
     label {
       display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #050505;
-      margin-bottom: 6px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
     }
     input {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #ced0d4;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: var(--text);
       outline: none;
-      margin-bottom: 16px;
-      font-family: monospace;
+      transition: all 0.15s ease;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
     input:focus {
-      border-color: #0866FF;
+      border-color: var(--brand);
       box-shadow: 0 0 0 3px rgba(8, 102, 255, 0.2);
     }
-    button {
+    .btn-submit {
       width: 100%;
-      background: #0866FF;
+      background: var(--brand);
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 15px;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: opacity 0.15s ease;
     }
-    button:hover {
-      background: #0056df;
+    .btn-submit:hover {
+      opacity: 0.92;
     }
-    .hint {
+    .hint-box {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
       font-size: 12px;
-      color: #8a8d91;
-      margin-top: 16px;
-      line-height: 1.4;
+      color: var(--text-muted);
+      line-height: 1.45;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="logo-container">
-      <img src="${FACEBOOK_LOGO_URL}" class="logo" alt="Facebook" />
+    <div class="header">
+      <div class="logo-wrapper">
+        <img src="${FACEBOOK_LOGO_URL}" class="logo" alt="Facebook" />
+      </div>
       <div>
-        <h1 style="margin:0;">เชื่อมต่อ Facebook Page</h1>
-        <span style="font-size:12px; color:#0866FF; font-weight:600;">Meta Graph API / Messenger</span>
+        <h1 class="title">เชื่อมต่อ Facebook Page</h1>
+        <div class="subtitle">Meta Graph API / Messenger</div>
       </div>
     </div>
-    <p>กรอก <b>Page Access Token</b> จาก Meta for Developers เพื่อให้ AI ใน GetnotesOS ช่วยโพสต์ ตอบคอมเมนต์ และส่งข้อความแฟนเพจได้</p>
+    <p class="desc">กรอก <b>Page Access Token</b> เพื่อให้ AI ใน GetnotesOS เรียกใช้งานและสั่งการผ่านแฟนเพจของคุณได้</p>
     <form method="POST" action="/gatekeeper/facebook/submit">
       <input type="hidden" name="doId" value="${doId}">
       <input type="hidden" name="nonce" value="${nonce}">
-      <label for="token">Page Access Token</label>
-      <input type="password" id="token" name="token" placeholder="วาง Page Access Token ที่นี่..." required autofocus />
-      <button type="submit">บันทึกและเชื่อมต่อ</button>
+      <div class="field-group">
+        <label for="token">Page Access Token</label>
+        <input type="password" id="token" name="token" placeholder="วาง Page Access Token ที่นี่..." required autofocus />
+      </div>
+      <button type="submit" class="btn-submit">บันทึกและเชื่อมต่อ</button>
     </form>
-    <div class="hint">
-      💡 สามารถสร้าง Page Access Token ได้จาก Meta for Developers &gt; Graph API Explorer หรือ App Dashboard
+    <div class="hint-box">
+      💡 คัดลอกได้จาก Meta for Developers &gt; Graph API Explorer หรือ App Dashboard
     </div>
   </div>
 </body>
@@ -189,9 +242,26 @@ const SUCCESS_HTML = `<!DOCTYPE html>
   <meta charset="utf-8">
   <title>เชื่อมต่อสำเร็จ</title>
   <style>
-    body { font-family: system-ui; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f0f2f5; color: #1c1e21; text-align: center; }
-    .box { background: white; padding: 32px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    h2 { color: #0866FF; margin-top: 0; }
+    :root {
+      --bg: #0c0a09;
+      --card-bg: #141210;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #fcfcfb;
+      --text-muted: #a8a29e;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #fcfcfb;
+        --card-bg: #ffffff;
+        --border: rgba(20, 17, 16, 0.08);
+        --text: #14110f;
+        --text-muted: #78716c;
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: var(--bg); color: var(--text); text-align: center; }
+    .box { background: var(--card-bg); border: 1px solid var(--border); padding: 32px 40px; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+    h2 { color: #0866FF; margin-top: 0; font-size: 18px; }
+    p { color: var(--text-muted); font-size: 14px; margin-bottom: 0; }
   </style>
 </head>
 <body>
@@ -202,7 +272,6 @@ const SUCCESS_HTML = `<!DOCTYPE html>
   </div>
 </body>
 </html>`;
-
 // ---------------------------------------------------------------------------
 // Worker entrypoint (HTTP routing)
 

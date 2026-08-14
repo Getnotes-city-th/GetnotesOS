@@ -73,111 +73,164 @@ const CONNECT_FORM_HTML = (doId: string, nonce: string) => `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>เชื่อมต่อ LINE Official Account - GetnotesOS</title>
   <style>
+    :root {
+      --bg: #0c0a09;
+      --card-bg: #141210;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #fcfcfb;
+      --text-muted: #a8a29e;
+      --input-bg: #1c1917;
+      --input-border: rgba(255, 255, 255, 0.12);
+      --brand: #06C755;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #fcfcfb;
+        --card-bg: #ffffff;
+        --border: rgba(20, 17, 16, 0.08);
+        --text: #14110f;
+        --text-muted: #78716c;
+        --input-bg: #f8f8f7;
+        --input-border: rgba(20, 17, 16, 0.12);
+      }
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 16px;
-      color: #1e293b;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
     }
     .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.25), 0 8px 10px -6px rgba(0,0,0,0.2);
       padding: 32px;
-      max-width: 460px;
+      max-width: 440px;
       width: 100%;
-      box-sizing: border-box;
     }
-    .logo-container {
+    .header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 20px;
     }
+    .logo-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
     .logo {
-      width: 44px;
-      height: 44px;
+      width: 32px;
+      height: 32px;
     }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 8px 0;
-      color: #0f172a;
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.01em;
     }
-    p {
-      font-size: 14px;
+    .subtitle {
+      font-size: 12px;
+      color: var(--brand);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .desc {
+      font-size: 13.5px;
       line-height: 1.5;
-      color: #64748b;
+      color: var(--text-muted);
       margin: 0 0 24px 0;
+    }
+    .field-group {
+      margin-bottom: 20px;
     }
     label {
       display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #334155;
-      margin-bottom: 6px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
     }
     input {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: var(--text);
       outline: none;
-      margin-bottom: 16px;
-      font-family: monospace;
+      transition: all 0.15s ease;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
     input:focus {
-      border-color: #06C755;
+      border-color: var(--brand);
       box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.2);
     }
-    button {
+    .btn-submit {
       width: 100%;
-      background: #06C755;
+      background: var(--brand);
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 15px;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: opacity 0.15s ease;
     }
-    button:hover {
-      background: #05b04c;
+    .btn-submit:hover {
+      opacity: 0.92;
     }
-    .hint {
+    .hint-box {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
       font-size: 12px;
-      color: #94a3b8;
-      margin-top: 16px;
-      line-height: 1.4;
+      color: var(--text-muted);
+      line-height: 1.45;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="logo-container">
-      <img src="${LINE_LOGO_URL}" class="logo" alt="LINE" />
+    <div class="header">
+      <div class="logo-wrapper">
+        <img src="${LINE_LOGO_URL}" class="logo" alt="LINE" />
+      </div>
       <div>
-        <h1 style="margin:0;">เชื่อมต่อ LINE Bot</h1>
-        <span style="font-size:12px; color:#06C755; font-weight:600;">LINE Messaging API</span>
+        <h1 class="title">เชื่อมต่อ LINE Bot</h1>
+        <div class="subtitle">LINE Messaging API</div>
       </div>
     </div>
-    <p>กรอก <b>Channel Access Token (long-lived)</b> จาก LINE Developers Console เพื่อให้ AI ใน GetnotesOS สั่งส่งข้อความและทำงานร่วมกับ LINE OA ได้</p>
+    <p class="desc">กรอก <b>Channel Access Token (long-lived)</b> เพื่อให้ AI ใน GetnotesOS เรียกใช้งานและสั่งการผ่าน LINE OA ได้</p>
     <form method="POST" action="/gatekeeper/line/submit">
       <input type="hidden" name="doId" value="${doId}">
       <input type="hidden" name="nonce" value="${nonce}">
-      <label for="token">Channel Access Token</label>
-      <input type="password" id="token" name="token" placeholder="วาง Channel Access Token ที่นี่..." required autofocus />
-      <button type="submit">บันทึกและเชื่อมต่อ</button>
+      <div class="field-group">
+        <label for="token">Channel Access Token</label>
+        <input type="password" id="token" name="token" placeholder="วาง Channel Access Token ที่นี่..." required autofocus />
+      </div>
+      <button type="submit" class="btn-submit">บันทึกและเชื่อมต่อ</button>
     </form>
-    <div class="hint">
-      💡 สามารถคัดลอกได้จาก LINE Developers Console &gt; แท็บ Messaging API &gt; Channel access token (long-lived)
+    <div class="hint-box">
+      💡 คัดลอกได้จาก LINE Developers Console &gt; แท็บ Messaging API &gt; Channel access token (long-lived)
     </div>
   </div>
 </body>
@@ -189,9 +242,26 @@ const SUCCESS_HTML = `<!DOCTYPE html>
   <meta charset="utf-8">
   <title>เชื่อมต่อสำเร็จ</title>
   <style>
-    body { font-family: system-ui; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f8fafc; color: #1e293b; text-align: center; }
-    .box { background: white; padding: 32px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    h2 { color: #06C755; margin-top: 0; }
+    :root {
+      --bg: #0c0a09;
+      --card-bg: #141210;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #fcfcfb;
+      --text-muted: #a8a29e;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #fcfcfb;
+        --card-bg: #ffffff;
+        --border: rgba(20, 17, 16, 0.08);
+        --text: #14110f;
+        --text-muted: #78716c;
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: var(--bg); color: var(--text); text-align: center; }
+    .box { background: var(--card-bg); border: 1px solid var(--border); padding: 32px 40px; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+    h2 { color: #06C755; margin-top: 0; font-size: 18px; }
+    p { color: var(--text-muted); font-size: 14px; margin-bottom: 0; }
   </style>
 </head>
 <body>
@@ -202,7 +272,6 @@ const SUCCESS_HTML = `<!DOCTYPE html>
   </div>
 </body>
 </html>`;
-
 // ---------------------------------------------------------------------------
 // Worker entrypoint (HTTP routing)
 
