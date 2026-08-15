@@ -4,10 +4,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "test": "vitest run",
+    "build": "tsc && tsc -p tsconfig.vite.json && vite build",
     "preview": "vite preview",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@cloudflare/kumo": "^2.9.2",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@tanstack/router-plugin": "^1.168.26",
+    "@types/node": "catalog:",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^5.2.0",
