@@ -46,7 +46,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
       const list = await admin.listUsers()
       setUsers(list)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load users'
+      const message = language === 'th' ? 'ไม่สามารถโหลดรายชื่อผู้ใช้ได้' : err instanceof Error ? err.message : 'Failed to load users'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setLoading(false)
@@ -87,7 +87,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
         variant: 'success',
       })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update admin rights'
+      const message = language === 'th' ? 'ไม่สามารถอัปเดตสิทธิ์ผู้ดูแลระบบได้' : err instanceof Error ? err.message : 'Failed to update admin rights'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setBusyUser(null)
@@ -110,7 +110,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
         variant: 'success',
       })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update account status'
+      const message = language === 'th' ? 'ไม่สามารถอัปเดตสถานะบัญชีได้' : err instanceof Error ? err.message : 'Failed to update account status'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setBusyUser(null)
@@ -149,7 +149,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to reset password'
+      const message = language === 'th' ? 'ไม่สามารถรีเซ็ตรหัสผ่านได้' : err instanceof Error ? err.message : 'Failed to reset password'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setResettingPassword(false)
@@ -171,7 +171,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
       })
       setDeleteModalUser(null)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete user'
+      const message = language === 'th' ? 'ไม่สามารถลบบัญชีผู้ใช้ได้' : err instanceof Error ? err.message : 'Failed to delete user'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setDeletingUser(false)

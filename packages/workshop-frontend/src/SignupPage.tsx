@@ -21,7 +21,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
   const serverConfigError = useServerConfigError();
   const siteName = useSiteName();
   const connectionLost = useConnectionLost();
-  useDocumentTitle("Create account");
+  useDocumentTitle(t("signUp"));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,17 +30,17 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
 
   const usernameError =
     username && !/^[a-z0-9_-]+$/i.test(username)
-      ? "Letters, numbers, underscores, and hyphens only"
+      ? t("usernameRules")
       : undefined;
 
   const passwordError =
     password && password.length < 8
-      ? "Must be at least 8 characters"
+      ? t("passwordTooShort")
       : undefined;
 
   const confirmError =
     confirmPassword && confirmPassword !== password
-      ? "Passwords do not match"
+      ? t("passwordsDoNotMatch")
       : undefined;
 
   const canSubmit =
@@ -69,10 +69,10 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
         localStorage.setItem("authToken", token);
         window.location.href = "/";
       } else {
-        setError("Username already exists");
+        setError(t("usernameAlreadyExists"));
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Account creation failed");
+    } catch {
+      setError(t("signupError"));
     } finally {
       setLoading(false);
     }
@@ -86,9 +86,9 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
           className="min-h-screen flex flex-col items-center justify-center gap-4 bg-kumo-base px-4"
         >
           <p className="text-sm text-kumo-danger text-center">
-            Couldn&apos;t load deployment settings.
+            {t("loadSettingsFailed")}
           </p>
-          <Button variant="secondary" onClick={() => window.location.reload()}>Reload</Button>
+          <Button variant="secondary" onClick={() => window.location.reload()}>{t("reload")}</Button>
         </div>
       );
     }
@@ -96,7 +96,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-kumo-base px-4">
         <Loader size="lg" />
         <p className="text-sm text-kumo-subtle text-center">
-          {connectionLost ? "Can't reach the server. Retrying…" : "Loading…"}
+          {connectionLost ? t("serverUnavailable") : t("loading")}
         </p>
       </div>
     );
@@ -138,10 +138,10 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
         {!signupsEnabled && (
           <Banner
             variant="default"
-            title="Signups are closed"
+            title={t("signupsClosed")}
             className="mb-4"
           >
-            New account registration is currently disabled on this deployment.
+            {t("signupsDisabledMessage")}
           </Banner>
         )}
 
@@ -156,7 +156,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
                 autoFocus
                 autoComplete="username"
                 disabled={loading}
-                placeholder="your-username"
+                placeholder={t("usernamePlaceholder")}
                 error={usernameError}
               />
 
@@ -173,7 +173,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
 
               <Input
                 type="password"
-                label="Confirm Password"
+                label={t("confirmPassword")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
@@ -191,7 +191,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
                 loading={loading}
                 className="w-full justify-center"
               >
-                Create account
+                {loading ? t("signingUp") : t("signUp")}
               </Button>
             </form>
           </>
@@ -203,7 +203,7 @@ export default function SignupPage({ rpcStub }: SignupPageProps) {
             {passwordAuthEnabled && (
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-px flex-1 bg-kumo-line" />
-                <span className="text-xs text-kumo-subtle">or</span>
+                <span className="text-xs text-kumo-subtle">{t("or")}</span>
                 <div className="h-px flex-1 bg-kumo-line" />
               </div>
             )}

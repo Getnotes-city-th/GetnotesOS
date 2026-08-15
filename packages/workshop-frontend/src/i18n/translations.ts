@@ -138,6 +138,28 @@ export interface TranslationDictionary {
   hasAccountPrompt: string
   createAccount: string
   loginFailed: string
+  loginError: string
+  signingIn: string
+  continueWith: string
+  or: string
+  loadSettingsFailed: string
+  reload: string
+  serverUnavailable: string
+  usernamePlaceholder: string
+  usernameRules: string
+  passwordTooShort: string
+  passwordsDoNotMatch: string
+  usernameAlreadyExists: string
+  signupError: string
+  signingUp: string
+  signupsClosed: string
+  signupsDisabledMessage: string
+  oauthPopupBlocked: string
+  oauthCancelled: string
+  oauthError: string
+  authenticationError: string
+  retry: string
+  authenticating: string
 
   // General Controls
   save: string
@@ -291,6 +313,28 @@ export const translations: Record<Language, TranslationDictionary> = {
     hasAccountPrompt: "มีบัญชีผู้ใช้อยู่แล้ว?",
     createAccount: "ลงทะเบียนใช้งาน",
     loginFailed: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+    loginError: "เข้าสู่ระบบไม่สำเร็จ",
+    signingIn: "กำลังเข้าสู่ระบบ…",
+    continueWith: "เข้าสู่ระบบด้วย",
+    or: "หรือ",
+    loadSettingsFailed: "ไม่สามารถโหลดการตั้งค่าระบบได้",
+    reload: "โหลดใหม่",
+    serverUnavailable: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กำลังลองใหม่…",
+    usernamePlaceholder: "ชื่อผู้ใช้ของคุณ",
+    usernameRules: "ใช้ได้เฉพาะตัวอักษร ตัวเลข ขีดล่าง และขีดกลาง",
+    passwordTooShort: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+    passwordsDoNotMatch: "รหัสผ่านไม่ตรงกัน",
+    usernameAlreadyExists: "ชื่อผู้ใช้นี้มีอยู่แล้ว",
+    signupError: "สร้างบัญชีไม่สำเร็จ",
+    signingUp: "กำลังสร้างบัญชี…",
+    signupsClosed: "ปิดการลงทะเบียนแล้ว",
+    signupsDisabledMessage: "การสมัครบัญชีใหม่ถูกปิดใช้งานสำหรับระบบนี้ในขณะนี้",
+    oauthPopupBlocked: "เบราว์เซอร์บล็อกหน้าต่างเข้าสู่ระบบ โปรดอนุญาตป๊อปอัปแล้วลองอีกครั้ง",
+    oauthCancelled: "ยกเลิกการเข้าสู่ระบบแล้ว",
+    oauthError: "เข้าสู่ระบบด้วยผู้ให้บริการนี้ไม่สำเร็จ",
+    authenticationError: "เกิดข้อผิดพลาดในการยืนยันตัวตน",
+    retry: "ลองอีกครั้ง",
+    authenticating: "กำลังยืนยันตัวตน…",
 
     // General Controls
     save: "บันทึก",
@@ -442,6 +486,28 @@ export const translations: Record<Language, TranslationDictionary> = {
     hasAccountPrompt: "Already have an account?",
     createAccount: "Create one",
     loginFailed: "Invalid username or password",
+    loginError: "Login failed",
+    signingIn: "Signing in…",
+    continueWith: "Continue with",
+    or: "or",
+    loadSettingsFailed: "Couldn't load deployment settings.",
+    reload: "Reload",
+    serverUnavailable: "Can't reach the server. Retrying…",
+    usernamePlaceholder: "your-username",
+    usernameRules: "Letters, numbers, underscores, and hyphens only",
+    passwordTooShort: "Must be at least 8 characters",
+    passwordsDoNotMatch: "Passwords do not match",
+    usernameAlreadyExists: "Username already exists",
+    signupError: "Account creation failed",
+    signingUp: "Creating account…",
+    signupsClosed: "Signups are closed",
+    signupsDisabledMessage: "New account registration is currently disabled on this deployment.",
+    oauthPopupBlocked: "The sign-in pop-up was blocked. Please allow pop-ups and try again.",
+    oauthCancelled: "Sign-in was cancelled.",
+    oauthError: "Could not sign in with this provider.",
+    authenticationError: "Authentication error",
+    retry: "Retry",
+    authenticating: "Authenticating…",
 
     // General Controls
     save: "Save",

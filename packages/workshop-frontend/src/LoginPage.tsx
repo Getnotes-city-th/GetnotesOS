@@ -46,10 +46,10 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
           window.location.reload()
         }
       } else {
-        setError('Invalid username or password')
+        setError(t("loginFailed"))
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+    } catch {
+      setError(t("loginError"))
     } finally {
       setLoading(false)
     }
@@ -67,9 +67,9 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
           className="min-h-screen flex flex-col items-center justify-center gap-4 bg-kumo-base px-4"
         >
           <p className="text-sm text-kumo-danger text-center">
-            Couldn&apos;t load deployment settings.
+            {t("loadSettingsFailed")}
           </p>
-          <Button variant="secondary" onClick={() => window.location.reload()}>Reload</Button>
+          <Button variant="secondary" onClick={() => window.location.reload()}>{t("reload")}</Button>
         </div>
       )
     }
@@ -77,7 +77,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-kumo-base px-4">
         <Loader size="lg" />
         <p className="text-sm text-kumo-subtle text-center">
-          {connectionLost ? "Can't reach the server. Retrying…" : 'Loading…'}
+          {connectionLost ? t("serverUnavailable") : t("loading")}
         </p>
       </div>
     )
@@ -120,7 +120,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
                 autoFocus
                 autoComplete="username"
                 disabled={loading}
-                placeholder="your-username"
+                placeholder={t("usernamePlaceholder")}
               />
 
               <Input
@@ -144,7 +144,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
                 loading={loading}
                 className="w-full justify-center"
               >
-                Sign in
+                {loading ? t("signingIn") : t("signIn")}
               </Button>
             </form>
 
@@ -163,7 +163,7 @@ export default function LoginPage({ rpcStub, onLoginSuccess }: LoginPageProps) {
             {passwordAuthEnabled && (
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-px flex-1 bg-kumo-line" />
-                <span className="text-xs text-kumo-subtle">or</span>
+                <span className="text-xs text-kumo-subtle">{t("or")}</span>
                 <div className="h-px flex-1 bg-kumo-line" />
               </div>
             )}

@@ -43,6 +43,7 @@ export default function AdminFormatsPanel({
   onChanged: () => Promise<void>
 }) {
   const { authenticatedApi } = useAuthenticatedApi()
+  const { language } = useI18n()
   const toasts = useKumoToastManager()
   const [busy, setBusy] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -82,7 +83,10 @@ export default function AdminFormatsPanel({
       await onChanged()
     } catch (err) {
       console.error('Format update failed:', err)
-      toasts.add({ title: "Couldn't update standard formats", variant: 'error' })
+      toasts.add({
+        title: language === 'th' ? 'ไม่สามารถอัปเดตรูปแบบมาตรฐานได้' : "Couldn't update standard formats",
+        variant: 'error',
+      })
     } finally {
       setBusy(false)
     }

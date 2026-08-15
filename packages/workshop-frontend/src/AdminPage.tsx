@@ -22,6 +22,24 @@ const ACCENT_PRESETS: { label: string; value: string }[] = [
   { label: 'Teal', value: '#0d9488' },
 ]
 
+const ACCENT_PRESET_LABELS_TH: Record<string, string> = {
+  Default: 'ค่าเริ่มต้น',
+  Blue: 'น้ำเงิน',
+  Green: 'เขียว',
+  Purple: 'ม่วง',
+  Pink: 'ชมพู',
+  Teal: 'เขียวน้ำทะเล',
+}
+
+const BANNER_COLOR_LABELS_TH: Record<BannerColor, string> = {
+  neutral: 'กลาง',
+  info: 'ข้อมูล',
+  success: 'สำเร็จ',
+  warning: 'คำเตือน',
+  danger: 'อันตราย',
+  brand: 'แบรนด์',
+}
+
 // Swatch background per banner color, matching AnnouncementBanner's accent styles.
 const BANNER_SWATCH: Record<BannerColor, string> = {
   neutral: 'var(--color-kumo-tint)',
@@ -38,7 +56,7 @@ export default function AdminPage() {
   const { language } = useI18n();
   const { authenticatedApi, isAdmin } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
-  useDocumentTitle('Admin')
+  useDocumentTitle(language === 'th' ? 'ผู้ดูแลระบบ' : 'Admin')
 
   // The admin capability (minted once via getAdminApi; null until loaded / for non-admins). Wrapped
   // in an object so useState doesn't treat the (callable) RPC stub as a state updater function.
@@ -176,7 +194,7 @@ export default function AdminPage() {
     try {
       await admin.api.setResourceEnabled(vendorId, urlPattern, enabled)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Update failed'
+      const message = language === 'th' ? 'อัปเดตทรัพยากรไม่สำเร็จ' : err instanceof Error ? err.message : 'Update failed'
       toasts.add({ title: message, variant: 'error' })
       await reloadResources().catch(() => {})
     } finally {
@@ -198,7 +216,7 @@ export default function AdminPage() {
     try {
       await admin.api.setGatekeeperMode(vendorId, enabled ? 'enabled' : 'disabled')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Update failed'
+      const message = language === 'th' ? 'อัปเดตตัวเชื่อมต่อไม่สำเร็จ' : err instanceof Error ? err.message : 'Update failed'
       toasts.add({ title: message, variant: 'error' })
       await reloadResources().catch(() => {})
     } finally {
@@ -220,7 +238,7 @@ export default function AdminPage() {
     try {
       await admin.api.setGatekeeperMode(vendorId, mode)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Update failed'
+      const message = language === 'th' ? 'อัปเดตโหมดตัวเชื่อมต่อไม่สำเร็จ' : err instanceof Error ? err.message : 'Update failed'
       toasts.add({ title: message, variant: 'error' })
       await reloadResources().catch(() => {})
     } finally {
@@ -238,9 +256,9 @@ export default function AdminPage() {
     try {
       await admin.api.setAnnouncement(announcementDraft)
       setSavedAnnouncement(announcementDraft)
-      toasts.add({ title: 'Announcement saved', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'บันทึกประกาศแล้ว' : 'Announcement saved', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save announcement'
+      const message = language === 'th' ? 'บันทึกประกาศไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to save announcement'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingAnnouncement(false)
@@ -256,9 +274,9 @@ export default function AdminPage() {
     try {
       await admin.api.setBanner(bannerTextDraft, bannerColorDraft)
       setSavedBanner({ text: bannerTextDraft, color: bannerColorDraft })
-      toasts.add({ title: 'Banner saved', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'บันทึกแถบประกาศแล้ว' : 'Banner saved', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save banner'
+      const message = language === 'th' ? 'บันทึกแถบประกาศไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to save banner'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingBanner(false)
@@ -273,9 +291,9 @@ export default function AdminPage() {
     try {
       await admin.api.setAccentColor(accentDraft)
       setSavedAccent(accentDraft)
-      toasts.add({ title: 'Accent color saved', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'บันทึกสีเน้นแล้ว' : 'Accent color saved', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save accent color'
+      const message = language === 'th' ? 'บันทึกสีเน้นไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to save accent color'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingAccent(false)
@@ -290,7 +308,7 @@ export default function AdminPage() {
       await admin.api.setSignupsEnabled(enabled)
     } catch (err) {
       setSignupsEnabled(!enabled) // revert
-      const message = err instanceof Error ? err.message : 'Update failed'
+      const message = language === 'th' ? 'อัปเดตการเปิดรับสมาชิกไม่สำเร็จ' : err instanceof Error ? err.message : 'Update failed'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingSignups(false)
@@ -303,9 +321,9 @@ export default function AdminPage() {
     try {
       await admin.api.setSiteName(siteNameDraft)
       setSavedSiteName(siteNameDraft)
-      toasts.add({ title: 'Site name saved', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'บันทึกชื่อเว็บไซต์แล้ว' : 'Site name saved', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save site name'
+      const message = language === 'th' ? 'บันทึกชื่อเว็บไซต์ไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to save site name'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingSiteName(false)
@@ -322,9 +340,9 @@ export default function AdminPage() {
       const data = await prepareSiteLogo(file)
       const logo = await admin.api.setSiteLogo(data)
       setSiteLogoUrl(logo ? cacheBustSiteLogoUrl(logo.url) : null)
-      toasts.add({ title: 'Logo saved', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'บันทึกโลโก้แล้ว' : 'Logo saved', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save logo'
+      const message = language === 'th' ? 'บันทึกโลโก้ไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to save logo'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingSiteLogo(false)
@@ -337,9 +355,9 @@ export default function AdminPage() {
     try {
       await admin.api.setSiteLogo(null)
       setSiteLogoUrl(null)
-      toasts.add({ title: 'Default logo restored', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'คืนค่าโลโก้เริ่มต้นแล้ว' : 'Default logo restored', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to remove logo'
+      const message = language === 'th' ? 'ลบโลโก้ไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to remove logo'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingSiteLogo(false)
@@ -352,9 +370,9 @@ export default function AdminPage() {
     try {
       await admin.api.setInstanceInstructions(instructionsDraft)
       setSavedInstructions(instructionsDraft)
-      toasts.add({ title: 'System prompt instructions saved', variant: 'success' })
+      toasts.add({ title: language === 'th' ? 'บันทึกคำสั่งระบบแล้ว' : 'System prompt instructions saved', variant: 'success' })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save instructions'
+      const message = language === 'th' ? 'บันทึกคำสั่งระบบไม่สำเร็จ' : err instanceof Error ? err.message : 'Failed to save instructions'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setSavingInstructions(false)
@@ -383,7 +401,7 @@ export default function AdminPage() {
       <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-8 py-16 text-center">
         <p className="text-sm text-kumo-danger">{language === "th" ? "เกิดข้อผิดพลาดในการโหลดการตั้งค่าผู้ดูแลระบบ" : "Something went wrong loading admin settings."}</p>
         <button onClick={() => window.location.reload()} className="text-kumo-brand mt-2 text-sm underline">
-          Try again
+          {language === 'th' ? 'ลองอีกครั้ง' : 'Try again'}
         </button>
       </div>
     )
@@ -470,7 +488,7 @@ export default function AdminPage() {
                 onClick={() => setSiteNameDraft(savedSiteName)}
                 disabled={savingSiteName}
               >
-                Reset
+                {language === 'th' ? 'คืนค่า' : 'Reset'}
               </Button>
             )}
             <Button
@@ -480,7 +498,7 @@ export default function AdminPage() {
               loading={savingSiteName}
               disabled={siteNameDraft === savedSiteName}
             >
-              Save
+              {language === 'th' ? 'บันทึก' : 'Save'}
             </Button>
           </div>
         </div>
@@ -525,7 +543,7 @@ export default function AdminPage() {
                   onClick={handleRemoveSiteLogo}
                   disabled={savingSiteLogo}
                 >
-                  Restore default
+                  {language === 'th' ? 'คืนค่าเริ่มต้น' : 'Restore default'}
                 </Button>
               )}
             </div>
@@ -560,7 +578,7 @@ export default function AdminPage() {
                     className="w-4 h-4 rounded-full border border-kumo-line"
                     style={{ background: swatch }}
                   />
-                  {preset.label}
+                  {language === 'th' ? ACCENT_PRESET_LABELS_TH[preset.label] : preset.label}
                 </button>
               )
             })}
@@ -577,7 +595,7 @@ export default function AdminPage() {
               {language === "th" ? "กำหนดเอง" : "Custom"}
             </label>
             <span className="text-xs font-mono text-kumo-subtle">
-              {accentDraft || `${DEFAULT_ACCENT_COLOR} (default)`}
+              {accentDraft || `${DEFAULT_ACCENT_COLOR} (${language === 'th' ? 'ค่าเริ่มต้น' : 'default'})`}
             </span>
             <div className="flex-1" />
             {accentDirty && (
@@ -587,7 +605,7 @@ export default function AdminPage() {
                 onClick={() => setAccentDraft(savedAccent)}
                 disabled={savingAccent}
               >
-                Reset
+                {language === 'th' ? 'คืนค่า' : 'Reset'}
               </Button>
             )}
             <Button
@@ -597,7 +615,7 @@ export default function AdminPage() {
               loading={savingAccent}
               disabled={!accentDirty}
             >
-              Save
+              {language === 'th' ? 'บันทึก' : 'Save'}
             </Button>
           </div>
         </div>
@@ -620,7 +638,9 @@ export default function AdminPage() {
             maxLength={MAX_ANNOUNCEMENT_LENGTH}
             error={
               bannerTextDraft.length > MAX_ANNOUNCEMENT_LENGTH
-                ? `Too long by ${bannerTextDraft.length - MAX_ANNOUNCEMENT_LENGTH} characters`
+                ? language === 'th'
+                  ? `ยาวเกินกำหนด ${bannerTextDraft.length - MAX_ANNOUNCEMENT_LENGTH} ตัวอักษร`
+                  : `Too long by ${bannerTextDraft.length - MAX_ANNOUNCEMENT_LENGTH} characters`
                 : undefined
             }
           />
@@ -646,7 +666,7 @@ export default function AdminPage() {
                         className="w-4 h-4 rounded-full border border-kumo-line"
                         style={{ background: BANNER_SWATCH[c] }}
                       />
-                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                      {language === 'th' ? BANNER_COLOR_LABELS_TH[c] : c.charAt(0).toUpperCase() + c.slice(1)}
                     </button>
                   )
                 })}
@@ -664,7 +684,7 @@ export default function AdminPage() {
                   }}
                   disabled={savingBanner}
                 >
-                  Reset
+                  {language === 'th' ? 'คืนค่า' : 'Reset'}
                 </Button>
               )}
               <Button
@@ -674,7 +694,7 @@ export default function AdminPage() {
                 loading={savingBanner}
                 disabled={!bannerDirty || bannerTextDraft.length > MAX_ANNOUNCEMENT_LENGTH}
               >
-                Save
+                {language === 'th' ? 'บันทึก' : 'Save'}
               </Button>
             </div>
           </div>
@@ -698,14 +718,16 @@ export default function AdminPage() {
             maxLength={MAX_ANNOUNCEMENT_LENGTH}
             error={
               announcementDraft.length > MAX_ANNOUNCEMENT_LENGTH
-                ? `Too long by ${announcementDraft.length - MAX_ANNOUNCEMENT_LENGTH} characters`
+                ? language === 'th'
+                  ? `ยาวเกินกำหนด ${announcementDraft.length - MAX_ANNOUNCEMENT_LENGTH} ตัวอักษร`
+                  : `Too long by ${announcementDraft.length - MAX_ANNOUNCEMENT_LENGTH} characters`
                 : undefined
             }
           />
 
           <div className="flex items-center justify-between mt-3">
             <span className="text-xs text-kumo-subtle">
-              {announcementDraft.length.toLocaleString()} / {MAX_ANNOUNCEMENT_LENGTH.toLocaleString()} characters
+              {announcementDraft.length.toLocaleString()} / {MAX_ANNOUNCEMENT_LENGTH.toLocaleString()} {language === 'th' ? 'ตัวอักษร' : 'characters'}
             </span>
             <div className="flex items-center gap-2">
               {announcementDraft !== savedAnnouncement && (
@@ -715,7 +737,7 @@ export default function AdminPage() {
                   onClick={() => setAnnouncementDraft(savedAnnouncement)}
                   disabled={savingAnnouncement}
                 >
-                  Reset
+                  {language === 'th' ? 'คืนค่า' : 'Reset'}
                 </Button>
               )}
               <Button
@@ -728,7 +750,7 @@ export default function AdminPage() {
                   announcementDraft.length > MAX_ANNOUNCEMENT_LENGTH
                 }
               >
-                Save
+                {language === 'th' ? 'บันทึก' : 'Save'}
               </Button>
             </div>
           </div>
@@ -752,14 +774,16 @@ export default function AdminPage() {
           maxLength={MAX_INSTANCE_INSTRUCTIONS_LENGTH}
           error={
             instructionsDraft.length > MAX_INSTANCE_INSTRUCTIONS_LENGTH
-              ? `Too long by ${instructionsDraft.length - MAX_INSTANCE_INSTRUCTIONS_LENGTH} characters`
+              ? language === 'th'
+                ? `ยาวเกินกำหนด ${instructionsDraft.length - MAX_INSTANCE_INSTRUCTIONS_LENGTH} ตัวอักษร`
+                : `Too long by ${instructionsDraft.length - MAX_INSTANCE_INSTRUCTIONS_LENGTH} characters`
               : undefined
           }
         />
 
         <div className="flex items-center justify-between mt-3">
           <span className="text-xs text-kumo-subtle">
-            {instructionsDraft.length.toLocaleString()} / {MAX_INSTANCE_INSTRUCTIONS_LENGTH.toLocaleString()} characters
+            {instructionsDraft.length.toLocaleString()} / {MAX_INSTANCE_INSTRUCTIONS_LENGTH.toLocaleString()} {language === 'th' ? 'ตัวอักษร' : 'characters'}
           </span>
           <div className="flex items-center gap-2">
             {instructionsDraft !== savedInstructions && (
@@ -769,7 +793,7 @@ export default function AdminPage() {
                 onClick={() => setInstructionsDraft(savedInstructions)}
                 disabled={savingInstructions}
               >
-                Reset
+                {language === 'th' ? 'คืนค่า' : 'Reset'}
               </Button>
             )}
             <Button
@@ -782,7 +806,7 @@ export default function AdminPage() {
                 instructionsDraft.length > MAX_INSTANCE_INSTRUCTIONS_LENGTH
               }
             >
-              Save
+              {language === 'th' ? 'บันทึก' : 'Save'}
             </Button>
           </div>
         </div>
