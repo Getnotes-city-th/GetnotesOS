@@ -8,7 +8,6 @@ import {
   Key,
   Trash,
   MagnifyingGlass,
-  Crown,
   Prohibit,
   CheckCircle,
   ArrowsClockwise,
@@ -212,8 +211,8 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
         </div>
 
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-500/10 text-amber-500">
-            <Crown size={24} weight="bold" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-kumo-warning-tint text-kumo-warning">
+            <ShieldCheck size={24} weight="bold" />
           </div>
           <div>
             <p className="text-xs font-medium text-kumo-subtle uppercase tracking-wider">
@@ -224,7 +223,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
         </div>
 
         <div className="bg-kumo-elevated border border-kumo-line rounded-xl p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-500/10 text-rose-500">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-kumo-danger-tint text-kumo-danger">
             <Prohibit size={24} weight="bold" />
           </div>
           <div>
@@ -248,8 +247,8 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
             onChange={(e) => setSearch(e.target.value)}
             placeholder={
               language === 'th'
-                ? 'ค้นหาตามชื่อ หรือ @username...'
-                : 'Search by name or @username...'
+                ? 'ค้นหาด้วยชื่อหรือ @username…'
+                : 'Search by name or @username…'
             }
             className="pl-9 w-full"
           />
@@ -273,12 +272,12 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-kumo-line bg-kumo-tint/50 text-kumo-subtle text-xs font-medium uppercase tracking-wider">
-                <th className="px-5 py-3.5">{language === 'th' ? 'ผู้ใช้งาน' : 'User'}</th>
-                <th className="px-5 py-3.5">{language === 'th' ? 'บทบาท' : 'Role'}</th>
-                <th className="px-5 py-3.5">{language === 'th' ? 'สถานะ' : 'Status'}</th>
-                <th className="px-5 py-3.5">{language === 'th' ? 'เข้าสู่ระบบล่าสุด' : 'Last Active'}</th>
-                <th className="px-5 py-3.5">{language === 'th' ? 'วันที่สมัคร' : 'Joined'}</th>
-                <th className="px-5 py-3.5 text-right">{language === 'th' ? 'จัดการ' : 'Actions'}</th>
+                <th scope="col" className="px-5 py-3.5">{language === 'th' ? 'ผู้ใช้' : 'User'}</th>
+                <th scope="col" className="px-5 py-3.5">{language === 'th' ? 'บทบาท' : 'Role'}</th>
+                <th scope="col" className="px-5 py-3.5">{language === 'th' ? 'สถานะ' : 'Status'}</th>
+                <th scope="col" className="px-5 py-3.5">{language === 'th' ? 'เข้าสู่ระบบล่าสุด' : 'Last Login'}</th>
+                <th scope="col" className="px-5 py-3.5">{language === 'th' ? 'วันที่สมัคร' : 'Joined'}</th>
+                <th scope="col" className="px-5 py-3.5 text-right">{language === 'th' ? 'จัดการ' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-kumo-line">
@@ -337,14 +336,14 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                       {/* Role Badge */}
                       <td className="px-5 py-3.5">
                         {user.isAdmin ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                            <Crown size={12} weight="fill" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-kumo-warning-tint text-kumo-warning border border-kumo-warning/20">
+                            <ShieldCheck size={12} weight="bold" />
                             {language === 'th' ? 'แอดมิน' : 'Admin'}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-kumo-tint text-kumo-subtle border border-kumo-line">
                             <User size={12} />
-                            {language === 'th' ? 'ผู้ใช้ทั่วไป' : 'Member'}
+                            {language === 'th' ? 'ผู้ใช้ทั่วไป' : 'User'}
                           </span>
                         )}
                       </td>
@@ -352,19 +351,19 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                       {/* Status Badge */}
                       <td className="px-5 py-3.5">
                         {user.suspended ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-kumo-danger-tint text-kumo-danger border border-kumo-danger/20">
                             <Prohibit size={12} weight="bold" />
                             {language === 'th' ? 'ถูกระงับ' : 'Suspended'}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-kumo-success-tint text-kumo-success border border-kumo-success/20">
                             <CheckCircle size={12} weight="fill" />
                             {language === 'th' ? 'ปกติ' : 'Active'}
                           </span>
                         )}
                       </td>
 
-                      {/* Last Active */}
+                      {/* Last Login */}
                       <td className="px-5 py-3.5 text-xs text-kumo-subtle whitespace-nowrap">
                         {formatDate(user.lastLoginAt)}
                       </td>
@@ -385,6 +384,11 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                                 size="sm"
                                 disabled={isBusy}
                                 icon={DotsThreeVertical}
+                                aria-label={
+                                  language === 'th'
+                                    ? `การดำเนินการสำหรับ @${user.username}`
+                                    : `Actions for @${user.username}`
+                                }
                                 className="!p-1.5 text-kumo-subtle hover:text-kumo-default"
                               />
                             )}
@@ -400,7 +404,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                             >
                               {user.isAdmin ? (
                                 <>
-                                  <ShieldSlash size={14} className="text-amber-500" />
+                                  <ShieldSlash size={14} className="text-kumo-warning" />
                                   <span>
                                     {language === 'th'
                                       ? 'ปลดสิทธิ์ผู้ดูแลระบบ'
@@ -409,7 +413,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                                 </>
                               ) : (
                                 <>
-                                  <ShieldCheck size={14} className="text-amber-500" />
+                                  <ShieldCheck size={14} className="text-kumo-warning" />
                                   <span>
                                     {language === 'th'
                                       ? 'แต่งตั้งเป็นผู้ดูแลระบบ'
@@ -439,12 +443,12 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                             >
                               {user.suspended ? (
                                 <>
-                                  <CheckCircle size={14} className="text-emerald-500" />
+                                  <CheckCircle size={14} className="text-kumo-success" />
                                   <span>{language === 'th' ? 'ปลดการระงับบัญชี' : 'Unsuspend Account'}</span>
                                 </>
                               ) : (
                                 <>
-                                  <Prohibit size={14} className="text-rose-500" />
+                                  <Prohibit size={14} className="text-kumo-danger" />
                                   <span>{language === 'th' ? 'ระงับบัญชี' : 'Suspend Account'}</span>
                                 </>
                               )}
@@ -454,7 +458,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
 
                             {/* Delete User */}
                             <DropdownMenu.Item
-                              className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-rose-500 hover:bg-rose-500/10"
+                              className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-kumo-danger hover:bg-kumo-danger-tint"
                               onClick={() => setDeleteModalUser(user)}
                             >
                               <Trash size={14} />

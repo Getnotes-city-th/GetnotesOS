@@ -392,9 +392,9 @@ export default function AdminPage() {
   return (
     <div className="mx-auto w-full max-w-[1040px] px-4 sm:px-8 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-kumo-default">{language === "th" ? "ผู้ดูแลระบบ (Admin)" : "Admin"}</h1>
+        <h1 className="text-2xl font-semibold text-kumo-default">{language === "th" ? "ผู้ดูแลระบบ" : "Admin"}</h1>
         <p className="text-sm text-kumo-subtle mt-1">
-          {language === "th" ? "การตั้งค่าระดับระบบ การเปลี่ยนแปลงจะมีผลกับผู้ใช้ทุกคนในการเชื่อมต่อครั้งถัดไป" : "Deployment-wide settings. Changes apply to all users on their next connection."}
+          {language === "th" ? "การตั้งค่าระดับระบบ การเปลี่ยนแปลงจะมีผลกับผู้ใช้ทุกคนเมื่อเชื่อมต่อครั้งถัดไป" : "Deployment-wide settings. Changes apply to all users on their next connection."}
         </p>
       </div>
 
