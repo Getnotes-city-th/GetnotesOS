@@ -524,7 +524,11 @@ for (const gk of gatekeepers) {
   // else falls back to the single-page app.
   if (serveFrontendAssets) {
     config.assets = {
-      directory: "../workshop-frontend/dist",
+      // Resolve from the repository root explicitly. Wrangler loads the generated backend
+      // config together with the root router config, so a relative path can otherwise be
+      // resolved against the wrong config file and silently fall back to the SPA HTML for
+      // JavaScript asset requests.
+      directory: join(WORKSHOP_BACKEND_DIR, "..", "workshop-frontend", "dist"),
       not_found_handling: "single-page-application",
       run_worker_first: ["/api", "/api/*", "/blueprint-screenshot/*"],
     };

@@ -102,10 +102,13 @@ export default function AdminFormatsPanel({
 
   return (
     <div className="rounded-xl border border-kumo-line bg-kumo-elevated p-6">
-      <h2 className="mb-1 text-lg font-semibold text-kumo-strong">Standard formats</h2>
+      <h2 className="mb-1 text-lg font-semibold text-kumo-strong">
+        {language === 'th' ? 'รูปแบบผลงานมาตรฐาน' : 'Standard formats'}
+      </h2>
       <p className="mb-5 text-sm text-kumo-subtle">
-        A promoted blueprint is offered by name (“New Doc”, “New Slides”) wherever people start
-        something, and the agent is told to prefer it over building the same thing from scratch.
+        {language === 'th'
+          ? 'พิมพ์เขียวที่โปรโมตจะแสดงเป็นตัวเลือกตามชื่อ (เช่น “สร้างเอกสารใหม่”, “สร้างสไลด์ใหม่”) ในทุกจุดที่ผู้ใช้เริ่มสร้างผลงาน และ AI Agent จะเลือกใช้ก่อนการสร้างใหม่ตั้งแต่ต้น'
+          : 'A promoted blueprint is offered by name (“New Doc”, “New Slides”) wherever people start something, and the agent is told to prefer it over building the same thing from scratch.'}
       </p>
 
       <PreviewStrip formats={offered} />
@@ -138,13 +141,13 @@ export default function AdminFormatsPanel({
           render={
             <Button variant="secondary" disabled={busy || available.length === 0}>
               <Plus size={14} className="mr-1.5" />
-              Promote a blueprint
+              {language === 'th' ? 'โปรโมตพิมพ์เขียว' : 'Promote a blueprint'}
             </Button>
           }
         />
         <DropdownMenu.Content className={MENU_CONTENT}>
           <p className="px-2 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
-            Offer as a standard format
+            {language === 'th' ? 'เสนอเป็นรูปแบบมาตรฐาน' : 'Offer as a standard format'}
           </p>
           {available.map((candidate) => (
             <DropdownMenu.Item
@@ -155,12 +158,16 @@ export default function AdminFormatsPanel({
               <FormatGlyph output={candidate.declared} size="lg" className="shrink-0 text-kumo-subtle" />
               <span className="min-w-0">
                 <span className="block truncate text-[13px] text-kumo-default">
-                  {candidate.title || 'Untitled blueprint'}
+                  {candidate.title || (language === 'th' ? 'พิมพ์เขียวไม่มีชื่อ' : 'Untitled blueprint')}
                 </span>
                 <span className="block truncate text-[11px] text-kumo-inactive">
                   {candidate.declared
-                    ? `Produces ${candidate.declared.plural}`
-                    : 'No declared format. You’ll name it.'}
+                    ? language === 'th'
+                      ? `สร้าง${candidate.declared.plural}`
+                      : `Produces ${candidate.declared.plural}`
+                    : language === 'th'
+                      ? 'ยังไม่ได้ระบุรูปแบบ คุณจะเป็นผู้ตั้งชื่อ'
+                      : 'No declared format. You’ll name it.'}
                 </span>
               </span>
             </DropdownMenu.Item>
@@ -191,13 +198,13 @@ function PreviewStrip({ formats }: { formats: AdminFormat[] }) {
               className="flex items-center gap-2 rounded-full border border-kumo-line bg-kumo-base px-3.5 py-2 text-[13px] leading-[18px] tracking-[-0.25px] text-kumo-default"
             >
               <FormatGlyph output={format.output} size="md" className="text-kumo-subtle" />
-              New {format.output!.noun}
+              {language === 'th' ? 'สร้าง' : 'New'} {format.output!.noun}
             </span>
           ))}
         </div>
       )}
       <p className="mt-2.5 text-[12px] leading-4 text-kumo-subtle">
-        {language === "th" ? "จะแสดงในเมนู + ของกล่องข้อความ, Command Palette (⌘K) และหน้าผลงานว่าง ตามลำดับนี้" : "In the composer’s + menu, the command palette, and on an empty Outputs page, in this order."}
+        {language === "th" ? "จะแสดงในเมนู + ของกล่องข้อความ เมนูคำสั่ง (⌘K) และหน้าผลงานว่าง ตามลำดับนี้" : "In the composer’s + menu, the command palette, and on an empty Outputs page, in this order."}
       </p>
     </div>
   )
@@ -252,7 +259,7 @@ function FormatRow({
           {format.missing ? (
             <span
               className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-kumo-tint text-kumo-danger"
-              title="This blueprint no longer exists"
+              title={language === 'th' ? 'ไม่พบพิมพ์เขียวนี้แล้ว' : 'This blueprint no longer exists'}
             >
               <Warning size={16} />
             </span>
@@ -265,17 +272,25 @@ function FormatRow({
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-2">
               <span className="truncate text-sm font-medium text-kumo-default">
-                {format.output ? `New ${format.output.noun}` : format.blueprintTitle || format.blueprintId}
+                {format.output
+                  ? `${language === 'th' ? 'สร้าง' : 'New'} ${format.output.noun}`
+                  : format.blueprintTitle || format.blueprintId}
               </span>
-              {format.bundled && <Badge>Bundled</Badge>}
-              {!format.enabled && !format.missing && <Badge>Off</Badge>}
-              {needsNaming && <Badge tone="warn">Needs a name</Badge>}
+              {format.bundled && <Badge>{language === 'th' ? 'รวมมาในระบบ' : 'Bundled'}</Badge>}
+              {!format.enabled && !format.missing && <Badge>{language === 'th' ? 'ปิด' : 'Off'}</Badge>}
+              {needsNaming && <Badge tone="warn">{language === 'th' ? 'ต้องตั้งชื่อ' : 'Needs a name'}</Badge>}
             </span>
             <span className="mt-0.5 block truncate text-xs text-kumo-subtle">
               {format.missing
-                ? 'Blueprint deleted. Remove this entry.'
+                ? language === 'th'
+                  ? 'พิมพ์เขียวถูกลบแล้ว ลบรายการนี้ออก'
+                  : 'Blueprint deleted. Remove this entry.'
                 : needsNaming
-                ? 'This blueprint doesn’t declare what it produces. Give it a name to offer it.'
+                ? language === 'th'
+                  ? 'พิมพ์เขียวนี้ไม่ได้ระบุว่าจะสร้างผลงานประเภทใด ตั้งชื่อเพื่อเปิดให้ผู้ใช้เลือกได้'
+                  : 'This blueprint doesn’t declare what it produces. Give it a name to offer it.'
+                : language === 'th'
+                ? `${format.blueprintTitle} · แสดงในหมวด ${format.output!.plural} บนหน้าผลงาน`
                 : `${format.blueprintTitle} · shown under ${format.output!.plural} on Outputs`}
             </span>
           </span>
@@ -292,10 +307,10 @@ function FormatRow({
             open ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'
           }`}
         >
-          <IconButton label="Move up" disabled={busy || isFirst} onClick={() => onMove(-1)}>
+          <IconButton label={language === 'th' ? 'เลื่อนขึ้น' : 'Move up'} disabled={busy || isFirst} onClick={() => onMove(-1)}>
             <ArrowUp size={13} />
           </IconButton>
-          <IconButton label="Move down" disabled={busy || isLast} onClick={() => onMove(1)}>
+          <IconButton label={language === 'th' ? 'เลื่อนลง' : 'Move down'} disabled={busy || isLast} onClick={() => onMove(1)}>
             <ArrowDown size={13} />
           </IconButton>
         </div>
@@ -311,21 +326,23 @@ function FormatRow({
         <div className="flex flex-col gap-4 border-t border-kumo-line px-3 py-4">
           {format.missing ? (
             <p className="text-[13px] text-kumo-subtle">
-              The blueprint behind this format was deleted, so nobody is offered it. Remove the
-              entry.
+              {language === 'th'
+                ? 'พิมพ์เขียวของรูปแบบนี้ถูกลบแล้ว จึงไม่มีใครเห็นตัวเลือกนี้ ลบรายการออกได้เลย'
+                : 'The blueprint behind this format was deleted, so nobody is offered it. Remove the entry.'}
             </p>
           ) : (
             <>
               <Fieldset
-                title="How it’s presented"
+                title={language === 'th' ? 'การแสดงผล' : 'How it’s presented'}
                 detail={
-                  'Leave a field empty to use the name the blueprint declares. ' +
-                  (format.bundled
-                    ? 'A bundled blueprint can change its declared names when this deployment ' +
-                      'updates; a value you type here stays as you set it. '
-                    : '') +
-                  'Applies to outputs made from now on — existing ones keep the name they were ' +
-                  'made with.'
+                  language === 'th'
+                    ? 'เว้นช่องว่างเพื่อใช้ชื่อที่พิมพ์เขียวกำหนดไว้ การเปลี่ยนแปลงจะมีผลกับผลงานที่สร้างใหม่เท่านั้น ผลงานเดิมจะคงชื่อเดิมไว้'
+                    : 'Leave a field empty to use the name the blueprint declares. ' +
+                      (format.bundled
+                        ? 'A bundled blueprint can change its declared names when this deployment ' +
+                          'updates; a value you type here stays as you set it. '
+                        : '') +
+                      'Applies to outputs made from now on — existing ones keep the name they were made with.'
                 }
               >
                 <div className="flex items-center gap-4">
@@ -342,14 +359,14 @@ function FormatRow({
                       onPick={(icon) => onPatch({ overrides: { icon } })}
                     />
                     <OverrideField
-                      label="Name"
+                      label={language === 'th' ? 'ชื่อเรียก' : 'Name'}
                       value={format.output?.noun ?? format.overrides?.noun ?? ''}
                       declared={format.declared?.noun}
                       disabled={busy}
                       onCommit={(noun) => onPatch({ overrides: { noun } })}
                     />
                     <OverrideField
-                      label="Plural"
+                      label={language === 'th' ? 'ชื่อพหูพจน์' : 'Plural'}
                       value={format.output?.plural ?? format.overrides?.plural ?? ''}
                       declared={format.declared?.plural}
                       disabled={busy}
@@ -363,7 +380,7 @@ function FormatRow({
                   <figure className="hidden shrink-0 flex-col items-center gap-1.5 sm:flex">
                     <FormatPreview output={format.output} width={112} />
                     <figcaption className="text-[10px] uppercase tracking-[0.06em] text-kumo-inactive">
-                      On Outputs
+                      {language === 'th' ? 'บนหน้าผลงาน' : 'On Outputs'}
                     </figcaption>
                   </figure>
                 </div>
@@ -374,8 +391,8 @@ function FormatRow({
                 detail={language === "th" ? "รูปแบบมาตรฐานจะแสดงเป็นอันดับแรกในคลังของ AI Agent เพิ่มคำแนะนำเพิ่มเติมหากต้องการให้ AI ทราบว่าควรเลือกรูปแบบนี้ในสถานการณ์ใด" : "Standard formats are listed first in the agent’s catalog, as the entry below — the blueprint’s own description does most of the work. Add a hint only if the agent needs to know when to prefer this format over another one."}
               >
                 <OverrideField
-                  label="Hint"
-                  placeholder="e.g. prefer for customer-facing decks"
+                  label={language === 'th' ? 'คำแนะนำ' : 'Hint'}
+                  placeholder={language === 'th' ? 'เช่น เลือกใช้กับสไลด์สำหรับลูกค้า' : 'e.g. prefer for customer-facing decks'}
                   value={format.agentHint}
                   disabled={busy}
                   onCommit={(agentHint) => onPatch({ agentHint: agentHint ?? '' })}
@@ -407,12 +424,15 @@ function FormatRow({
                   result. The backend refuses it too -- this is an RPC. */}
               <div className="flex items-end justify-between gap-4 border-t border-kumo-line pt-3">
                 <p className="text-[12px] leading-4 text-kumo-subtle">
-                  {(format.enabled
-                    ? 'Turning this off removes it from the menus above and from the agent’s catalog. Outputs already made from it keep working. '
-                    : 'Currently hidden from the menus above and from the agent’s catalog. ') +
-                    (format.bundled
-                      ? 'It ships with the deployment, so it stays in this list either way.'
-                      : '')}
+                  {language === 'th'
+                    ? (format.enabled
+                        ? 'การปิดจะนำรูปแบบนี้ออกจากเมนูด้านบนและคลังของ AI Agent ผลงานที่สร้างไว้แล้วจะยังใช้งานได้ตามปกติ '
+                        : 'ขณะนี้ซ่อนจากเมนูด้านบนและคลังของ AI Agent ') +
+                      (format.bundled ? 'รูปแบบนี้ติดมากับระบบ จึงยังคงอยู่ในรายการนี้' : '')
+                    : (format.enabled
+                        ? 'Turning this off removes it from the menus above and from the agent’s catalog. Outputs already made from it keep working. '
+                        : 'Currently hidden from the menus above and from the agent’s catalog. ') +
+                      (format.bundled ? 'It ships with the deployment, so it stays in this list either way.' : '')}
                 </p>
                 {!format.bundled && (
                   <Button variant="secondary" disabled={busy} onClick={onRemove}>
@@ -486,6 +506,7 @@ function OverrideField({
   disabled?: boolean
   onCommit: (value: string | null) => void
 }) {
+  const { language } = useI18n()
   const [draft, setDraft] = useState(value)
   useEffect(() => setDraft(value), [value])
 
@@ -502,7 +523,9 @@ function OverrideField({
       <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
         {label}
         {overridden && (
-          <span className="ml-1 normal-case tracking-normal text-kumo-subtle">(overridden)</span>
+          <span className="ml-1 normal-case tracking-normal text-kumo-subtle">
+            ({language === 'th' ? 'แทนค่าหลัก' : 'overridden'})
+          </span>
         )}
       </span>
       <Input
@@ -533,10 +556,11 @@ function IconPicker({
   disabled?: boolean
   onPick: (icon: OutputIcon | null) => void
 }) {
+  const { language } = useI18n()
   return (
     <label className="flex flex-col gap-1">
       <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-kumo-inactive">
-        Icon
+        {language === 'th' ? 'ไอคอน' : 'Icon'}
       </span>
       <DropdownMenu>
         <DropdownMenu.Trigger
@@ -544,7 +568,7 @@ function IconPicker({
             <button
               type="button"
               disabled={disabled}
-              aria-label="Choose icon"
+              aria-label={language === 'th' ? 'เลือกไอคอน' : 'Choose icon'}
               className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-kumo-line bg-kumo-base text-kumo-subtle transition-colors hover:text-kumo-default disabled:cursor-default"
             >
               <FormatGlyph output={selected && { ...GENERIC_OUTPUT, icon: selected }} size="lg" />
