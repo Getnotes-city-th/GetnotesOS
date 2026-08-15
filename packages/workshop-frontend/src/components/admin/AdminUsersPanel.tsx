@@ -28,6 +28,9 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
   const [users, setUsers] = useState<AdminUserSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all')
+  const [sortBy, setSortBy] = useState<'recent' | 'name' | 'joined'>('recent')
   const [busyUser, setBusyUser] = useState<string | null>(null)
 
   // Password reset modal state
@@ -59,13 +62,21 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
 
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return users
-    return users.filter(
-      (u) =>
-        u.username.toLowerCase().includes(q) ||
-        (u.displayName && u.displayName.toLowerCase().includes(q))
-    )
-  }, [users, search])
+    return users
+      .filter((u) => {
+        if (roleFilter === 'admin' && !u.isAdmin) return false
+        if (roleFilter === 'user' && u.isAdmin) return false
+        if (statusFilter === 'active' && u.suspended) return false
+        if (statusFilter === 'suspended' && !u.suspended) return false
+        if (!q) return true
+        return u.username.toLowerCase().includes(q) || (u.displayName && u.displayName.toLowerCase().includes(q))
+      })
+      .sort((a, b) => {
+        if (sortBy === 'name') return (a.displayName || a.username).localeCompare(b.displayName || b.username)
+        if (sortBy === 'joined') return b.createdAt.localeCompare(a.createdAt)
+        return (b.lastLoginAt || '').localeCompare(a.lastLoginAt || '')
+      })
+  }, [users, search, roleFilter, statusFilter, sortBy])
 
   const totalUsers = users.length
   const totalAdmins = users.filter((u) => u.isAdmin).length
@@ -252,6 +263,39 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
             }
             className="pl-9 w-full"
           />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as typeof roleFilter)}
+            className="h-9 rounded-md border border-kumo-line bg-kumo-elevated px-2.5 text-xs text-kumo-default"
+            aria-label={language === 'th' ? 'กรองบทบาท' : 'Filter role'}
+          >
+            <option value="all">{language === 'th' ? 'ทุกบทบาท' : 'All roles'}</option>
+            <option value="admin">{language === 'th' ? 'แอดมิน' : 'Admins'}</option>
+            <option value="user">{language === 'th' ? 'ผู้ใช้ทั่วไป' : 'Users'}</option>
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+            className="h-9 rounded-md border border-kumo-line bg-kumo-elevated px-2.5 text-xs text-kumo-default"
+            aria-label={language === 'th' ? 'กรองสถานะ' : 'Filter status'}
+          >
+            <option value="all">{language === 'th' ? 'ทุกสถานะ' : 'All statuses'}</option>
+            <option value="active">{language === 'th' ? 'ปกติ' : 'Active'}</option>
+            <option value="suspended">{language === 'th' ? 'ถูกระงับ' : 'Suspended'}</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="h-9 rounded-md border border-kumo-line bg-kumo-elevated px-2.5 text-xs text-kumo-default"
+            aria-label={language === 'th' ? 'เรียงผู้ใช้' : 'Sort users'}
+          >
+            <option value="recent">{language === 'th' ? 'เข้าสู่ระบบล่าสุด' : 'Most recent login'}</option>
+            <option value="name">{language === 'th' ? 'ชื่อ' : 'Name'}</option>
+            <option value="joined">{language === 'th' ? 'วันที่สมัคร' : 'Joined date'}</option>
+          </select>
         </div>
 
         <Button

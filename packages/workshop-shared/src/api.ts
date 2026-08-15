@@ -1031,6 +1031,9 @@ export interface AdminApi {
 
   /** Delete a user account and purge all their workspaces and data. */
   deleteUser(username: string): Promise<void>;
+
+  /** List recent administrative actions for deployment accountability. */
+  listAuditLog(limit?: number): Promise<AdminAuditEvent[]>;
 }
 
 /** Summary of a user account for the admin User Management panel. */
@@ -1047,6 +1050,22 @@ export type AdminUserSummary = {
   isAdmin: boolean;
   /** Whether the user is currently suspended from logging in. */
   suspended: boolean;
+};
+
+/** One administrative action recorded for the deployment audit trail. */
+export type AdminAuditEvent = {
+  /** Stable event identifier. */
+  id: string;
+  /** Username of the admin who performed the action. */
+  actor: string;
+  /** Machine-readable action name, e.g. "user.suspend" or "settings.banner". */
+  action: string;
+  /** Optional user, connector, or format affected by the action. */
+  target?: string;
+  /** Short non-sensitive context for the admin UI. */
+  detail?: string;
+  /** ISO timestamp when the action was recorded. */
+  occurredAt: string;
 };
 
 /** A partial edit to one promoted format. Absent fields are left alone. */

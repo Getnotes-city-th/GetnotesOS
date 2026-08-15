@@ -1,4 +1,4 @@
-import { AdminApi, AdminFormat, AdminFormatPatch, AdminResourceVendor, AdminSettingsView, AdminUserSummary, AmbientGatekeeperMode, BannerColor, BlueprintPublicInfo, MAX_ANNOUNCEMENT_LENGTH, MAX_INSTANCE_INSTRUCTIONS_LENGTH, MAX_SITE_NAME_LENGTH, isAmbientGatekeeperMode, isBannerColor, isHexColor } from '@gadgets/workshop-shared/api';
+import { AdminApi, AdminAuditEvent, AdminFormat, AdminFormatPatch, AdminResourceVendor, AdminSettingsView, AdminUserSummary, AmbientGatekeeperMode, BannerColor, BlueprintPublicInfo, MAX_ANNOUNCEMENT_LENGTH, MAX_INSTANCE_INSTRUCTIONS_LENGTH, MAX_SITE_NAME_LENGTH, isAmbientGatekeeperMode, isBannerColor, isHexColor } from '@gadgets/workshop-shared/api';
 import { GatekeeperVendor } from '@gadgets/workshop-shared/gatekeeper';
 import { DurableObject } from 'cloudflare:workers';
 import { RpcTarget } from 'capnweb';
@@ -25,6 +25,8 @@ export type AdminUserRecord = {
   suspended?: boolean;
 };
 
+type AdminAuditEventRecord = AdminAuditEvent;
+
 function makeAdminSettingsStorage(storage: DurableObjectStorage) {
   return createTypedStorage(storage, {
     collections: {
@@ -36,6 +38,14 @@ function makeAdminSettingsStorage(storage: DurableObjectStorage) {
       // Registry of all registered users on this deployment.
       users: collection<AdminUserRecord>()({
         primaryKey: 'username',
+      }),
+      // Append-only record of deployment-wide admin actions. The index keeps the UI query cheap
+      // while retaining the event id as the primary key for collision-free writes.
+      auditEvents: collection<AdminAuditEventRecord>()({
+        primaryKey: 'id',
+        nonUniqueIndexes: {
+          byOccurredAt: (event: AdminAuditEventRecord) => event.occurredAt,
+        },
       }),
     },
     singletons: {
@@ -333,6 +343,29 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
       resourceVendors: await this.#listResourceConfig(config, adminUserId),
       formats: await this.#listFormatConfig(config),
     };
+  }
+
+  /** Record a short, non-sensitive administrative event for the audit trail. */
+  async recordAudit(actor: string, action: string, target?: string, detail?: string): Promise<void> {
+    const occurredAt = new Date().toISOString();
+    this.storage.auditEvents.put({
+      id: `${occurredAt}:${crypto.randomUUID()}`,
+      actor: actor || 'system',
+      action,
+      target,
+      detail,
+      occurredAt,
+    });
+    // Keep the append-only trail bounded. The UI exposes at most 200 newest events, while a
+    // slightly larger retention window preserves enough context for an investigation.
+    const retained = [...this.storage.auditEvents.byOccurredAt.list({ reverse: true, limit: 501 })];
+    for (const oldEvent of retained.slice(500)) this.storage.auditEvents.delete(oldEvent.id);
+  }
+
+  /** Return the newest audit events first, capped to protect the admin UI and RPC payload. */
+  listAuditLog(limit = 100): AdminAuditEvent[] {
+    const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.min(Math.floor(limit), 200)) : 100;
+    return [...this.storage.auditEvents.byOccurredAt.list({ reverse: true, limit: safeLimit })];
   }
 
   // --- Standard output formats ---
@@ -637,10 +670,23 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
     }));
   }
 
+  #adminUsernames(): Set<string> {
+    let envAdmins = Array.isArray(this.env.ADMINS) ? (this.env.ADMINS as string[]) : [];
+    let configAdmins = this.storage.adminConfig.get().admins ?? [];
+    let admins = new Set([...envAdmins, ...configAdmins]);
+    for (let user of this.storage.users.list()) {
+      if (user.isAdmin) admins.add(user.username);
+    }
+    return admins;
+  }
+
   /**
    * Grant or revoke deployment admin rights for a user.
    */
   async setUserAdmin(username: string, isAdmin: boolean): Promise<void> {
+    if (!isAdmin && this.#adminUsernames().size <= 1) {
+      throw new Error('Cannot revoke the last administrator.');
+    }
     let user = this.storage.users.get(username);
     if (user) {
       this.storage.users.put({ ...user, isAdmin });
@@ -678,6 +724,9 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
    * Delete a user account.
    */
   async deleteUser(username: string): Promise<void> {
+    if (this.#adminUsernames().has(username) && this.#adminUsernames().size <= 1) {
+      throw new Error('Cannot delete the last administrator.');
+    }
     this.storage.users.delete(username);
     let admins = new Set(this.storage.adminConfig.get().admins ?? []);
     admins.delete(username);
@@ -704,12 +753,17 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
     super();
   }
 
+  private audit(action: string, target?: string, detail?: string): Promise<void> {
+    return this.admin.recordAudit(this.adminUserId, action, target, detail);
+  }
+
   getSettings(): Promise<AdminSettingsView> {
     return this.admin.getSettings(this.adminUserId);
   }
 
   async setSignupsEnabled(enabled: boolean): Promise<void> {
     await this.admin.updateAdminConfig({ signupsEnabled: enabled });
+    await this.audit('settings.signups', undefined, enabled ? 'enabled' : 'disabled');
   }
 
   async setSiteName(name: string): Promise<void> {
@@ -717,11 +771,14 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
       throw new Error(`Site name too long (max ${MAX_SITE_NAME_LENGTH} characters).`);
     }
     await this.admin.updateAdminConfig({ siteName: name });
+    await this.audit('settings.siteName');
   }
 
   async setSiteLogo(data: Uint8Array | null): Promise<AdminSettingsView['siteLogo']> {
     if (data !== null) validateSiteLogo(data);
-    return siteLogoImage(await this.admin.setSiteLogo(data));
+    const result = siteLogoImage(await this.admin.setSiteLogo(data));
+    await this.audit('settings.logo', undefined, data === null ? 'reset' : 'updated');
+    return result;
   }
 
   async setInstanceInstructions(text: string): Promise<void> {
@@ -729,17 +786,20 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
       throw new Error(`Instructions too long (max ${MAX_INSTANCE_INSTRUCTIONS_LENGTH} characters).`);
     }
     await this.admin.updateAdminConfig({ instanceInstructions: text });
+    await this.audit('settings.instructions');
   }
 
   setResourceEnabled(vendorId: string, urlPattern: string, enabled: boolean): Promise<void> {
-    return this.admin.setResourceEnabled(vendorId, urlPattern, enabled);
+    return this.admin.setResourceEnabled(vendorId, urlPattern, enabled)
+      .then(() => this.audit('connector.resource', `${vendorId}:${urlPattern}`, enabled ? 'enabled' : 'disabled'));
   }
 
   setGatekeeperMode(vendorId: string, mode: AmbientGatekeeperMode): Promise<void> {
     if (!isAmbientGatekeeperMode(mode)) {
       throw new Error(`Invalid gatekeeper mode: ${mode}`);
     }
-    return this.admin.setGatekeeperMode(vendorId, mode);
+    return this.admin.setGatekeeperMode(vendorId, mode)
+      .then(() => this.audit('connector.mode', vendorId, mode));
   }
 
   async setAnnouncement(text: string): Promise<void> {
@@ -747,6 +807,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
       throw new Error(`Announcement too long (max ${MAX_ANNOUNCEMENT_LENGTH} characters).`);
     }
     await this.admin.updateAdminConfig({ announcement: text });
+    await this.audit('settings.announcement');
   }
 
   async setBanner(text: string, color: BannerColor): Promise<void> {
@@ -757,6 +818,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
       throw new Error(`Invalid banner color: ${color}`);
     }
     await this.admin.updateAdminConfig({ banner: { text, color } });
+    await this.audit('settings.banner', undefined, text ? color : 'cleared');
   }
 
   async setAccentColor(color: string): Promise<void> {
@@ -764,6 +826,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
       throw new Error(`Invalid accent color: ${color}`);
     }
     await this.admin.updateAdminConfig({ accentColor: color });
+    await this.audit('settings.accentColor');
   }
 
   isBlueprintFeatured(blueprintId: string): Promise<boolean | null> {
@@ -771,23 +834,28 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   setBlueprintFeatured(blueprintId: string, featured: boolean): Promise<void> {
-    return this.admin.setBlueprintFeatured(blueprintId, featured);
+    return this.admin.setBlueprintFeatured(blueprintId, featured)
+      .then(() => this.audit('blueprint.featured', blueprintId, featured ? 'enabled' : 'disabled'));
   }
 
   promoteFormat(blueprintId: string): Promise<void> {
-    return this.admin.promoteFormat(blueprintId);
+    return this.admin.promoteFormat(blueprintId)
+      .then(() => this.audit('format.promote', blueprintId));
   }
 
   removeFormat(blueprintId: string): Promise<void> {
-    return this.admin.removeFormat(blueprintId);
+    return this.admin.removeFormat(blueprintId)
+      .then(() => this.audit('format.remove', blueprintId));
   }
 
   updateFormat(blueprintId: string, patch: AdminFormatPatch): Promise<void> {
-    return this.admin.updateFormat(blueprintId, patch);
+    return this.admin.updateFormat(blueprintId, patch)
+      .then(() => this.audit('format.update', blueprintId));
   }
 
   setFormatOrder(blueprintIds: string[]): Promise<void> {
-    return this.admin.setFormatOrder(blueprintIds);
+    return this.admin.setFormatOrder(blueprintIds)
+      .then(() => this.audit('format.reorder', undefined, `${blueprintIds.length} formats`));
   }
 
   listUsers(): Promise<AdminUserSummary[]> {
@@ -796,17 +864,28 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
 
   async setUserAdmin(username: string, isAdmin: boolean): Promise<void> {
     await this.admin.setUserAdmin(username, isAdmin);
+    await this.audit('user.role', username, isAdmin ? 'admin' : 'user');
   }
 
   async setUserSuspended(username: string, suspended: boolean): Promise<void> {
     await this.admin.setUserSuspended(username, suspended);
+    await this.audit('user.suspension', username, suspended ? 'suspended' : 'active');
   }
 
   async resetUserPassword(username: string, newPasswordHash: Uint8Array): Promise<void> {
     await this.admin.resetUserPassword(username, newPasswordHash);
+    await this.audit('user.passwordReset', username);
   }
 
   async deleteUser(username: string): Promise<void> {
     await this.admin.deleteUser(username);
+    await this.audit('user.delete', username);
+  }
+
+  listAuditLog(limit?: number): Promise<AdminAuditEvent[]> {
+    const safeLimit = limit === undefined || !Number.isFinite(limit)
+      ? 100
+      : Math.max(1, Math.min(Math.floor(limit), 200));
+    return Promise.resolve(this.admin.listAuditLog(safeLimit));
   }
 }

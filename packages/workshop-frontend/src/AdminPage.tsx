@@ -11,6 +11,8 @@ import SiteLogo from './components/SiteLogo'
 import { useDocumentTitle } from './useDocumentTitle'
 import AdminFormatsPanel from './components/format/AdminFormatsPanel'
 import AdminUsersPanel from './components/admin/AdminUsersPanel'
+import AdminOverviewPanel from './components/admin/AdminOverviewPanel'
+import AdminAuditLogPanel from './components/admin/AdminAuditLogPanel'
 
 // Preset accent colors offered in the Theme section ('' = default brand).
 const ACCENT_PRESETS: { label: string; value: string }[] = [
@@ -103,7 +105,7 @@ export default function AdminPage() {
   const [resourceVendors, setResourceVendors] = useState<AdminResourceVendor[]>([])
   const [resourceBusy, setResourceBusy] = useState<Set<string>>(new Set())
 
-  const [activeTab, setActiveTab] = useState('general')
+  const [activeTab, setActiveTab] = useState('overview')
 
   // Promoted output formats, in menu order (see AdminFormatsPanel).
   const [formats, setFormats] = useState<AdminFormat[]>([])
@@ -421,17 +423,29 @@ export default function AdminPage() {
         value={activeTab}
         onValueChange={setActiveTab}
         tabs={[
+          { value: 'overview', label: language === "th" ? "ภาพรวม" : "Overview" },
           { value: 'general', label: language === "th" ? "ทั่วไป" : "General" },
           { value: 'users', label: language === "th" ? "จัดการผู้ใช้" : "Users" },
+          { value: 'audit', label: language === "th" ? "ประวัติการทำรายการ" : "Audit log" },
           { value: 'gatekeepers', label: language === "th" ? "ตัวเชื่อมต่อ" : "Gatekeepers" },
           { value: 'formats', label: language === "th" ? "รูปแบบผลงาน" : "Formats" },
           { value: 'access', label: language === "th" ? "การเข้าถึงและสิทธิ์" : "Access" },
         ]}
       />
 
+      {/* Deployment overview */}
+      {activeTab === 'overview' && admin && (
+        <AdminOverviewPanel admin={admin.api} />
+      )}
+
       {/* Users management */}
       {activeTab === 'users' && admin && (
         <AdminUsersPanel admin={admin.api} />
+      )}
+
+      {/* Administrative audit trail */}
+      {activeTab === 'audit' && admin && (
+        <AdminAuditLogPanel admin={admin.api} />
       )}
 
       {/* Standard output formats */}
