@@ -8,7 +8,7 @@
 // changed by a compromised admin session. Everything here is enabled by default; the admin UI opts
 // things *out*.
 
-import { AmbientGatekeeperMode, BannerConfig, BlueprintBinding, BlueprintMetadata, BlueprintOutput, DEFAULT_BANNER_COLOR, OutputFormatOffer, isAmbientGatekeeperMode, isBannerColor, isOutputIcon } from "@gadgets/workshop-shared/api";
+import { AdminRole, AmbientGatekeeperMode, BannerConfig, BlueprintBinding, BlueprintMetadata, BlueprintOutput, DEFAULT_BANNER_COLOR, OutputFormatOffer, isAmbientGatekeeperMode, isBannerColor, isOutputIcon } from "@gadgets/workshop-shared/api";
 import { SupportedResource } from "@gadgets/workshop-shared/gatekeeper";
 import { ADMIN_CONFIG_KEY, BlueprintKvEnv, readBlueprintKvRecord, sanitizeBlueprintOutput } from "./blueprint-archive.js";
 
@@ -57,6 +57,10 @@ export type AdminConfig = {
 
   /** Additional deployment admin usernames configured in settings. */
   admins?: string[];
+  /** Explicit owner; when absent, the first environment admin is treated as owner. */
+  owner?: string;
+  /** Roles for users managed through the admin console. */
+  userRoles?: Record<string, AdminRole>;
 };
 
 /**
@@ -284,6 +288,15 @@ function strings(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
+function userRoles(value: unknown): Record<string, AdminRole> {
+  if (!value || typeof value !== "object") return {};
+  let roles: Record<string, AdminRole> = {};
+  for (let [username, role] of Object.entries(value)) {
+    if (role === "owner" || role === "admin" || role === "support") roles[username] = role;
+  }
+  return roles;
+}
+
 export function parseAdminConfig(raw: string | null): AdminConfig {
   if (!raw) return { ...DEFAULT_ADMIN_CONFIG };
   try {
@@ -317,6 +330,8 @@ export function parseAdminConfig(raw: string | null): AdminConfig {
       ambientGatekeeperModes,
       formats: parseFormats(p.formats),
       admins: strings(p.admins),
+      owner: typeof p.owner === "string" && p.owner ? p.owner : undefined,
+      userRoles: userRoles(p.userRoles),
     };
   } catch {
     return { ...DEFAULT_ADMIN_CONFIG };
@@ -330,6 +345,17 @@ export function serializeAdminConfig(config: AdminConfig): string {
 /** Read the admin config from the KV mirror. Cheap enough for the hot path (a single KV get). */
 export async function readAdminConfig(env: Cloudflare.Env): Promise<AdminConfig> {
   return parseAdminConfig(await env.BLUEPRINTS.get(ADMIN_CONFIG_KEY));
+}
+
+/** Resolve the effective role while preserving environment-admin compatibility. */
+export function resolveAdminRole(username: string, envAdmins: string[], config: Pick<AdminConfig, 'admins' | 'owner' | 'userRoles'>): AdminRole | null {
+  if (!username) return null;
+  const owner = config.owner || envAdmins[0];
+  if (owner === username) return "owner";
+  const explicit = config.userRoles?.[username];
+  if (explicit && explicit !== "owner") return explicit;
+  if ((config.admins ?? []).includes(username) || envAdmins.includes(username)) return "admin";
+  return null;
 }
 
 // --- Resource-disable helpers ---

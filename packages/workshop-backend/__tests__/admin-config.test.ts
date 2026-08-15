@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_ADMIN_CONFIG, defaultOutputFormatId, parseAdminConfig, reorderFormats, resolveFormatOutput, sanitizeOutputOverrides, serializeAdminConfig } from "../src/admin-config.js";
+import { DEFAULT_ADMIN_CONFIG, defaultOutputFormatId, parseAdminConfig, reorderFormats, resolveAdminRole, resolveFormatOutput, sanitizeOutputOverrides, serializeAdminConfig } from "../src/admin-config.js";
 
 describe("parseAdminConfig", () => {
   it("backfills fields missing from a config persisted before they existed", () => {
@@ -115,5 +115,29 @@ describe("admin config site logo", () => {
     let config = parseAdminConfig('{"siteLogoConfigured":true}');
     expect(config.siteLogoConfigured).toBe(true);
     expect(parseAdminConfig(serializeAdminConfig(config))).toEqual(config);
+  });
+});
+
+describe("admin roles", () => {
+  it("keeps the first environment admin as owner for backwards compatibility", () => {
+    let config = { admins: ["configured-admin"], owner: undefined, userRoles: {} };
+
+    expect(resolveAdminRole("env-owner", ["env-owner", "env-admin"], config)).toBe("owner");
+    expect(resolveAdminRole("env-admin", ["env-owner", "env-admin"], config)).toBe("admin");
+    expect(resolveAdminRole("configured-admin", ["env-owner"], config)).toBe("admin");
+    expect(resolveAdminRole("member", ["env-owner"], config)).toBeNull();
+  });
+
+  it("honors explicit support and owner assignments", () => {
+    let config = {
+      admins: ["legacy-admin"],
+      owner: "named-owner",
+      userRoles: { "support-agent": "support", "legacy-admin": "support" } as const,
+    };
+
+    expect(resolveAdminRole("named-owner", ["env-admin"], config)).toBe("owner");
+    expect(resolveAdminRole("support-agent", ["env-admin"], config)).toBe("support");
+    expect(resolveAdminRole("legacy-admin", ["env-admin"], config)).toBe("support");
+    expect(resolveAdminRole("env-admin", ["env-admin"], config)).toBe("admin");
   });
 });

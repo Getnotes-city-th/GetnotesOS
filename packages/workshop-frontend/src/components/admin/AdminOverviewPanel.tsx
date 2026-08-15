@@ -13,10 +13,12 @@ export default function AdminOverviewPanel({ admin }: { admin: RpcStub<AdminApi>
   const [settings, setSettings] = useState<AdminSettingsView | null>(null)
   const [events, setEvents] = useState<AdminAuditEvent[]>([])
   const [loading, setLoading] = useState(true)
+  const [health, setHealth] = useState<'loading' | 'healthy' | 'degraded'>('loading')
 
   const loadOverview = async () => {
     try {
       setLoading(true)
+      setHealth('loading')
       const [nextUsers, nextSettings, nextEvents] = await Promise.all([
         admin.listUsers(),
         admin.getSettings(),
@@ -25,7 +27,9 @@ export default function AdminOverviewPanel({ admin }: { admin: RpcStub<AdminApi>
       setUsers(nextUsers)
       setSettings(nextSettings)
       setEvents(nextEvents)
+      setHealth('healthy')
     } catch (err) {
+      setHealth('degraded')
       toasts.add({
         title: language === 'th' ? 'ไม่สามารถโหลดภาพรวมระบบได้' : err instanceof Error ? err.message : 'Failed to load dashboard',
         variant: 'error',
@@ -48,8 +52,9 @@ export default function AdminOverviewPanel({ admin }: { admin: RpcStub<AdminApi>
       { label: language === 'th' ? 'บัญชีถูกระงับ' : 'Suspended', value: users.filter((user) => user.suspended).length, icon: WarningCircle, tone: 'danger' },
       { label: language === 'th' ? 'ตัวเชื่อมต่อเปิดใช้' : 'Active connectors', value: enabledConnectors, icon: PlugsConnected, tone: 'success' },
       { label: language === 'th' ? 'รูปแบบผลงาน' : 'Active formats', value: enabledFormats, icon: CheckCircle, tone: 'brand' },
+      { label: language === 'th' ? 'สถานะระบบ' : 'System status', value: health === 'healthy' ? (language === 'th' ? 'ปกติ' : 'Healthy') : health === 'degraded' ? (language === 'th' ? 'ผิดปกติ' : 'Degraded') : '—', icon: health === 'healthy' ? CheckCircle : WarningCircle, tone: health === 'healthy' ? 'success' : 'warning' },
     ]
-  }, [language, settings, users])
+  }, [health, language, settings, users])
 
   const toneClasses: Record<string, string> = {
     brand: 'bg-kumo-tint text-kumo-brand',
@@ -75,7 +80,7 @@ export default function AdminOverviewPanel({ admin }: { admin: RpcStub<AdminApi>
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {metrics.map((metric) => {
           const Icon = metric.icon
           return (

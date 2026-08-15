@@ -352,6 +352,9 @@ export const createAuthError = authErrors.create;
 /** Reads the machine-readable code from an authentication failure. */
 export const getAuthErrorCode = authErrors.getCode;
 
+/** Deployment role used by the admin console. */
+export type AdminRole = "owner" | "admin" | "support";
+
 /** Top-level API exposed to the user after they have authenticated. */
 export interface AuthenticatedApi extends RpcTarget {
   /** Get profile info for the user who is logged in. */
@@ -697,6 +700,9 @@ export interface AuthenticatedApi extends RpcTarget {
    */
   amIAdmin(): Promise<boolean>;
 
+  /** The current user's deployment role, or null when they are not an admin. */
+  getAdminRole(): Promise<AdminRole | null>;
+
   /**
    * Returns a capability for managing deployment-wide admin settings, or null when the caller is not
    * an admin. The access check happens once here, so the returned stub's methods need no per-call
@@ -1023,6 +1029,9 @@ export interface AdminApi {
   /** Grant or revoke deployment admin rights for a user. */
   setUserAdmin(username: string, isAdmin: boolean): Promise<void>;
 
+  /** Assign a deployment role. Owner is reserved for the deployment owner. */
+  setUserRole(username: string, role: AdminRole | null): Promise<void>;
+
   /** Suspend or unsuspend a user account. Suspended users cannot log in. */
   setUserSuspended(username: string, suspended: boolean): Promise<void>;
 
@@ -1048,6 +1057,8 @@ export type AdminUserSummary = {
   lastLoginAt?: string;
   /** Whether the user has deployment admin rights. */
   isAdmin: boolean;
+  /** Effective deployment role, or null for a regular user. */
+  role: AdminRole | null;
   /** Whether the user is currently suspended from logging in. */
   suspended: boolean;
 };

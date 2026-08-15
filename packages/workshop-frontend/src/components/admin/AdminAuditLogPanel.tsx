@@ -60,6 +60,8 @@ export function auditDetailLabel(detail: string | undefined, language: string): 
     reset: 'คืนค่าเริ่มต้น',
     cleared: 'ล้างข้อมูล',
     admin: 'แอดมิน',
+    support: 'ซัพพอร์ต',
+    owner: 'เจ้าของระบบ',
     user: 'ผู้ใช้ทั่วไป',
     suspended: 'ระงับบัญชี',
     active: 'ใช้งานปกติ',

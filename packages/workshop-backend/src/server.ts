@@ -1,7 +1,7 @@
 import { RpcStub, RpcTarget, newHttpBatchRpcResponse, newWebSocketRpcSession, RpcSessionOptions } from "capnweb";
 import { validateRpc } from "capnweb-validate";
 import type { JWTPayload } from "jose";
-import { PublicApi, AuthenticatedApi, Overseer, GadgetMetadataWithTimestamps, AiChatAuthorInfo, AiModelConfig, AiGatewayInfo, AiModelProvider, ConnectedAccountsSubscriber, ConnectedAccountsFilter, GatekeeperVendorFilter, ObserverConfigCallback, BlueprintLibrarySummary, BlueprintPublicInfo, BlueprintUserSummary, BlueprintBindingAssignment, AgentSpawnerConfig, WorkpieceId, BLUEPRINT_SCREENSHOT_PATH_PREFIX, BLUEPRINT_SCREENSHOT_R2_PREFIX, blueprintScreenshotUrl, ServerConfig, CloudflareUsageInfo, CloudflareAccountOption, LoginAttempt, GatekeeperAppInfo, AdminApi, GatekeeperVendorInfo, OutputFormatOffer, ListOutputsResult, createOpenGadgetError, getOpenGadgetErrorCode, OPEN_GADGET_ERROR_CODES, AUTH_ERROR_CODES, createAuthError } from '@gadgets/workshop-shared/api';
+import { AdminRole, PublicApi, AuthenticatedApi, Overseer, GadgetMetadataWithTimestamps, AiChatAuthorInfo, AiModelConfig, AiGatewayInfo, AiModelProvider, ConnectedAccountsSubscriber, ConnectedAccountsFilter, GatekeeperVendorFilter, ObserverConfigCallback, BlueprintLibrarySummary, BlueprintPublicInfo, BlueprintUserSummary, BlueprintBindingAssignment, AgentSpawnerConfig, WorkpieceId, BLUEPRINT_SCREENSHOT_PATH_PREFIX, BLUEPRINT_SCREENSHOT_R2_PREFIX, blueprintScreenshotUrl, ServerConfig, CloudflareUsageInfo, CloudflareAccountOption, LoginAttempt, GatekeeperAppInfo, AdminApi, GatekeeperVendorInfo, OutputFormatOffer, ListOutputsResult, createOpenGadgetError, getOpenGadgetErrorCode, OPEN_GADGET_ERROR_CODES, AUTH_ERROR_CODES, createAuthError } from '@gadgets/workshop-shared/api';
 import type { UiFeatureFlags } from "@gadgets/workshop-shared/feature-flags";
 import { getServerConfig } from "./deployment-config.js";
 import { isPasswordAuthEnabled, getAuthGatekeeperAllowlist } from "./auth/config.js";
@@ -9,7 +9,7 @@ import { getAuthVendorBinding } from "./auth/auth-vendors.js";
 import { getUsageInfo } from "./ai-gateway-billing/limits/usage-checker.js";
 import { listConnectedAccounts, selectAccount } from "./ai-gateway-billing/cloudflare/connection-service.js";
 import { PendingLogin, LoginConnectCallbackImpl } from "./auth/login-flow.js";
-import { deploymentOutputForBlueprint, listFormatOffers, readAdminConfig } from "./admin-config.js";
+import { deploymentOutputForBlueprint, listFormatOffers, readAdminConfig, resolveAdminRole } from "./admin-config.js";
 
 // Re-export the optional-feature Durable Objects + entrypoints so they can be bound in wrangler.
 export { PendingLogin, LoginConnectCallbackImpl };
@@ -97,30 +97,32 @@ class AuthenticatedApiImpl extends RpcTarget implements AuthenticatedApi {
     return wrapDoStubForTelemetry(this.users.get(this.#userId));
   }
 
-  #isAdmin(config?: { admins?: string[] }): boolean {
-    let name = this.#userId.name;
-    if (!name) return false;
-
+  #envAdminList(): string[] {
     let admins: unknown = this.env.ADMINS;
-    let adminList: string[] = [];
-
-    if (admins) {
-      if (typeof admins === "string") {
-        try {
-          adminList = JSON.parse(admins);
-        } catch {
-          adminList = [admins];
-        }
-      } else if (Array.isArray(admins)) {
-        adminList = admins as string[];
+    if (!admins) return [];
+    if (typeof admins === "string") {
+      try {
+        let parsed = JSON.parse(admins);
+        return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [admins];
+      } catch {
+        return [admins];
       }
     }
+    return Array.isArray(admins) ? admins.filter((v): v is string => typeof v === "string") : [];
+  }
 
-    if (config?.admins) {
-      adminList = [...adminList, ...config.admins];
-    }
+  #adminRole(config?: { admins?: string[]; owner?: string; userRoles?: Record<string, AdminRole> }): AdminRole | null {
+    let name = this.#userId.name;
+    if (!name) return null;
+    return resolveAdminRole(name, this.#envAdminList(), {
+      admins: config?.admins,
+      owner: config?.owner,
+      userRoles: config?.userRoles,
+    });
+  }
 
-    return adminList.includes(name);
+  #isAdmin(config?: { admins?: string[]; owner?: string; userRoles?: Record<string, AdminRole> }): boolean {
+    return this.#adminRole(config) !== null;
   }
 
   whoami(): Promise<AiChatAuthorInfo> {
@@ -599,16 +601,21 @@ class AuthenticatedApiImpl extends RpcTarget implements AuthenticatedApi {
     return this.#isAdmin(config);
   }
 
+  async getAdminRole(): Promise<AdminRole | null> {
+    return this.#adminRole(await readAdminConfig(this.env));
+  }
+
   async getAdminApi(): Promise<RpcStub<AdminApi> | null> {
     let name = this.#userId.name;
     if (!name) return null;
     let config = await readAdminConfig(this.env);
-    if (!this.#isAdmin(config)) return null;
+    let adminRole = this.#adminRole(config);
+    if (!adminRole) return null;
     // Forwarded to gatekeepers when listing the resource catalog so RBAC-gated ones still surface for this admin.
     let adminUserId = name;
     // @ts-expect-error Cap'n Web RPC stubs and native RPC targets are compatible but the type
     //     system doesn't know this.
-    return new AdminApiImpl(this.adminSettings.getByName(""), adminUserId);
+    return new AdminApiImpl(this.adminSettings.getByName(""), adminUserId, adminRole);
   }
 }
 

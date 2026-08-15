@@ -56,7 +56,7 @@ const resourceKey = (vendorId: string, urlPattern: string) => `${vendorId}\u0000
 
 export default function AdminPage() {
   const { language } = useI18n();
-  const { authenticatedApi, isAdmin } = useAuthenticatedApi()
+  const { authenticatedApi, isAdmin, adminRole } = useAuthenticatedApi()
   const toasts = useKumoToastManager()
   useDocumentTitle(language === 'th' ? 'ผู้ดูแลระบบ' : 'Admin')
 
@@ -109,6 +109,7 @@ export default function AdminPage() {
 
   // Promoted output formats, in menu order (see AdminFormatsPanel).
   const [formats, setFormats] = useState<AdminFormat[]>([])
+  const readOnly = adminRole === 'support'
 
   // Populate all editor state from a freshly-fetched settings view.
   const applySettings = (view: Awaited<ReturnType<RpcStub<AdminApi>['getSettings']>>) => {
@@ -424,14 +425,22 @@ export default function AdminPage() {
         onValueChange={setActiveTab}
         tabs={[
           { value: 'overview', label: language === "th" ? "ภาพรวม" : "Overview" },
-          { value: 'general', label: language === "th" ? "ทั่วไป" : "General" },
           { value: 'users', label: language === "th" ? "จัดการผู้ใช้" : "Users" },
           { value: 'audit', label: language === "th" ? "ประวัติการทำรายการ" : "Audit log" },
-          { value: 'gatekeepers', label: language === "th" ? "ตัวเชื่อมต่อ" : "Gatekeepers" },
-          { value: 'formats', label: language === "th" ? "รูปแบบผลงาน" : "Formats" },
-          { value: 'access', label: language === "th" ? "การเข้าถึงและสิทธิ์" : "Access" },
+          ...(!readOnly ? [
+            { value: 'general', label: language === "th" ? "ทั่วไป" : "General" },
+            { value: 'gatekeepers', label: language === "th" ? "ตัวเชื่อมต่อ" : "Gatekeepers" },
+            { value: 'formats', label: language === "th" ? "รูปแบบผลงาน" : "Formats" },
+            { value: 'access', label: language === "th" ? "การเข้าถึงและสิทธิ์" : "Access" },
+          ] : []),
         ]}
       />
+
+      {readOnly && (
+        <div className="rounded-lg border border-kumo-warning/30 bg-kumo-warning-tint px-4 py-3 text-sm text-kumo-warning">
+          {language === 'th' ? 'บทบาท Support เป็นแบบอ่านอย่างเดียว ไม่สามารถแก้ไขการตั้งค่าหรือจัดการบัญชีได้' : 'Support role is read-only and cannot change settings or manage accounts.'}
+        </div>
+      )}
 
       {/* Deployment overview */}
       {activeTab === 'overview' && admin && (
@@ -440,7 +449,7 @@ export default function AdminPage() {
 
       {/* Users management */}
       {activeTab === 'users' && admin && (
-        <AdminUsersPanel admin={admin.api} />
+        <AdminUsersPanel admin={admin.api} canManage={!readOnly} />
       )}
 
       {/* Administrative audit trail */}

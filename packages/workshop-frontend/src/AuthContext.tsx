@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { RpcStub } from 'capnweb'
-import { AuthenticatedApi, AiChatAuthorInfo } from '@gadgets/workshop-shared/api'
+import { AdminRole, AuthenticatedApi, AiChatAuthorInfo } from '@gadgets/workshop-shared/api'
 
 interface AuthContextType {
   authenticatedApi: RpcStub<AuthenticatedApi>
@@ -9,6 +9,8 @@ interface AuthContextType {
   currentUser: AiChatAuthorInfo | null
   /** Whether the current user is a deployment admin. False while loading / for non-admins. */
   isAdmin: boolean
+  /** Effective deployment role, null while loading or for non-admins. */
+  adminRole: AdminRole | null
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -25,6 +27,7 @@ export function AuthProvider({ children, authenticatedApi, onLogout }: AuthProvi
   }
   const [currentUser, setCurrentUser] = useState<AiChatAuthorInfo | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [adminRole, setAdminRole] = useState<AdminRole | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -36,14 +39,17 @@ export function AuthProvider({ children, authenticatedApi, onLogout }: AuthProvi
 
   useEffect(() => {
     let cancelled = false
-    authenticatedApi.amIAdmin().then((admin) => {
-      if (!cancelled) setIsAdmin(admin)
+    authenticatedApi.getAdminRole().then((role) => {
+      if (!cancelled) {
+        setAdminRole(role)
+        setIsAdmin(role !== null)
+      }
     }).catch(() => {})
     return () => { cancelled = true }
   }, [authenticatedApi])
 
   return (
-    <AuthContext.Provider value={{ authenticatedApi, logout: onLogout, currentUser, isAdmin }}>
+    <AuthContext.Provider value={{ authenticatedApi, logout: onLogout, currentUser, isAdmin, adminRole }}>
       {children}
     </AuthContext.Provider>
   )

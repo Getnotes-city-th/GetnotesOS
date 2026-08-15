@@ -1,4 +1,4 @@
-import { AdminApi, AdminAuditEvent, AdminFormat, AdminFormatPatch, AdminResourceVendor, AdminSettingsView, AdminUserSummary, AmbientGatekeeperMode, BannerColor, BlueprintPublicInfo, MAX_ANNOUNCEMENT_LENGTH, MAX_INSTANCE_INSTRUCTIONS_LENGTH, MAX_SITE_NAME_LENGTH, isAmbientGatekeeperMode, isBannerColor, isHexColor } from '@gadgets/workshop-shared/api';
+import { AdminApi, AdminAuditEvent, AdminFormat, AdminFormatPatch, AdminResourceVendor, AdminRole, AdminSettingsView, AdminUserSummary, AmbientGatekeeperMode, BannerColor, BlueprintPublicInfo, MAX_ANNOUNCEMENT_LENGTH, MAX_INSTANCE_INSTRUCTIONS_LENGTH, MAX_SITE_NAME_LENGTH, isAmbientGatekeeperMode, isBannerColor, isHexColor } from '@gadgets/workshop-shared/api';
 import { GatekeeperVendor } from '@gadgets/workshop-shared/gatekeeper';
 import { DurableObject } from 'cloudflare:workers';
 import { RpcTarget } from 'capnweb';
@@ -6,7 +6,7 @@ import { validateRpc } from 'capnweb-validate';
 import { collection, createTypedStorage } from '@gadgets/typed-storage';
 import { createWorkshopLogger } from "./observability";
 import { ADMIN_CONFIG_KEY, FEATURED_BLUEPRINTS_KEY, isReservedBlueprintKey, parseBlueprintKvRecord, readBlueprintKvRecord, sanitizeBlueprintOutput, serializeFeaturedBlueprints } from './blueprint-archive.js';
-import { AdminConfig, DEFAULT_ADMIN_CONFIG, FormatCuration, MAX_AGENT_HINT, defaultOutputFormatId, listPromotedFormats, reorderFormats, sanitizeOutputOverrides, serializeAdminConfig } from './admin-config.js';
+import { AdminConfig, DEFAULT_ADMIN_CONFIG, FormatCuration, MAX_AGENT_HINT, defaultOutputFormatId, listPromotedFormats, reorderFormats, resolveAdminRole, sanitizeOutputOverrides, serializeAdminConfig } from './admin-config.js';
 import { SITE_LOGO_R2_KEY, siteLogoImage, validateSiteLogo } from './site-logo.js';
 import { ambientGatekeeperMode, DEFAULT_AMBIENT_GATEKEEPER_MODE } from './provisioning-policy.js';
 import { buildGatekeeperVendorMap } from './auth/auth-vendors.js';
@@ -639,13 +639,40 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
     }
   }
 
+  #envAdminList(): string[] {
+    let admins: unknown = this.env.ADMINS;
+    if (!admins) return [];
+    if (typeof admins === 'string') {
+      try {
+        let parsed = JSON.parse(admins);
+        return Array.isArray(parsed)
+          ? parsed.filter((value): value is string => typeof value === 'string')
+          : [admins];
+      } catch {
+        return [admins];
+      }
+    }
+    return Array.isArray(admins)
+      ? admins.filter((value): value is string => typeof value === 'string')
+      : [];
+  }
+
+  getUserRole(username: string): AdminRole | null {
+    return resolveAdminRole(username, this.#envAdminList(), this.#config());
+  }
+
   /**
    * List all registered users on this deployment.
    */
   async listUsers(): Promise<AdminUserSummary[]> {
-    let envAdmins = Array.isArray(this.env.ADMINS) ? (this.env.ADMINS as string[]) : [];
-    let configAdmins = this.storage.adminConfig.get().admins ?? [];
-    let allAdmins = new Set([...envAdmins, ...configAdmins]);
+    let envAdmins = this.#envAdminList();
+    let config = this.#config();
+    let configAdmins = config.admins ?? [];
+    let allAdmins = new Set([
+      ...envAdmins,
+      ...configAdmins,
+      ...(config.owner ? [config.owner] : []),
+    ]);
 
     // Ensure known envAdmins are in the user registry
     for (let admin of allAdmins) {
@@ -665,17 +692,27 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
       displayName: r.displayName || r.username,
       createdAt: (r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt)).toISOString(),
       lastLoginAt: r.lastLoginAt ? (r.lastLoginAt instanceof Date ? r.lastLoginAt : new Date(r.lastLoginAt)).toISOString() : undefined,
-      isAdmin: allAdmins.has(r.username) || !!r.isAdmin,
+      role: this.getUserRole(r.username) ?? (r.isAdmin ? 'admin' : null),
+      isAdmin: allAdmins.has(r.username) || !!r.isAdmin || !!this.getUserRole(r.username),
       suspended: !!r.suspended,
     }));
   }
 
   #adminUsernames(): Set<string> {
-    let envAdmins = Array.isArray(this.env.ADMINS) ? (this.env.ADMINS as string[]) : [];
-    let configAdmins = this.storage.adminConfig.get().admins ?? [];
-    let admins = new Set([...envAdmins, ...configAdmins]);
+    let admins = new Set<string>();
+    let envAdmins = this.#envAdminList();
+    let config = this.#config();
+    for (let username of [
+      ...envAdmins,
+      ...(config.admins ?? []),
+      ...(config.owner ? [config.owner] : []),
+      ...Object.keys(config.userRoles ?? {}),
+    ]) {
+      let role = resolveAdminRole(username, envAdmins, config);
+      if (role === 'owner' || role === 'admin') admins.add(username);
+    }
     for (let user of this.storage.users.list()) {
-      if (user.isAdmin) admins.add(user.username);
+      if (user.isAdmin && this.getUserRole(user.username) !== 'support') admins.add(user.username);
     }
     return admins;
   }
@@ -684,20 +721,34 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
    * Grant or revoke deployment admin rights for a user.
    */
   async setUserAdmin(username: string, isAdmin: boolean): Promise<void> {
-    if (!isAdmin && this.#adminUsernames().size <= 1) {
+    await this.setUserRole(username, isAdmin ? 'admin' : null);
+  }
+
+  /** Assign a role while keeping environment admins and the owner protected. */
+  async setUserRole(username: string, role: AdminRole | null): Promise<void> {
+    const currentRole = this.getUserRole(username);
+    if (currentRole === 'owner' && role !== 'owner') {
+      throw new Error('Cannot change the deployment owner role.');
+    }
+    if (role === 'owner') {
+      throw new Error('The deployment owner is configured by the environment.');
+    }
+    if (role === null && currentRole && this.#adminUsernames().size <= 1) {
       throw new Error('Cannot revoke the last administrator.');
     }
+
+    const config = this.#config();
+    const roles = { ...(config.userRoles ?? {}) };
+    if (role) roles[username] = role;
+    else delete roles[username];
+
+    const admins = new Set(config.admins ?? []);
+    if (role === 'admin') admins.add(username);
+    else admins.delete(username);
+
     let user = this.storage.users.get(username);
-    if (user) {
-      this.storage.users.put({ ...user, isAdmin });
-    }
-    let admins = new Set(this.storage.adminConfig.get().admins ?? []);
-    if (isAdmin) {
-      admins.add(username);
-    } else {
-      admins.delete(username);
-    }
-    await this.updateAdminConfig({ admins: Array.from(admins) });
+    if (user) this.storage.users.put({ ...user, isAdmin: role === 'admin' });
+    await this.updateAdminConfig({ admins: Array.from(admins), userRoles: roles });
   }
 
   /**
@@ -724,13 +775,18 @@ export class AdminSettings extends DurableObject<Cloudflare.Env> {
    * Delete a user account.
    */
   async deleteUser(username: string): Promise<void> {
+    if (this.getUserRole(username) === 'owner') {
+      throw new Error('Cannot delete the deployment owner.');
+    }
     if (this.#adminUsernames().has(username) && this.#adminUsernames().size <= 1) {
       throw new Error('Cannot delete the last administrator.');
     }
     this.storage.users.delete(username);
     let admins = new Set(this.storage.adminConfig.get().admins ?? []);
     admins.delete(username);
-    await this.updateAdminConfig({ admins: Array.from(admins) });
+    let roles = { ...(this.#config().userRoles ?? {}) };
+    delete roles[username];
+    await this.updateAdminConfig({ admins: Array.from(admins), userRoles: roles });
     let userStub = this.users.get(this.users.idFromName(username));
     await userStub.deleteAccount();
   }
@@ -749,8 +805,17 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
    * `adminUserId` is the requesting admin's identity, forwarded to gatekeepers when listing the
    * resource catalog (some are RBAC-gated per user). It's plain data — not a user-DO dependency.
    */
-  constructor(private admin: DurableObjectStub<AdminSettings>, private adminUserId: string) {
+  constructor(private admin: DurableObjectStub<AdminSettings>, private adminUserId: string,
+      private role: AdminRole) {
     super();
+  }
+
+  private requireWrite(): void {
+    if (this.role === 'support') throw new Error('Support role is read-only.');
+  }
+
+  private requireOwner(): void {
+    if (this.role !== 'owner') throw new Error('Only the deployment owner can perform this action.');
   }
 
   private audit(action: string, target?: string, detail?: string): Promise<void> {
@@ -762,11 +827,13 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setSignupsEnabled(enabled: boolean): Promise<void> {
+    this.requireWrite();
     await this.admin.updateAdminConfig({ signupsEnabled: enabled });
     await this.audit('settings.signups', undefined, enabled ? 'enabled' : 'disabled');
   }
 
   async setSiteName(name: string): Promise<void> {
+    this.requireWrite();
     if (name.length > MAX_SITE_NAME_LENGTH) {
       throw new Error(`Site name too long (max ${MAX_SITE_NAME_LENGTH} characters).`);
     }
@@ -775,6 +842,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setSiteLogo(data: Uint8Array | null): Promise<AdminSettingsView['siteLogo']> {
+    this.requireWrite();
     if (data !== null) validateSiteLogo(data);
     const result = siteLogoImage(await this.admin.setSiteLogo(data));
     await this.audit('settings.logo', undefined, data === null ? 'reset' : 'updated');
@@ -782,6 +850,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setInstanceInstructions(text: string): Promise<void> {
+    this.requireWrite();
     if (text.length > MAX_INSTANCE_INSTRUCTIONS_LENGTH) {
       throw new Error(`Instructions too long (max ${MAX_INSTANCE_INSTRUCTIONS_LENGTH} characters).`);
     }
@@ -790,11 +859,13 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   setResourceEnabled(vendorId: string, urlPattern: string, enabled: boolean): Promise<void> {
+    this.requireWrite();
     return this.admin.setResourceEnabled(vendorId, urlPattern, enabled)
       .then(() => this.audit('connector.resource', `${vendorId}:${urlPattern}`, enabled ? 'enabled' : 'disabled'));
   }
 
   setGatekeeperMode(vendorId: string, mode: AmbientGatekeeperMode): Promise<void> {
+    this.requireWrite();
     if (!isAmbientGatekeeperMode(mode)) {
       throw new Error(`Invalid gatekeeper mode: ${mode}`);
     }
@@ -803,6 +874,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setAnnouncement(text: string): Promise<void> {
+    this.requireWrite();
     if (text.length > MAX_ANNOUNCEMENT_LENGTH) {
       throw new Error(`Announcement too long (max ${MAX_ANNOUNCEMENT_LENGTH} characters).`);
     }
@@ -811,6 +883,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setBanner(text: string, color: BannerColor): Promise<void> {
+    this.requireWrite();
     if (text.length > MAX_ANNOUNCEMENT_LENGTH) {
       throw new Error(`Banner too long (max ${MAX_ANNOUNCEMENT_LENGTH} characters).`);
     }
@@ -822,6 +895,7 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setAccentColor(color: string): Promise<void> {
+    this.requireWrite();
     if (color !== "" && !isHexColor(color)) {
       throw new Error(`Invalid accent color: ${color}`);
     }
@@ -834,26 +908,31 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   setBlueprintFeatured(blueprintId: string, featured: boolean): Promise<void> {
+    this.requireWrite();
     return this.admin.setBlueprintFeatured(blueprintId, featured)
       .then(() => this.audit('blueprint.featured', blueprintId, featured ? 'enabled' : 'disabled'));
   }
 
   promoteFormat(blueprintId: string): Promise<void> {
+    this.requireWrite();
     return this.admin.promoteFormat(blueprintId)
       .then(() => this.audit('format.promote', blueprintId));
   }
 
   removeFormat(blueprintId: string): Promise<void> {
+    this.requireWrite();
     return this.admin.removeFormat(blueprintId)
       .then(() => this.audit('format.remove', blueprintId));
   }
 
   updateFormat(blueprintId: string, patch: AdminFormatPatch): Promise<void> {
+    this.requireWrite();
     return this.admin.updateFormat(blueprintId, patch)
       .then(() => this.audit('format.update', blueprintId));
   }
 
   setFormatOrder(blueprintIds: string[]): Promise<void> {
+    this.requireWrite();
     return this.admin.setFormatOrder(blueprintIds)
       .then(() => this.audit('format.reorder', undefined, `${blueprintIds.length} formats`));
   }
@@ -863,21 +942,32 @@ export class AdminApiImpl extends RpcTarget implements AdminApi {
   }
 
   async setUserAdmin(username: string, isAdmin: boolean): Promise<void> {
+    this.requireWrite();
     await this.admin.setUserAdmin(username, isAdmin);
     await this.audit('user.role', username, isAdmin ? 'admin' : 'user');
   }
 
+  async setUserRole(username: string, role: AdminRole | null): Promise<void> {
+    this.requireWrite();
+    if (role === 'owner') this.requireOwner();
+    await this.admin.setUserRole(username, role);
+    await this.audit('user.role', username, role ?? 'user');
+  }
+
   async setUserSuspended(username: string, suspended: boolean): Promise<void> {
+    this.requireWrite();
     await this.admin.setUserSuspended(username, suspended);
     await this.audit('user.suspension', username, suspended ? 'suspended' : 'active');
   }
 
   async resetUserPassword(username: string, newPasswordHash: Uint8Array): Promise<void> {
+    this.requireWrite();
     await this.admin.resetUserPassword(username, newPasswordHash);
     await this.audit('user.passwordReset', username);
   }
 
   async deleteUser(username: string): Promise<void> {
+    this.requireWrite();
     await this.admin.deleteUser(username);
     await this.audit('user.delete', username);
   }

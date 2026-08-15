@@ -15,20 +15,26 @@ import {
   DotsThreeVertical,
   LockKey,
 } from '@phosphor-icons/react'
-import { AdminApi, AdminUserSummary } from '@gadgets/workshop-shared/api'
+import { AdminApi, AdminRole, AdminUserSummary } from '@gadgets/workshop-shared/api'
 import { useI18n } from '../../i18n/I18nContext'
 import { hashPassword } from '../../passwordHash'
 import { MENU_CONTENT } from '../menuStyles'
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog'
 
-export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> }) {
+type PendingUserAction = {
+  kind: 'suspend' | 'role'
+  user: AdminUserSummary
+  role?: AdminRole | null
+}
+
+export default function AdminUsersPanel({ admin, canManage = true }: { admin: RpcStub<AdminApi>; canManage?: boolean }) {
   const { language } = useI18n()
   const toasts = useKumoToastManager()
 
   const [users, setUsers] = useState<AdminUserSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'owner' | 'admin' | 'support' | 'user'>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all')
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'joined'>('recent')
   const [busyUser, setBusyUser] = useState<string | null>(null)
@@ -42,6 +48,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
   // Delete modal state
   const [deleteModalUser, setDeleteModalUser] = useState<AdminUserSummary | null>(null)
   const [deletingUser, setDeletingUser] = useState(false)
+  const [pendingAction, setPendingAction] = useState<PendingUserAction | null>(null)
 
   const loadUsers = async () => {
     try {
@@ -64,8 +71,10 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
     const q = search.trim().toLowerCase()
     return users
       .filter((u) => {
-        if (roleFilter === 'admin' && !u.isAdmin) return false
-        if (roleFilter === 'user' && u.isAdmin) return false
+        if (roleFilter === 'owner' && u.role !== 'owner') return false
+        if (roleFilter === 'admin' && u.role !== 'admin') return false
+        if (roleFilter === 'support' && u.role !== 'support') return false
+        if (roleFilter === 'user' && u.role !== null) return false
         if (statusFilter === 'active' && u.suspended) return false
         if (statusFilter === 'suspended' && !u.suspended) return false
         if (!q) return true
@@ -82,23 +91,22 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
   const totalAdmins = users.filter((u) => u.isAdmin).length
   const totalSuspended = users.filter((u) => u.suspended).length
 
-  const handleToggleAdmin = async (user: AdminUserSummary) => {
+  const handleSetRole = async (user: AdminUserSummary, role: AdminRole | null) => {
+    if (user.role === role) return
     try {
       setBusyUser(user.username)
-      const nextAdmin = !user.isAdmin
-      await admin.setUserAdmin(user.username, nextAdmin)
-      setUsers((prev) =>
-        prev.map((u) => (u.username === user.username ? { ...u, isAdmin: nextAdmin } : u))
-      )
+      await admin.setUserRole(user.username, role)
+      setUsers((prev) => prev.map((u) => u.username === user.username
+        ? { ...u, role, isAdmin: role !== null }
+        : u))
       toasts.add({
-        title:
-          language === 'th'
-            ? `${nextAdmin ? 'แต่งตั้ง' : 'ยกเลิก'} สิทธิ์ผู้ดูแลระบบของ @${user.username} สำเร็จ`
-            : `${nextAdmin ? 'Granted' : 'Revoked'} admin rights for @${user.username}`,
+        title: language === 'th'
+          ? `เปลี่ยนบทบาท @${user.username} เป็น ${role === 'admin' ? 'แอดมิน' : role === 'support' ? 'ซัพพอร์ต' : 'ผู้ใช้ทั่วไป'} แล้ว`
+          : `Changed @${user.username} to ${role ?? 'User'}`,
         variant: 'success',
       })
     } catch (err) {
-      const message = language === 'th' ? 'ไม่สามารถอัปเดตสิทธิ์ผู้ดูแลระบบได้' : err instanceof Error ? err.message : 'Failed to update admin rights'
+      const message = language === 'th' ? 'ไม่สามารถเปลี่ยนบทบาทผู้ใช้ได้' : err instanceof Error ? err.message : 'Failed to change user role'
       toasts.add({ title: message, variant: 'error' })
     } finally {
       setBusyUser(null)
@@ -126,6 +134,14 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
     } finally {
       setBusyUser(null)
     }
+  }
+
+  const confirmPendingAction = async () => {
+    if (!pendingAction) return
+    const action = pendingAction
+    setPendingAction(null)
+    if (action.kind === 'role') await handleSetRole(action.user, action.role ?? null)
+    else await handleToggleSuspended(action.user)
   }
 
   const handleResetPassword = async () => {
@@ -273,7 +289,9 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
             aria-label={language === 'th' ? 'กรองบทบาท' : 'Filter role'}
           >
             <option value="all">{language === 'th' ? 'ทุกบทบาท' : 'All roles'}</option>
+            <option value="owner">{language === 'th' ? 'เจ้าของระบบ' : 'Owner'}</option>
             <option value="admin">{language === 'th' ? 'แอดมิน' : 'Admins'}</option>
+            <option value="support">{language === 'th' ? 'ซัพพอร์ต' : 'Support'}</option>
             <option value="user">{language === 'th' ? 'ผู้ใช้ทั่วไป' : 'Users'}</option>
           </select>
           <select
@@ -379,17 +397,24 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
 
                       {/* Role Badge */}
                       <td className="px-5 py-3.5">
-                        {user.isAdmin ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-kumo-warning-tint text-kumo-warning border border-kumo-warning/20">
-                            <ShieldCheck size={12} weight="bold" />
-                            {language === 'th' ? 'แอดมิน' : 'Admin'}
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-kumo-tint text-kumo-subtle border border-kumo-line">
-                            <User size={12} />
-                            {language === 'th' ? 'ผู้ใช้ทั่วไป' : 'User'}
-                          </span>
-                        )}
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                          user.role === 'owner'
+                            ? 'bg-kumo-brand/10 text-kumo-brand border-kumo-brand/20'
+                            : user.role === 'admin'
+                              ? 'bg-kumo-warning-tint text-kumo-warning border-kumo-warning/20'
+                              : user.role === 'support'
+                                ? 'bg-kumo-info-tint text-kumo-info border-kumo-info/20'
+                                : 'bg-kumo-tint text-kumo-subtle border-kumo-line'
+                        }`}>
+                          {user.role === 'owner' || user.role === 'admin' ? <ShieldCheck size={12} weight="bold" /> : user.role === 'support' ? <ShieldSlash size={12} /> : <User size={12} />}
+                          {user.role === 'owner'
+                            ? language === 'th' ? 'เจ้าของระบบ' : 'Owner'
+                            : user.role === 'admin'
+                              ? language === 'th' ? 'แอดมิน' : 'Admin'
+                              : user.role === 'support'
+                                ? language === 'th' ? 'ซัพพอร์ต' : 'Support'
+                                : language === 'th' ? 'ผู้ใช้ทั่วไป' : 'User'}
+                        </span>
                       </td>
 
                       {/* Status Badge */}
@@ -419,7 +444,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
 
                       {/* Actions Menu */}
                       <td className="px-5 py-3.5 text-right whitespace-nowrap">
-                        <DropdownMenu>
+                        {canManage && user.role !== 'owner' ? <DropdownMenu>
                           <DropdownMenu.Trigger
                             render={(props) => (
                               <Button
@@ -441,30 +466,17 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                             className={MENU_CONTENT}
                             align="end"
                           >
-                            {/* Toggle Admin */}
-                            <DropdownMenu.Item
-                              className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-kumo-default hover:bg-kumo-tint"
-                              onClick={() => handleToggleAdmin(user)}
-                            >
-                              {user.isAdmin ? (
-                                <>
-                                  <ShieldSlash size={14} className="text-kumo-warning" />
-                                  <span>
-                                    {language === 'th'
-                                      ? 'ปลดสิทธิ์ผู้ดูแลระบบ'
-                                      : 'Demote from Admin'}
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldCheck size={14} className="text-kumo-warning" />
-                                  <span>
-                                    {language === 'th'
-                                      ? 'แต่งตั้งเป็นผู้ดูแลระบบ'
-                                      : 'Promote to Admin'}
-                                  </span>
-                                </>
-                              )}
+                            <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-kumo-default hover:bg-kumo-tint" onClick={() => setPendingAction({ kind: 'role', user, role: 'admin' })}>
+                              <ShieldCheck size={14} className="text-kumo-warning" />
+                              <span>{language === 'th' ? 'กำหนดเป็นแอดมิน' : 'Set as Admin'}</span>
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-kumo-default hover:bg-kumo-tint" onClick={() => setPendingAction({ kind: 'role', user, role: 'support' })}>
+                              <ShieldSlash size={14} className="text-kumo-info" />
+                              <span>{language === 'th' ? 'กำหนดเป็นซัพพอร์ต' : 'Set as Support'}</span>
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-kumo-default hover:bg-kumo-tint" onClick={() => setPendingAction({ kind: 'role', user, role: null })}>
+                              <User size={14} className="text-kumo-subtle" />
+                              <span>{language === 'th' ? 'กำหนดเป็นผู้ใช้ทั่วไป' : 'Set as User'}</span>
                             </DropdownMenu.Item>
 
                             {/* Reset Password */}
@@ -483,7 +495,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                             {/* Toggle Suspended */}
                             <DropdownMenu.Item
                               className="flex items-center gap-2 px-3 py-2 text-xs rounded-md cursor-pointer text-kumo-default hover:bg-kumo-tint"
-                              onClick={() => handleToggleSuspended(user)}
+                              onClick={() => setPendingAction({ kind: 'suspend', user })}
                             >
                               {user.suspended ? (
                                 <>
@@ -509,7 +521,7 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
                               <span>{language === 'th' ? 'ลบบัญชีผู้ใช้' : 'Delete Account'}</span>
                             </DropdownMenu.Item>
                           </DropdownMenu.Content>
-                        </DropdownMenu>
+                        </DropdownMenu> : <span className="text-xs text-kumo-subtle">{language === 'th' ? 'ดูอย่างเดียว' : 'View only'}</span>}
                       </td>
                     </tr>
                   )
@@ -519,6 +531,25 @@ export default function AdminUsersPanel({ admin }: { admin: RpcStub<AdminApi> })
           </table>
         </div>
       </div>
+
+      {pendingAction && (
+        <DeleteConfirmationDialog
+          open={!!pendingAction}
+          title={pendingAction.kind === 'suspend'
+            ? pendingAction.user.suspended
+              ? (language === 'th' ? `ปลดระงับ @${pendingAction.user.username}?` : `Unsuspend @${pendingAction.user.username}?`)
+              : (language === 'th' ? `ระงับ @${pendingAction.user.username}?` : `Suspend @${pendingAction.user.username}?`)
+            : (language === 'th' ? `เปลี่ยนบทบาท @${pendingAction.user.username}?` : `Change @${pendingAction.user.username}'s role?`)}
+          description={pendingAction.kind === 'suspend'
+            ? (language === 'th' ? 'ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้ขณะถูกระงับ' : 'A suspended user cannot sign in until the account is restored.')
+            : (language === 'th' ? 'การเปลี่ยนบทบาทจะมีผลกับสิทธิ์การเข้าถึงหน้าแอดมินทันที' : 'The new role changes this user’s admin access immediately.')}
+          confirmLabel={language === 'th' ? 'ยืนยัน' : 'Confirm'}
+          confirmingLabel={language === 'th' ? 'กำลังบันทึก...' : 'Saving...'}
+          isDeleting={!!busyUser}
+          onOpenChange={(open) => { if (!open && !busyUser) setPendingAction(null) }}
+          onConfirm={confirmPendingAction}
+        />
+      )}
 
       {/* Reset Password Modal */}
       {resetModalUser && (
